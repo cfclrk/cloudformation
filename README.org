@@ -1,0 +1,128 @@
+#+NAME: templateFile
+: yaml/iam/iam_roles.yaml
+
+#+NAME: deploymentName
+: cfc
+
+#+NAME: name
+: iam
+
+#+PROPERTY: header-args+ :var templateFile=templateFile
+#+PROPERTY: header-args+ :var deploymentName=deploymentName
+#+PROPERTY: header-args+ :var name=name
+#+PROPERTY: header-args+ :results output
+
+#+NAME: name
+#+begin_src emacs-lisp :var templateFile=templateFile :results value
+  (f-filename templateFile)
+#+end_src
+
+#+NAME: env
+| Env Var            | Value            |
+|--------------------+------------------|
+| AWS_PROFILE        | cloud-infra-prod |
+| AWS_DEFAULT_REGION | us-east-2        |
+
+
+#+begin_src emacs-lisp :var env=env
+  (setenv-file-export-pairs env)
+#+end_src
+
+#+RESULTS:
+
+#+begin_src sh
+  echo $name
+#+end_src
+
+
+
+* Create Stack
+** package
+
+If the template requires packaging. For a list of properties that can be filled
+in by packaging, see the [[https://docs.aws.amazon.com/cli/latest/reference/cloudformation/package.html][package]] command.
+
+#+begin_src sh
+  aws cloudformation package \
+      --template-file template.yaml \
+      --output-template-file serverless-output.yaml \
+      --s3-bucket <<<YOUR BUCKET NAME>>>
+#+end_src
+
+** create
+
+#+begin_src sh templateFile=templateFile
+  aws cloudformation create-stack \
+      --stack-name $deploymentName-$name \
+      --template-body file://$templateFile \
+      --capabilities CAPABILITY_AUTO_EXPAND CAPABILITY_IAM CAPABILITY_NAMED_IAM \
+      --parameters ParameterKey=DeploymentName,ParameterValue=$deploymentName
+#+end_src
+
+* Update Stack
+** Using a change set
+
+Create a change set:
+
+#+begin_src sh
+  aws cloudformation create-change-set \
+      --stack-name $stackName \
+      --template-body file://$templateFile \
+      --change-set-name my-changes
+#+end_src
+
+Describe a change set:
+
+#+begin_src sh
+  aws cloudformation describe-change-set \
+      --change-set-name my-changes \
+      --stack-name $stackName
+#+end_src
+
+Apply a change set:
+
+#+begin_src sh
+  aws cloudformation execute-change-set \
+      --change-set-name my-changes \
+      --stack-name $stackName
+#+end_src
+
+Delete a change set. Does the change set get deleted automatically when it is
+applied?
+
+#+begin_src sh
+  aws cloudformation delete-change-set \
+      --change-set-name my-changes \
+      --stack-name $stackName
+#+end_src
+
+** Update in place
+
+#+begin_src sh
+  aws cloudformation update-stack \
+      --stack-name $deploymentName-$name \
+      --template-body file://$templateFile \
+      --capabilities CAPABILITY_AUTO_EXPAND CAPABILITY_IAM CAPABILITY_NAMED_IAM \
+      --parameters ParameterKey=DeploymentName,ParameterValue=$deploymentName
+#+end_src
+
+* Delete Stack
+
+#+begin_src sh
+  aws cloudformation delete-stack --stack-name $name
+#+end_src
+
+* Get stack logs
+
+#+begin_src sh
+  aws cloudformation describe-stack-events --stack-name $name
+#+end_src
+
+* TODO
+
+Use nested stacks, as is the [[https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/best-practices.html#nested][best practice]].
+
+Force regeneration of all files in =make.el=. This way I can do a =make clean=
+and then a =make=.
+
+* From network_public_private

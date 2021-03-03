@@ -3,16 +3,21 @@
 
 * Overview
 
-See also the AWS documentation for this architecture [[https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Scenario2.html][here]].
-
-[[../../static/img/Network-Public-Private.png]]
-
 #+begin_src yaml
 AWSTemplateFormatVersion: 2010-09-09
 Description: >
-  VPC with two public Subnets and two private Subnets. The public Subnet
-  includes a NAT Gateway which allows outbound traffic from the private Subnets.
+  VPC with two public Subnets and two private Subnets. Each public Subnet
+  includes a NAT Gateway, which allows outbound traffic from the private
+  Subnets.
 #+end_src
+
+  This document creates a "standard" AWS network. AWS documents this
+  architecture [[https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Scenario2.html][here]]. This is the go-to VPC structure, and is usually considered
+  the starting place for any AWS network design. For example, when using the AWS
+  CDK, this is the infrastrucure that is created when you use the [[https://docs.aws.amazon.com/cdk/api/latest/docs/@aws-cdk_aws-ec2.Vpc.html][VPC construct]]
+  with its default options.
+
+  [[../../static/img/Network-Public-Private.png]]
 
 * Parameters
 
@@ -172,6 +177,11 @@ Resources:
 
 ** Private Subnets
 
+   The *only* difference between a "public" Subnet and "private" Subnet is that
+   public Subntes have a route to an Internet Gateway. There is no quality of a
+   Subnet /itself/ that makes it public or private; it's only a matter of what
+   routes are in the Route Table that the Subnet is associated with.
+
 #+begin_src yaml
   PrivateSubnet1:
     Type: AWS::EC2::Subnet
@@ -219,17 +229,19 @@ Resources:
     Properties:
       Domain: vpc
 
-  NatGateway2EIP:
-    Type: AWS::EC2::EIP
-    DependsOn: InternetGatewayAttachment
-    Properties:
-      Domain: vpc
-
   NatGateway1:
     Type: AWS::EC2::NatGateway
     Properties:
       AllocationId: !GetAtt NatGateway1EIP.AllocationId
       SubnetId: !Ref PublicSubnet1
+#+end_src
+
+#+begin_src yaml
+  NatGateway2EIP:
+    Type: AWS::EC2::EIP
+    DependsOn: InternetGatewayAttachment
+    Properties:
+      Domain: vpc
 
   NatGateway2:
     Type: AWS::EC2::NatGateway

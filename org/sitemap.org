@@ -3,6 +3,8 @@
 - [[file:home.org][home]]
 - [[file:params.org][params]]
 - [[file:setup.org][setup]]
+- alb
+  - [[file:alb/alb_lambda_private.org][ALB with Lambda Function (Private Subnets)]]
 - iam
   - [[file:iam/iam_roles.org][Common IAM Roles]]
 - network

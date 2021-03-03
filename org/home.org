@@ -1,6 +1,10 @@
 #+SETUPFILE: setup.org
 #+OPTIONS: toc:nil
 
-AWS Infrastructure defined in CloudFormation.
+AWS Infrastructure defined in CloudFormation. This is sort of an expirement in
+using literate programming to define and explain cloud infrastructure.
+
+Each =.html= page has a corresponding =.yaml= file with the same name (other
+than the extension) at the same location.
 
 #+INCLUDE: sitemap.org :only-contents t

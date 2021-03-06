@@ -14,7 +14,7 @@
 (defconst cloudformation/project-directory
   (file-name-directory (or load-file-name buffer-file-name)))
 
-(defconst cloudformation/org-project-cloudformation
+(defconst cloudformation/org-project-cloudformation-org
   `("cloudformation-org"
     :recursive t
 	:base-directory ,cloudformation/project-directory
@@ -24,7 +24,7 @@
 	:auto-sitemap t
 	:sitemap-title "CloudFormation"))
 
-(defconst cloudformation/org-project-html
+(defconst cloudformation/org-project-cloudformation-html
   `("cloudformation-html"
     :recursive t
     :base-directory ,(expand-file-name "_org" cloudformation/project-directory)
@@ -43,8 +43,8 @@
     :html-self-link-headlines t
     :html-head "<link rel=\"stylesheet\" type=\"text/css\" href=\"/static/main.css\" />"))
 
-(defconst cloudformation/org-project-static
-  `("cf-static"
+(defconst cloudformation/org-project-cloudformation-static
+  `("cloudformation-static"
     :recursive t
     :base-directory ,(expand-file-name "static"
                                        cloudformation/project-directory)

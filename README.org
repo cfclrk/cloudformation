@@ -17,12 +17,11 @@
 (f-filename templateFile)
 #+end_src
 
-
 * Create Stack
 ** package
 
-   If the template requires packaging. For a list of properties that can be filled
-   in by packaging, see the [[https://docs.aws.amazon.com/cli/latest/reference/cloudformation/package.html][package]] command.
+   If the template requires packaging. For a list of properties that can be
+   filled in by packaging, see the [[https://docs.aws.amazon.com/cli/latest/reference/cloudformation/package.html][package]] command.
 
    #+begin_src sh
 aws cloudformation package \

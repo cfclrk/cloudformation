@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ALB with a gRPC Target Group </title>
+<meta name="generator" content="Org Mode" />
+<link rel="stylesheet" type="text/css" href="/static/main.css" />
+</head>
+<body>
+<div id="preamble" class="status">
+<nav id="navbar" class="cf">
+  <ul class="cf">
+    <li class="fl">
+      <a href="/">cfclrk</a>
+    </li>
+    <li class="fr">
+      <a href="/articles/home.html">Articles</a>
+    </li>
+    <li class="fr">
+      <a href="/notes/home.html">Notes</a>
+    </li>
+	<li class="fr">
+      <a href="/cloudformation/home.html">CloudFormation</a>
+    </li>
+  </ul>
+</nav>
+</div>
+<div id="content">
+<header>
+<h1 class="title">ALB with a gRPC Target Group </h1>
+</header><nav id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org8226aaf">Overview</a></li>
+<li><a href="#orgc67a900">Parameters</a>
+<ul>
+<li><a href="#orgacefcfd">DeploymentName</a></li>
+</ul>
+</li>
+<li><a href="#orgeef5623">Resources</a>
+<ul>
+<li><a href="#org70c6f4e">ALB (internet-facing)</a></li>
+<li><a href="#orgd4bc4d8">ALB Routing</a></li>
+<li><a href="#org9fc6440">Lambda Function</a></li>
+<li><a href="#orgd5f4048">VPC Endpoint for Lambda</a></li>
+</ul>
+</li>
+<li><a href="#org81f63d7">Outputs</a></li>
+<li><a href="#org51ef58b">Testing</a></li>
+</ul>
+</div>
+</nav>
+
+<div id="outline-container-org8226aaf" class="outline-2">
+<h2 id="org8226aaf"><a href="#org8226aaf">Overview</a></h2>
+<div class="outline-text-2" id="text-org8226aaf">
+<p>
+This creates an internet-facing ALB with a gRPC target group. You can use a gRPC
+client to invoke a function behind the ALB.
+</p>
+
+<p>
+This CloudFormation template imports resources that are exported in the
+<a href="./network_public_private.html">./network_public_private.html</a> stack. That template must be deploying first, and
+it must use the same <code>DeploymentName</code>.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-yaml"><span style="color: #dcaeea;">AWSTemplateFormatVersion</span>: 2010-09-09
+<span style="color: #dcaeea;">Description</span>: A public ALB with a gRPC target group.
+<span style="color: #dcaeea;">Transform</span>: AWS::Serverless-2016-10-31
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgc67a900" class="outline-2">
+<h2 id="orgc67a900"><a href="#orgc67a900">Parameters</a></h2>
+<div class="outline-text-2" id="text-orgc67a900">
+<div class="org-src-container">
+<pre class="src src-yaml"><span style="color: #dcaeea;">Parameters</span>:
+</pre>
+</div>
+</div>
+
+<div id="outline-container-orgacefcfd" class="outline-3">
+<h3 id="orgacefcfd"><a href="#orgacefcfd">DeploymentName</a></h3>
+<div class="outline-text-3" id="text-orgacefcfd">
+<p>
+A <b>deployment</b> is a complete deployed application, potentially comprised of many
+CloudFormation stacks. This is sometimes called an "environment", but that is an
+overloaded term. Use the <code>DeploymentName</code> to indicate which deployment a Stack
+is part of.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-yaml">  <span style="color: #dcaeea;">DeploymentName</span>:
+    <span style="color: #dcaeea;">Description</span>: A name for this deployment
+    <span style="color: #dcaeea;">Type</span>: String
+</pre>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgeef5623" class="outline-2">
+<h2 id="orgeef5623"><a href="#orgeef5623">Resources</a></h2>
+<div class="outline-text-2" id="text-orgeef5623">
+<div class="org-src-container">
+<pre class="src src-yaml"><span style="color: #dcaeea;">Resources</span>:
+</pre>
+</div>
+</div>
+
+<div id="outline-container-org70c6f4e" class="outline-3">
+<h3 id="org70c6f4e"><a href="#org70c6f4e">ALB (internet-facing)</a></h3>
+<div class="outline-text-3" id="text-org70c6f4e">
+<div class="org-src-container">
+<pre class="src src-yaml">  <span style="color: #dcaeea;">ALB</span>:
+    <span style="color: #dcaeea;">Type</span>: AWS::ElasticLoadBalancingV2::LoadBalancer
+    <span style="color: #dcaeea;">Properties</span>:
+      <span style="color: #dcaeea;">IpAddressType</span>: ipv4
+      <span style="color: #dcaeea;">Scheme</span>: internet-facing
+      <span style="color: #dcaeea;">SecurityGroups</span>: [<span style="color: #ECBE7B;">!Ref</span> AlbSecurityGroup]
+      <span style="color: #dcaeea;">Subnets</span>:
+        - <span style="color: #dcaeea;">Fn::ImportValue</span>: <span style="color: #ECBE7B;">!Sub</span> <span style="color: #98be65;">"${DeploymentName}-PrivateSubnet1"</span>
+        - <span style="color: #dcaeea;">Fn::ImportValue</span>: <span style="color: #ECBE7B;">!Sub</span> <span style="color: #98be65;">"${DeploymentName}-PrivateSubnet2"</span>
+      <span style="color: #dcaeea;">Type</span>: application
+      <span style="color: #dcaeea;">Tags</span>:
+        - <span style="color: #dcaeea;">Key</span>: Name
+          <span style="color: #dcaeea;">Value</span>: <span style="color: #ECBE7B;">!Ref</span> AWS::StackName
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-yaml">  <span style="color: #dcaeea;">AlbSecurityGroup</span>:
+    <span style="color: #dcaeea;">Type</span>: AWS::EC2::SecurityGroup
+    <span style="color: #dcaeea;">Properties</span>:
+      <span style="color: #dcaeea;">GroupDescription</span>: Allow HTTP on port 80
+      <span style="color: #dcaeea;">VpcId</span>: {<span style="color: #dcaeea;">Fn::ImportValue</span>: <span style="color: #ECBE7B;">!Sub</span> <span style="color: #98be65;">"${DeploymentName}-VpcId"</span>}
+      <span style="color: #dcaeea;">SecurityGroupIngress</span>:
+        - <span style="color: #dcaeea;">IpProtocol</span>: tcp
+          <span style="color: #dcaeea;">FromPort</span>: 80
+          <span style="color: #dcaeea;">ToPort</span>: 80
+          <span style="color: #dcaeea;">CidrIp</span>: 0.0.0.0/0
+      <span style="color: #dcaeea;">Tags</span>:
+        - <span style="color: #dcaeea;">Key</span>: Name
+          <span style="color: #dcaeea;">Value</span>: <span style="color: #ECBE7B;">!Ref</span> AWS::StackName
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgd4bc4d8" class="outline-3">
+<h3 id="orgd4bc4d8"><a href="#orgd4bc4d8">ALB Routing</a></h3>
+<div class="outline-text-3" id="text-orgd4bc4d8">
+<div class="org-src-container">
+<pre class="src src-yaml">  <span style="color: #dcaeea;">ALBListenerHTTP</span>:
+    <span style="color: #dcaeea;">Type</span>: AWS::ElasticLoadBalancingV2::Listener
+    <span style="color: #dcaeea;">Properties</span>:
+      <span style="color: #dcaeea;">DefaultActions</span>:
+        - <span style="color: #dcaeea;">Type</span>: forward
+          <span style="color: #dcaeea;">TargetGroupArn</span>: <span style="color: #ECBE7B;">!Ref</span> AlbTargetGroupLambda
+      <span style="color: #dcaeea;">LoadBalancerArn</span>: <span style="color: #ECBE7B;">!Ref</span> ALB
+      <span style="color: #dcaeea;">Port</span>: 80
+      <span style="color: #dcaeea;">Protocol</span>: HTTP
+</pre>
+</div>
+
+<p>
+TODO: Restrict access from only the TargetGroup (using SourceArn). This is
+tricky. See: <a href="https://forums.aws.amazon.com/thread.jspa?threadID=307784">https://forums.aws.amazon.com/thread.jspa?threadID=307784</a>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-yaml">  <span style="color: #dcaeea;">AlbTargetGroupLambda</span>:
+    <span style="color: #dcaeea;">Type</span>: AWS::ElasticLoadBalancingV2::TargetGroup
+    <span style="color: #dcaeea;">DependsOn</span>: LambdaInvokePermissionElb
+    <span style="color: #dcaeea;">Properties</span>:
+      <span style="color: #dcaeea;">TargetType</span>: lambda
+      <span style="color: #dcaeea;">Targets</span>:
+        - <span style="color: #dcaeea;">Id</span>: <span style="color: #ECBE7B;">!GetAtt</span> HelloWorldFunction.Arn
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-yaml">  <span style="color: #dcaeea;">LambdaInvokePermissionElb</span>:
+    <span style="color: #dcaeea;">Type</span>: AWS::Lambda::Permission
+    <span style="color: #dcaeea;">DependsOn</span>: HelloWorldFunction
+    <span style="color: #dcaeea;">Properties</span>:
+      <span style="color: #dcaeea;">FunctionName</span>: <span style="color: #ECBE7B;">!Ref</span> HelloWorldFunction
+      <span style="color: #dcaeea;">Action</span>: lambda:InvokeFunction
+      <span style="color: #dcaeea;">Principal</span>: elasticloadbalancing.amazonaws.com
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org9fc6440" class="outline-3">
+<h3 id="org9fc6440"><a href="#org9fc6440">Lambda Function</a></h3>
+<div class="outline-text-3" id="text-org9fc6440">
+<div class="org-src-container">
+<pre class="src src-yaml">  <span style="color: #dcaeea;">HelloWorldFunction</span>:
+    <span style="color: #dcaeea;">Type</span>: AWS::Serverless::Function
+    <span style="color: #dcaeea;">Properties</span>:
+      <span style="color: #dcaeea;">FunctionName</span>: hello-world
+      <span style="color: #dcaeea;">InlineCode</span>: |
+        <span style="color: #98be65;">import json</span>
+<span style="color: #98be65;">        def handler(event, context) -&gt; dict:</span>
+            message = {<span style="color: #98be65;">"hello"</span>: <span style="color: #98be65;">"world"</span>}
+<span style="color: #98be65;">            response = {</span>
+                <span style="color: #98be65;">"statusCode"</span>: 200,
+                <span style="color: #98be65;">"statusDescription"</span>: <span style="color: #98be65;">"200 OK"</span>,
+                <span style="color: #98be65;">"headers"</span>: {<span style="color: #98be65;">"Content-Type"</span>: <span style="color: #98be65;">"application/json"</span>},
+                <span style="color: #98be65;">"body"</span>: json.dumps(message),
+<span style="color: #98be65;">            }</span>
+<span style="color: #98be65;">            return response</span>
+      <span style="color: #dcaeea;">Handler</span>: index.handler
+      <span style="color: #dcaeea;">Runtime</span>: python3.8
+      <span style="color: #dcaeea;">Timeout</span>: 3
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgd5f4048" class="outline-3">
+<h3 id="orgd5f4048"><a href="#orgd5f4048">VPC Endpoint for Lambda</a></h3>
+<div class="outline-text-3" id="text-orgd5f4048">
+<div class="org-src-container">
+<pre class="src src-yaml">  <span style="color: #dcaeea;">VpcEndpointLambda</span>:
+    <span style="color: #dcaeea;">Type</span>: AWS::EC2::VPCEndpoint
+    <span style="color: #dcaeea;">Properties</span>:
+      <span style="color: #dcaeea;">PolicyDocument</span>:
+        <span style="color: #dcaeea;">Version</span>: 2012-10-17
+        <span style="color: #dcaeea;">Statement</span>:
+          - <span style="color: #dcaeea;">Effect</span>: Allow
+            <span style="color: #dcaeea;">Principal</span>: <span style="color: #98be65;">"*"</span>
+            <span style="color: #dcaeea;">Action</span>:
+              - <span style="color: #98be65;">"lambda:*"</span>
+            <span style="color: #dcaeea;">Resource</span>:
+              - <span style="color: #ECBE7B;">!GetAtt</span> HelloWorldFunction.Arn
+      <span style="color: #dcaeea;">ServiceName</span>: <span style="color: #ECBE7B;">!Sub</span> <span style="color: #98be65;">"com.amazonaws.${AWS::Region}.lambda"</span>
+      <span style="color: #dcaeea;">SubnetIds</span>:
+        - <span style="color: #dcaeea;">Fn::ImportValue</span>: <span style="color: #ECBE7B;">!Sub</span> <span style="color: #98be65;">"${DeploymentName}-PrivateSubnet1"</span>
+        - <span style="color: #dcaeea;">Fn::ImportValue</span>: <span style="color: #ECBE7B;">!Sub</span> <span style="color: #98be65;">"${DeploymentName}-PrivateSubnet2"</span>
+      <span style="color: #dcaeea;">VpcEndpointType</span>: Interface
+      <span style="color: #dcaeea;">VpcId</span>: {<span style="color: #dcaeea;">Fn::ImportValue</span>: <span style="color: #ECBE7B;">!Sub</span> <span style="color: #98be65;">"${DeploymentName}-VpcId"</span>}
+</pre>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org81f63d7" class="outline-2">
+<h2 id="org81f63d7"><a href="#org81f63d7">Outputs</a></h2>
+<div class="outline-text-2" id="text-org81f63d7">
+<div class="org-src-container">
+<pre class="src src-yaml"><span style="color: #dcaeea;">Outputs</span>:
+  <span style="color: #dcaeea;">ALB</span>:
+    <span style="color: #dcaeea;">Description</span>: DNS name for the ALB
+    <span style="color: #dcaeea;">Value</span>: <span style="color: #ECBE7B;">!GetAtt</span> ALB.DNSName
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org51ef58b" class="outline-2">
+<h2 id="org51ef58b"><a href="#org51ef58b">Testing</a></h2>
+<div class="outline-text-2" id="text-org51ef58b">
+<p>
+Show how to curl the ALB.
+</p>
+</div>
+</div>
+</div>
+</body>
+</html>

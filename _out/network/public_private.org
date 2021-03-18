@@ -1,7 +1,18 @@
 #+TITLE: Network with Public and Private Subnets
-#+SETUPFILE: ../setup.org
+#+AUTHOR: Chris Clark
+#+setupfile: ../setup.org
 
 * Overview
+
+This document creates a "standard" AWS network. AWS documents this architecture
+[[https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Scenario2.html][here]], and AWS provides a CloudFormation example [[https://docs.aws.amazon.com/codebuild/latest/userguide/cloudformation-vpc-template.html][here]].
+
+This is the go-to VPC structure and is usually considered a starting place for
+any AWS network design. For example, when using the AWS CDK, this is the
+infrastrucure that is created when you use the [[https://docs.aws.amazon.com/cdk/api/latest/docs/@aws-cdk_aws-ec2.Vpc.html][VPC construct]] with its default
+options.
+
+[[file:../../static/img/Network-Public-Private.png]]
 
 #+begin_src yaml
 AWSTemplateFormatVersion: 2010-09-09
@@ -11,21 +22,24 @@ Description: >
   Subnets.
 #+end_src
 
-  This document creates a "standard" AWS network. AWS documents this
-  architecture [[https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Scenario2.html][here]]. This is the go-to VPC structure, and is usually considered
-  the starting place for any AWS network design. For example, when using the AWS
-  CDK, this is the infrastrucure that is created when you use the [[https://docs.aws.amazon.com/cdk/api/latest/docs/@aws-cdk_aws-ec2.Vpc.html][VPC construct]]
-  with its default options.
-
-  [[../../static/img/Network-Public-Private.png]]
-
 * Parameters
 
 #+begin_src yaml
 Parameters:
 #+end_src
 
-#+INCLUDE: "../params.org::*DeploymentName"
+** DeploymentName
+
+A *deployment* is a complete deployed application, potentially comprised of many
+CloudFormation stacks. This is sometimes called an "environment", but that is an
+overloaded term. Use the =DeploymentName= to indicate which deployment a Stack
+is part of.
+
+#+begin_src yaml
+  DeploymentName:
+    Description: A name for this deployment
+    Type: String
+#+end_src
 
 #+begin_src yaml
   VpcCIDR:
@@ -104,7 +118,7 @@ Resources:
 #+end_src
 
 #+begin_src yaml
-  PublicRoute:
+  DefaultPublicRoute:
     Type: AWS::EC2::Route
     DependsOn: InternetGatewayAttachment
     Properties:
@@ -126,6 +140,15 @@ Resources:
 #+end_src
 
 #+begin_src yaml
+  DefaultPrivateRoute1:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable1
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref NatGateway1
+#+end_src
+
+#+begin_src yaml
   PrivateRouteTable2:
     Type: AWS::EC2::RouteTable
     Properties:
@@ -133,6 +156,15 @@ Resources:
       Tags:
         - Key: Name
           Value: !Sub "${DeploymentName} Private (AZ1)"
+#+end_src
+
+#+begin_src yaml
+  DefaultPrivateRoute2:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable2
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref NatGateway2
 #+end_src
 
 ** Public Subnets
@@ -177,25 +209,25 @@ Resources:
 
 ** Private Subnets
 
-   There are two differences between "public" and "private" subnets:
+There are two differences between "public" and "private" subnets:
 
-   1. Public subnets have a *route to an Internet Gateway*.
-   2. Public subnets usually specify =MapPublicIpOnLaunch: true=.
+1. Public subnets have a *route to an Internet Gateway*.
+2. Public subnets usually specify =MapPublicIpOnLaunch: true=.
 
-   The first item (a *route to an Intenet Gateway*) isn't actually a quality of
-   the subnet itself; rather, it's a matter of what routes are in the Route
-   Table that the subnet is associated with.
+The first item (a *route to an Intenet Gateway*) isn't actually a quality of
+the subnet itself; rather, it's a matter of what routes are in the Route
+Table that the subnet is associated with.
 
-   The second item (=MapPublicIpOnLaunch: true=) tells AWS to assign public IP
-   addresses to EC2 instances in the subnet, which is required if you plan to
-   launch internet-reachable EC2 instances in the subnet. This is /usually/ the
-   case, but one can imagine a public subnet that exists only for use with
-   non-EC2 services.
+The second item (=MapPublicIpOnLaunch: true=) tells AWS to assign public IP
+addresses to EC2 instances in the subnet, which is required if you plan to
+launch internet-reachable EC2 instances in the subnet. This is /usually/ the
+case, but one can imagine a public subnet that exists only for use with
+non-EC2 services.
 
-   Private subnets /can/ specify =MapPublicIpOnLaunch: true= in order to assign
-   internet-valid IP addresses to instances. That could be useful if, say, you
-   want to be able to make the subnet to temporarily public (by temporarily
-   adding a route to the Internet Gateway).
+Private subnets /can/ specify =MapPublicIpOnLaunch: true= in order to assign
+internet-valid IP addresses to instances. That could be useful if, say, you
+want to be able to make the subnet to temporarily public (by temporarily
+adding a route to the Internet Gateway).
 
 #+begin_src yaml
   PrivateSubnet1:
@@ -224,7 +256,7 @@ Resources:
       CidrBlock: !Ref PrivateSubnet2CIDR
       Tags:
         - Key: Name
-          Value: !Sub "${DeploymentName} Private (AZ1)"
+          Value: !Sub "${DeploymentName} Private (AZ2)"
 
   PrivateSubnet2RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation

@@ -1,0 +1,165 @@
+#+TITLE: Network with Public Subnets
+#+AUTHOR: Chris Clark
+#+setupfile: ../setup.org
+
+#+begin_src yaml
+AWSTemplateFormatVersion: 2010-09-09
+Description: VPC with two public Subnets.
+#+end_src
+
+* Parameters
+
+#+begin_src yaml
+Parameters:
+#+end_src
+
+** DeploymentName
+
+A *deployment* is a complete deployed application, potentially comprised of many
+CloudFormation stacks. This is sometimes called an "environment", but that is an
+overloaded term. Use the =DeploymentName= to indicate which deployment a Stack
+is part of.
+
+#+begin_src yaml
+  DeploymentName:
+    Description: A name for this deployment
+    Type: String
+#+end_src
+
+#+begin_src yaml
+  Name:
+    Description: Name for resources
+    Type: String
+    Default: example
+
+  VpcCIDR:
+    Description: CIDR range for VPC
+    Type: String
+    Default: 10.192.0.0/16
+
+  Subnet1CIDR:
+    Description: CIDR range for private Subnet 1
+    Type: String
+    Default: 10.192.20.0/24
+
+  Subnet2CIDR:
+    Description: CIDR range for private Subnet 2
+    Type: String
+    Default: 10.192.21.0/24
+#+end_src
+
+* Resources
+
+#+begin_src yaml
+Resources:
+#+end_src
+
+** VPC
+
+#+begin_src yaml
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: !Ref VpcCIDR
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags:
+        - Key: Name
+          Value: !Ref Name
+#+end_src
+
+** Internet Gateway
+
+#+begin_src yaml
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Ref Name
+
+  InternetGatewayAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      InternetGatewayId: !Ref InternetGateway
+      VpcId: !Ref VPC
+#+end_src
+
+** Route Table
+
+#+begin_src yaml
+  RouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: !Ref Name
+
+  PublicRoute:
+    Type: AWS::EC2::Route
+    DependsOn: InternetGatewayAttachment
+    Properties:
+      RouteTableId: !Ref RouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+#+end_src
+
+** Public subnet 1
+
+#+begin_src yaml
+  Subnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [0, !GetAZs  ""]
+      CidrBlock: !Ref Subnet1CIDR
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: Subnet (AZ1)
+
+  Subnet1RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref RouteTable
+      SubnetId: !Ref Subnet1
+#+end_src
+
+** Public subnet 2
+
+#+begin_src yaml
+  Subnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [1, !GetAZs  ""]
+      CidrBlock: !Ref Subnet2CIDR
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: Subnet (AZ2)
+
+  Subnet2RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref RouteTable
+      SubnetId: !Ref Subnet2
+#+end_src
+
+* Outputs
+
+#+begin_src yaml
+Outputs:
+  VPC:
+    Description: A reference to the created VPC
+    Value: !Ref VPC
+
+  Subnet1:
+    Description: Subnet in the 1st Availability Zone
+    Value: !Ref Subnet1
+
+  Subnet2:
+    Description: Subnet in the 2nd Availability Zone
+    Value: !Ref Subnet2
+#+end_src

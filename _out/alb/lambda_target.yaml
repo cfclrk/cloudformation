@@ -1,0 +1,89 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: A public ALB with a Lambda Function target.
+Transform: AWS::Serverless-2016-10-31
+
+Parameters:
+
+  DeploymentName:
+    Description: A name for this deployment
+    Type: String
+
+Resources:
+
+  ALB:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      IpAddressType: ipv4
+      Scheme: internet-facing
+      SecurityGroups: [!Ref AlbSecurityGroup]
+      Subnets:
+        - Fn::ImportValue: !Sub "${DeploymentName}-PrivateSubnet1"
+        - Fn::ImportValue: !Sub "${DeploymentName}-PrivateSubnet2"
+      Type: application
+      Tags:
+        - Key: Name
+          Value: !Ref AWS::StackName
+
+  AlbSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow HTTP on port 80
+      VpcId: {Fn::ImportValue: !Sub "${DeploymentName}-VpcId"}
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+      Tags:
+        - Key: Name
+          Value: !Ref AWS::StackName
+
+  ALBListenerHTTP:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref AlbTargetGroupLambda
+      LoadBalancerArn: !Ref ALB
+      Port: 80
+      Protocol: HTTP
+
+  AlbTargetGroupLambda:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    DependsOn: LambdaInvokePermissionElb
+    Properties:
+      TargetType: lambda
+      Targets:
+        - Id: !GetAtt HelloWorldFunction.Arn
+
+  LambdaInvokePermissionElb:
+    Type: AWS::Lambda::Permission
+    DependsOn: HelloWorldFunction
+    Properties:
+      FunctionName: !Ref HelloWorldFunction
+      Action: lambda:InvokeFunction
+      Principal: elasticloadbalancing.amazonaws.com
+
+  HelloWorldFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${DeploymentName}-Hello-World"
+      InlineCode: |
+        import json
+        def handler(event, context) -> dict:
+            message = {"hello": "world"}
+            response = {
+                "statusCode": 200,
+                "statusDescription": "200 OK",
+                "headers": {"Content-Type": "application/json"},
+                "body": json.dumps(message),
+            }
+            return response
+      Handler: index.handler
+      Runtime: python3.8
+      Timeout: 3
+
+Outputs:
+  ALB:
+    Description: DNS name for the ALB
+    Value: !GetAtt ALB.DNSName

@@ -1,0 +1,167 @@
+#+TITLE: ALB with a gRPC Target Group
+#+SETUPFILE: ../setup.org
+
+* Overview
+
+This creates an internet-facing ALB with a gRPC target group. You can use a gRPC
+client to invoke a function behind the ALB.
+
+This CloudFormation template imports resources that are exported in the
+[[./network_public_private.org]] stack. That template must be deploying first, and
+it must use the same =DeploymentName=.
+
+#+begin_src yaml
+AWSTemplateFormatVersion: 2010-09-09
+Description: A public ALB with a gRPC target group.
+Transform: AWS::Serverless-2016-10-31
+#+end_src
+
+* Parameters
+
+#+begin_src yaml
+Parameters:
+#+end_src
+
+#+INCLUDE: "../params.org::*DeploymentName"
+
+* Resources
+
+#+begin_src yaml
+Resources:
+#+end_src
+
+** ALB (internet-facing)
+
+#+begin_src yaml
+  ALB:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      IpAddressType: ipv4
+      Scheme: internet-facing
+      SecurityGroups: [!Ref AlbSecurityGroup]
+      Subnets:
+        - Fn::ImportValue: !Sub "${DeploymentName}-PrivateSubnet1"
+        - Fn::ImportValue: !Sub "${DeploymentName}-PrivateSubnet2"
+      Type: application
+      Tags:
+        - Key: Name
+          Value: !Ref AWS::StackName
+#+end_src
+
+#+begin_src yaml
+  AlbSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow HTTP on port 80
+      VpcId: {Fn::ImportValue: !Sub "${DeploymentName}-VpcId"}
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+      Tags:
+        - Key: Name
+          Value: !Ref AWS::StackName
+#+end_src
+
+** ALB Routing
+:PROPERTIES:
+:CUSTOM_ID: alb-routing
+:END:
+
+#+begin_src yaml
+  ALBListenerHTTP:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref AlbTargetGroupLambda
+      LoadBalancerArn: !Ref ALB
+      Port: 80
+      Protocol: HTTP
+#+end_src
+
+TODO: Restrict access from only the TargetGroup (using SourceArn). This is
+tricky. See: https://forums.aws.amazon.com/thread.jspa?threadID=307784
+
+#+begin_src yaml
+  AlbTargetGroupLambda:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    DependsOn: LambdaInvokePermissionElb
+    Properties:
+      TargetType: lambda
+      Targets:
+        - Id: !GetAtt HelloWorldFunction.Arn
+#+end_src
+
+#+begin_src yaml
+  LambdaInvokePermissionElb:
+    Type: AWS::Lambda::Permission
+    DependsOn: HelloWorldFunction
+    Properties:
+      FunctionName: !Ref HelloWorldFunction
+      Action: lambda:InvokeFunction
+      Principal: elasticloadbalancing.amazonaws.com
+#+end_src
+
+** Lambda Function
+:PROPERTIES:
+:CUSTOM_ID: lambda-function
+:END:
+
+#+begin_src yaml
+  HelloWorldFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: hello-world
+      InlineCode: |
+        import json
+        def handler(event, context) -> dict:
+            message = {"hello": "world"}
+            response = {
+                "statusCode": 200,
+                "statusDescription": "200 OK",
+                "headers": {"Content-Type": "application/json"},
+                "body": json.dumps(message),
+            }
+            return response
+      Handler: index.handler
+      Runtime: python3.8
+      Timeout: 3
+#+end_src
+
+** VPC Endpoint for Lambda
+
+#+begin_src yaml
+  VpcEndpointLambda:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal: "*"
+            Action:
+              - "lambda:*"
+            Resource:
+              - !GetAtt HelloWorldFunction.Arn
+      ServiceName: !Sub "com.amazonaws.${AWS::Region}.lambda"
+      SubnetIds:
+        - Fn::ImportValue: !Sub "${DeploymentName}-PrivateSubnet1"
+        - Fn::ImportValue: !Sub "${DeploymentName}-PrivateSubnet2"
+      VpcEndpointType: Interface
+      VpcId: {Fn::ImportValue: !Sub "${DeploymentName}-VpcId"}
+#+end_src
+
+* Outputs
+
+#+begin_src yaml
+Outputs:
+  ALB:
+    Description: DNS name for the ALB
+    Value: !GetAtt ALB.DNSName
+#+end_src
+
+* Testing
+
+Show how to curl the ALB.

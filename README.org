@@ -1,21 +1,23 @@
-#+NAME: templateFile
-: yaml/iam/iam_roles.yaml
+#+NAME: template
+: _out/alb/lambda_target.yaml
 
 #+NAME: deploymentName
-: cfc
+: cf
 
-#+NAME: name
-: iam
-
-#+PROPERTY: header-args+ :var templateFile=templateFile
+#+PROPERTY: header-args+ :var template=template
 #+PROPERTY: header-args+ :var deploymentName=deploymentName
-#+PROPERTY: header-args+ :var name=name
 #+PROPERTY: header-args+ :results output
 
 #+NAME: name
-#+begin_src emacs-lisp :var templateFile=templateFile :results value
-(f-filename templateFile)
+#+begin_src emacs-lisp :var template=template :results value
+  (let* ((parent-dir (f-base (f-parent template)))
+         (base-name-dashes (s-replace "_" "-" (f-base template))))
+    (s-join "-" (list parent-dir base-name-dashes)))
 #+end_src
+
+* TODO
+
+  - [ ] Get rid of $name. Just use tempalte file name.
 
 * Create Stack
 ** package
@@ -24,79 +26,81 @@
    filled in by packaging, see the [[https://docs.aws.amazon.com/cli/latest/reference/cloudformation/package.html][package]] command.
 
    #+begin_src sh
-aws cloudformation package \
-    --template-file template.yaml \
-    --output-template-file serverless-output.yaml \
-    --s3-bucket <<<YOUR BUCKET NAME>>>
+     aws cloudformation package \
+         --template-file template.yaml \
+         --output-template-file serverless-output.yaml \
+         --s3-bucket <<<YOUR BUCKET NAME>>>
    #+end_src
 
 ** create
 
-   #+begin_src sh templateFile=templateFile
-aws cloudformation create-stack \
-    --stack-name $deploymentName-$name \
-    --template-body file://$templateFile \
-    --capabilities CAPABILITY_AUTO_EXPAND CAPABILITY_IAM CAPABILITY_NAMED_IAM \
-    --parameters ParameterKey=DeploymentName,ParameterValue=$deploymentName
+   #+begin_src sh :var name=name
+     aws cloudformation create-stack \
+         --stack-name "$deploymentName"-"$name" \
+         --template-body file://$template \
+         --capabilities CAPABILITY_AUTO_EXPAND CAPABILITY_IAM CAPABILITY_NAMED_IAM \
+         --parameters ParameterKey=DeploymentName,ParameterValue=$deploymentName
    #+end_src
 
 * Update Stack
-** Using a change set
+** In-Place
+
+   #+begin_src sh :var name=name
+     aws cloudformation update-stack \
+         --stack-name $deploymentName-$name \
+         --template-body file://$template \
+         --capabilities CAPABILITY_AUTO_EXPAND CAPABILITY_IAM CAPABILITY_NAMED_IAM \
+         --parameters ParameterKey=DeploymentName,ParameterValue=$deploymentName
+   #+end_src
+
+** Using a ChangeSet
 
    Create a change set:
 
    #+begin_src sh
-aws cloudformation create-change-set \
-    --stack-name $stackName \
-    --template-body file://$templateFile \
-    --change-set-name my-changes
+     aws cloudformation create-change-set \
+         --stack-name $stackName \
+         --template-body file://$templateFile \
+         --change-set-name my-changes
    #+end_src
 
    Describe a change set:
 
    #+begin_src sh
-aws cloudformation describe-change-set \
-    --change-set-name my-changes \
-    --stack-name $stackName
+     aws cloudformation describe-change-set \
+         --change-set-name my-changes \
+         --stack-name $stackName
    #+end_src
 
    Apply a change set:
 
    #+begin_src sh
-aws cloudformation execute-change-set \
-    --change-set-name my-changes \
-    --stack-name $stackName
+     aws cloudformation execute-change-set \
+         --change-set-name my-changes \
+         --stack-name $stackName
    #+end_src
 
    Delete a change set. Does the change set get deleted automatically when it is
    applied?
 
    #+begin_src sh
-aws cloudformation delete-change-set \
-    --change-set-name my-changes \
-    --stack-name $stackName
-   #+end_src
-
-** Update in place
-
-   #+begin_src sh
-aws cloudformation update-stack \
-    --stack-name $deploymentName-$name \
-    --template-body file://$templateFile \
-    --capabilities CAPABILITY_AUTO_EXPAND CAPABILITY_IAM CAPABILITY_NAMED_IAM \
-    --parameters ParameterKey=DeploymentName,ParameterValue=$deploymentName
+     aws cloudformation delete-change-set \
+         --change-set-name my-changes \
+         --stack-name $stackName
    #+end_src
 
 * Delete Stack
 
   #+begin_src sh
-aws cloudformation delete-stack --stack-name $name
+    parent=$(basename $(dirname $template))
+    name=$parent-$(basename $template .yaml | sed "s/_/-/g")
+    aws cloudformation delete-stack --stack-name $name
   #+end_src
 
 * Get stack logs
 
   #+begin_src sh
-aws cloudformation describe-stack-events --stack-name $name
+    aws cloudformation describe-stack-events --stack-name $name
   #+end_src
 
 * TODO
@@ -107,3 +111,8 @@ aws cloudformation describe-stack-events --stack-name $name
   and then a =make=.
 
 * From network_public_private
+
+  # Local Variables:
+  # org-src-preserve-indentation: nil
+  # org-adapt-indentation: t
+  # End:

@@ -1,10 +1,35 @@
+#+TITLE: Network with Public and Private Subnets
+#+SETUPFILE: ../setup.org
+
+* Overview
+
+This document creates a "standard" AWS network. AWS documents this architecture
+[[https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Scenario2.html][here]], and AWS provides a CloudFormation example [[https://docs.aws.amazon.com/codebuild/latest/userguide/cloudformation-vpc-template.html][here]].
+
+This is the go-to VPC structure and is usually considered a starting place for
+any AWS network design. For example, when using the AWS CDK, this is the
+infrastrucure that is created when you use the [[https://docs.aws.amazon.com/cdk/api/latest/docs/@aws-cdk_aws-ec2.Vpc.html][VPC construct]] with its default
+options.
+
+[[../../static/img/Network-Public-Private.png]]
+
+#+begin_src yaml
 AWSTemplateFormatVersion: 2010-09-09
 Description: >
-  VPC with two public Subnets and two private Subnets. The public Subnet
-  includes a NAT Gateway which allows outbound traffic from the private Subnets.
+  VPC with two public Subnets and two private Subnets. Each public Subnet
+  includes a NAT Gateway, which allows outbound traffic from the private
+  Subnets.
+#+end_src
 
+* Parameters
+
+#+begin_src yaml
 Parameters:
+#+end_src
 
+#+INCLUDE: "../params.org::*DeploymentName"
+
+#+begin_src yaml
   VpcCIDR:
     Description: CIDR range for this VPC
     Type: String
@@ -29,9 +54,17 @@ Parameters:
     Description: CIDR range for private subnet in 2nd AZ
     Type: String
     Default: 10.192.21.0/24
+#+end_src
 
+* Resources
+
+#+begin_src yaml
 Resources:
+#+end_src
 
+** VPC
+
+#+begin_src yaml
   VPC:
     Type: AWS::EC2::VPC
     Properties:
@@ -41,7 +74,11 @@ Resources:
       Tags:
         - Key: Name
           Value: !Sub "${DeploymentName}"
+#+end_src
 
+** Internet Gateway
+
+#+begin_src yaml
   InternetGateway:
     Type: AWS::EC2::InternetGateway
     Properties:
@@ -54,7 +91,11 @@ Resources:
     Properties:
       InternetGatewayId: !Ref InternetGateway
       VpcId: !Ref VPC
+#+end_src
 
+** Public Route Table
+
+#+begin_src yaml
   PublicRouteTable:
     Type: AWS::EC2::RouteTable
     Properties:
@@ -62,15 +103,21 @@ Resources:
       Tags:
         - Key: Name
           Value: !Sub "${DeploymentName} Public"
+#+end_src
 
-  PublicRoute:
+#+begin_src yaml
+  DefaultPublicRoute:
     Type: AWS::EC2::Route
     DependsOn: InternetGatewayAttachment
     Properties:
       RouteTableId: !Ref PublicRouteTable
       DestinationCidrBlock: 0.0.0.0/0
       GatewayId: !Ref InternetGateway
+#+end_src
 
+** Private Route Tables
+
+#+begin_src yaml
   PrivateRouteTable1:
     Type: AWS::EC2::RouteTable
     Properties:
@@ -78,7 +125,18 @@ Resources:
       Tags:
         - Key: Name
           Value: !Sub "${DeploymentName} Private (AZ1)"
+#+end_src
 
+#+begin_src yaml
+  DefaultPrivateRoute1:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable1
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref NatGateway1
+#+end_src
+
+#+begin_src yaml
   PrivateRouteTable2:
     Type: AWS::EC2::RouteTable
     Properties:
@@ -86,7 +144,20 @@ Resources:
       Tags:
         - Key: Name
           Value: !Sub "${DeploymentName} Private (AZ1)"
+#+end_src
 
+#+begin_src yaml
+  DefaultPrivateRoute2:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable2
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref NatGateway2
+#+end_src
+
+** Public Subnets
+
+#+begin_src yaml
   PublicSubnet1:
     Type: AWS::EC2::Subnet
     Properties:
@@ -103,7 +174,9 @@ Resources:
     Properties:
       RouteTableId: !Ref PublicRouteTable
       SubnetId: !Ref PublicSubnet1
+#+end_src
 
+#+begin_src yaml
   PublicSubnet2:
     Type: AWS::EC2::Subnet
     Properties:
@@ -120,14 +193,37 @@ Resources:
     Properties:
       RouteTableId: !Ref PublicRouteTable
       SubnetId: !Ref PublicSubnet2
+#+end_src
 
+** Private Subnets
+
+   There are two differences between "public" and "private" subnets:
+
+   1. Public subnets have a *route to an Internet Gateway*.
+   2. Public subnets usually specify =MapPublicIpOnLaunch: true=.
+
+   The first item (a *route to an Intenet Gateway*) isn't actually a quality of
+   the subnet itself; rather, it's a matter of what routes are in the Route
+   Table that the subnet is associated with.
+
+   The second item (=MapPublicIpOnLaunch: true=) tells AWS to assign public IP
+   addresses to EC2 instances in the subnet, which is required if you plan to
+   launch internet-reachable EC2 instances in the subnet. This is /usually/ the
+   case, but one can imagine a public subnet that exists only for use with
+   non-EC2 services.
+
+   Private subnets /can/ specify =MapPublicIpOnLaunch: true= in order to assign
+   internet-valid IP addresses to instances. That could be useful if, say, you
+   want to be able to make the subnet to temporarily public (by temporarily
+   adding a route to the Internet Gateway).
+
+#+begin_src yaml
   PrivateSubnet1:
     Type: AWS::EC2::Subnet
     Properties:
       VpcId: !Ref VPC
       AvailabilityZone: !Select [0, !GetAZs  ""]
       CidrBlock: !Ref PrivateSubnet1CIDR
-      MapPublicIpOnLaunch: false
       Tags:
         - Key: Name
           Value: !Sub "${DeploymentName} Private (AZ1)"
@@ -137,31 +233,30 @@ Resources:
     Properties:
       RouteTableId: !Ref PrivateRouteTable1
       SubnetId: !Ref PrivateSubnet1
+#+end_src
 
+#+begin_src yaml
   PrivateSubnet2:
     Type: AWS::EC2::Subnet
     Properties:
       VpcId: !Ref VPC
       AvailabilityZone: !Select [1, !GetAZs  ""]
       CidrBlock: !Ref PrivateSubnet2CIDR
-      MapPublicIpOnLaunch: false
       Tags:
         - Key: Name
-          Value: !Sub "${DeploymentName} Private (AZ1)"
+          Value: !Sub "${DeploymentName} Private (AZ2)"
 
   PrivateSubnet2RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       RouteTableId: !Ref PrivateRouteTable2
       SubnetId: !Ref PrivateSubnet2
+#+end_src
 
+** NAT Gateways
+
+#+begin_src yaml
   NatGateway1EIP:
-    Type: AWS::EC2::EIP
-    DependsOn: InternetGatewayAttachment
-    Properties:
-      Domain: vpc
-
-  NatGateway2EIP:
     Type: AWS::EC2::EIP
     DependsOn: InternetGatewayAttachment
     Properties:
@@ -172,13 +267,25 @@ Resources:
     Properties:
       AllocationId: !GetAtt NatGateway1EIP.AllocationId
       SubnetId: !Ref PublicSubnet1
+#+end_src
+
+#+begin_src yaml
+  NatGateway2EIP:
+    Type: AWS::EC2::EIP
+    DependsOn: InternetGatewayAttachment
+    Properties:
+      Domain: vpc
 
   NatGateway2:
     Type: AWS::EC2::NatGateway
     Properties:
       AllocationId: !GetAtt NatGateway2EIP.AllocationId
       SubnetId: !Ref PublicSubnet2
+#+end_src
 
+* Outputs
+
+#+begin_src yaml
 Outputs:
   VpcId:
     Description: A reference to the created VPC
@@ -215,3 +322,4 @@ Outputs:
     Value: !Ref PrivateSubnet2
     Export:
       Name: !Sub "${DeploymentName}-PrivateSubnet2"
+#+end_src

@@ -111,13 +111,14 @@ modifications."
      :auto-sitemap t
      :sitemap-title "CloudFormation")
 
-    ("cloudformation-html"
+    ("cloudformation-out"
      :recursive t
      :base-directory ,(expand-file-name "_org" cloudformation/project-directory)
-     :publishing-directory ,(expand-file-name "cloudformation"
-                                              site/publishing-directory)
+     :publishing-directory ,(expand-file-name "_out"
+                                              cloudformation/project-directory)
      :publishing-function (org-babel-tangle-publish
-						   org-html-publish-to-html)
+						   org-html-publish-to-html
+                           org-publish-attachment)
      :html-head-include-scripts nil
      :html-head-include-default-style nil
      :with-creator nil
@@ -127,13 +128,21 @@ modifications."
      :html-self-link-headlines t
      :html-head "<link rel=\"stylesheet\" type=\"text/css\" href=\"/static/main.css\" />")
 
-    ("cloudformation-static"
-    :recursive t
-    :base-directory ,(expand-file-name "static"
-                                       cloudformation/project-directory)
-    :publishing-directory ,(expand-file-name "static" site/publishing-directory)
-    :base-extension "png\\|jpg\\|gif\\|pdf"
-    :publishing-function org-publish-attachment)))
+    ("cloudformation-copy"
+     :recursive t
+     :base-directory ,(expand-file-name "_out"
+                                        cloudformation/project-directory)
+     :publishing-directory ,(expand-file-name "cloudformation" site/publishing-directory)
+     :base-extension "png\\|jpg\\|gif\\|pdf"
+     :publishing-function org-publish-attachment)
+
+    ("cloudformation-img"
+     :recursive t
+     :base-directory ,(expand-file-name "img"
+                                        cloudformation/project-directory)
+     :publishing-directory ,(expand-file-name "static/img" site/publishing-directory)
+     :base-extension "png\\|jpg\\|gif\\|pdf"
+     :publishing-function org-publish-attachment)))
 
 (provide 'cloudformation)
 ;;; cloudformation.el ends here

@@ -3,6 +3,10 @@ Description: VPC with two public Subnets.
 
 Parameters:
 
+  DeploymentName:
+    Description: A name for this deployment
+    Type: String
+
 Resources:
 
   VpcFlowLogsRole:

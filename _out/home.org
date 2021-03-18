@@ -1,0 +1,21 @@
+#+OPTIONS: toc:nil
+#+TITLE: CloudFormation
+#+AUTHOR: Chris Clark
+#+setupfile: setup.org
+AWS Infrastructure defined in CloudFormation. This is an expirement in using
+literate programming to define and explain cloud infrastructure.
+
+Each HTML page has a corresponding =.yaml= file with the same name (other than
+the extension) at the same location.
+
+- [[file:home.org][home]]
+- [[file:params.org][params]]
+- [[file:setup.org][setup]]
+- alb
+  - [[file:alb/lambda_target.org][ALB with Lambda Function (Private Subnets)]]
+  - [[file:alb/grpc_target.org][ALB with a gRPC Target Group]]
+- iam
+  - [[file:iam/roles.org][Common IAM Roles]]
+- network
+  - [[file:network/public.org][Network with Public Subnets]]
+  - [[file:network/public_private.org][Network with Public and Private Subnets]]

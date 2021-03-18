@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Network with Public Subnets </title>
+<meta name="generator" content="Org Mode" />
+<link rel="stylesheet" type="text/css" href="/static/main.css" />
+</head>
+<body>
+<div id="preamble" class="status">
+<nav id="navbar" class="cf">
+  <ul class="cf">
+    <li class="fl">
+      <a href="/">cfclrk</a>
+    </li>
+    <li class="fr">
+      <a href="/articles/home.html">Articles</a>
+    </li>
+    <li class="fr">
+      <a href="/notes/home.html">Notes</a>
+    </li>
+	<li class="fr">
+      <a href="/cloudformation/home.html">CloudFormation</a>
+    </li>
+  </ul>
+</nav>
+</div>
+<div id="content">
+<header>
+<h1 class="title">Network with Public Subnets </h1>
+</header><nav id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org74313d7">Parameters</a>
+<ul>
+<li><a href="#org91a044a">DeploymentName</a></li>
+</ul>
+</li>
+<li><a href="#orgca1b16f">Resources</a>
+<ul>
+<li><a href="#org8d74091">VPC</a></li>
+<li><a href="#orgf729f7e">Internet Gateway</a></li>
+<li><a href="#org6eebfcd">Route Table</a></li>
+<li><a href="#org0af2c0f">Public subnet 1</a></li>
+<li><a href="#org4887d47">Public subnet 2</a></li>
+</ul>
+</li>
+<li><a href="#org0ad0ba7">Outputs</a></li>
+</ul>
+</div>
+</nav>
+<div class="org-src-container">
+<pre class="src src-yaml"><span style="color: #dcaeea;">AWSTemplateFormatVersion</span>: 2010-09-09
+<span style="color: #dcaeea;">Description</span>: VPC with two public Subnets.
+</pre>
+</div>
+
+<div id="outline-container-org74313d7" class="outline-2">
+<h2 id="org74313d7"><a href="#org74313d7">Parameters</a></h2>
+<div class="outline-text-2" id="text-org74313d7">
+<div class="org-src-container">
+<pre class="src src-yaml"><span style="color: #dcaeea;">Parameters</span>:
+</pre>
+</div>
+</div>
+
+<div id="outline-container-org91a044a" class="outline-3">
+<h3 id="org91a044a"><a href="#org91a044a">DeploymentName</a></h3>
+<div class="outline-text-3" id="text-org91a044a">
+<p>
+A <b>deployment</b> is a complete deployed application, potentially comprised of many
+CloudFormation stacks. This is sometimes called an "environment", but that is an
+overloaded term. Use the <code>DeploymentName</code> to indicate which deployment a Stack
+is part of.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-yaml">  <span style="color: #dcaeea;">DeploymentName</span>:
+    <span style="color: #dcaeea;">Description</span>: A name for this deployment
+    <span style="color: #dcaeea;">Type</span>: String
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-yaml">  <span style="color: #dcaeea;">Name</span>:
+    <span style="color: #dcaeea;">Description</span>: Name for resources
+    <span style="color: #dcaeea;">Type</span>: String
+    <span style="color: #dcaeea;">Default</span>: example
+
+  <span style="color: #dcaeea;">VpcCIDR</span>:
+    <span style="color: #dcaeea;">Description</span>: CIDR range for VPC
+    <span style="color: #dcaeea;">Type</span>: String
+    <span style="color: #dcaeea;">Default</span>: 10.192.0.0/16
+
+  <span style="color: #dcaeea;">Subnet1CIDR</span>:
+    <span style="color: #dcaeea;">Description</span>: CIDR range for private Subnet 1
+    <span style="color: #dcaeea;">Type</span>: String
+    <span style="color: #dcaeea;">Default</span>: 10.192.20.0/24
+
+  <span style="color: #dcaeea;">Subnet2CIDR</span>:
+    <span style="color: #dcaeea;">Description</span>: CIDR range for private Subnet 2
+    <span style="color: #dcaeea;">Type</span>: String
+    <span style="color: #dcaeea;">Default</span>: 10.192.21.0/24
+</pre>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgca1b16f" class="outline-2">
+<h2 id="orgca1b16f"><a href="#orgca1b16f">Resources</a></h2>
+<div class="outline-text-2" id="text-orgca1b16f">
+<div class="org-src-container">
+<pre class="src src-yaml"><span style="color: #dcaeea;">Resources</span>:
+</pre>
+</div>
+</div>
+
+<div id="outline-container-org8d74091" class="outline-3">
+<h3 id="org8d74091"><a href="#org8d74091">VPC</a></h3>
+<div class="outline-text-3" id="text-org8d74091">
+<div class="org-src-container">
+<pre class="src src-yaml">  <span style="color: #dcaeea;">VPC</span>:
+    <span style="color: #dcaeea;">Type</span>: AWS::EC2::VPC
+    <span style="color: #dcaeea;">Properties</span>:
+      <span style="color: #dcaeea;">CidrBlock</span>: <span style="color: #ECBE7B;">!Ref</span> VpcCIDR
+      <span style="color: #dcaeea;">EnableDnsSupport</span>: <span style="color: #a9a1e1;">true</span>
+      <span style="color: #dcaeea;">EnableDnsHostnames</span>: <span style="color: #a9a1e1;">true</span>
+      <span style="color: #dcaeea;">Tags</span>:
+        - <span style="color: #dcaeea;">Key</span>: Name
+          <span style="color: #dcaeea;">Value</span>: <span style="color: #ECBE7B;">!Ref</span> Name
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgf729f7e" class="outline-3">
+<h3 id="orgf729f7e"><a href="#orgf729f7e">Internet Gateway</a></h3>
+<div class="outline-text-3" id="text-orgf729f7e">
+<div class="org-src-container">
+<pre class="src src-yaml">  <span style="color: #dcaeea;">InternetGateway</span>:
+    <span style="color: #dcaeea;">Type</span>: AWS::EC2::InternetGateway
+    <span style="color: #dcaeea;">Properties</span>:
+      <span style="color: #dcaeea;">Tags</span>:
+        - <span style="color: #dcaeea;">Key</span>: Name
+          <span style="color: #dcaeea;">Value</span>: <span style="color: #ECBE7B;">!Ref</span> Name
+
+  <span style="color: #dcaeea;">InternetGatewayAttachment</span>:
+    <span style="color: #dcaeea;">Type</span>: AWS::EC2::VPCGatewayAttachment
+    <span style="color: #dcaeea;">Properties</span>:
+      <span style="color: #dcaeea;">InternetGatewayId</span>: <span style="color: #ECBE7B;">!Ref</span> InternetGateway
+      <span style="color: #dcaeea;">VpcId</span>: <span style="color: #ECBE7B;">!Ref</span> VPC
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org6eebfcd" class="outline-3">
+<h3 id="org6eebfcd"><a href="#org6eebfcd">Route Table</a></h3>
+<div class="outline-text-3" id="text-org6eebfcd">
+<div class="org-src-container">
+<pre class="src src-yaml">  <span style="color: #dcaeea;">RouteTable</span>:
+    <span style="color: #dcaeea;">Type</span>: AWS::EC2::RouteTable
+    <span style="color: #dcaeea;">Properties</span>:
+      <span style="color: #dcaeea;">VpcId</span>: <span style="color: #ECBE7B;">!Ref</span> VPC
+      <span style="color: #dcaeea;">Tags</span>:
+        - <span style="color: #dcaeea;">Key</span>: Name
+          <span style="color: #dcaeea;">Value</span>: <span style="color: #ECBE7B;">!Ref</span> Name
+
+  <span style="color: #dcaeea;">PublicRoute</span>:
+    <span style="color: #dcaeea;">Type</span>: AWS::EC2::Route
+    <span style="color: #dcaeea;">DependsOn</span>: InternetGatewayAttachment
+    <span style="color: #dcaeea;">Properties</span>:
+      <span style="color: #dcaeea;">RouteTableId</span>: <span style="color: #ECBE7B;">!Ref</span> RouteTable
+      <span style="color: #dcaeea;">DestinationCidrBlock</span>: 0.0.0.0/0
+      <span style="color: #dcaeea;">GatewayId</span>: <span style="color: #ECBE7B;">!Ref</span> InternetGateway
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org0af2c0f" class="outline-3">
+<h3 id="org0af2c0f"><a href="#org0af2c0f">Public subnet 1</a></h3>
+<div class="outline-text-3" id="text-org0af2c0f">
+<div class="org-src-container">
+<pre class="src src-yaml">  <span style="color: #dcaeea;">Subnet1</span>:
+    <span style="color: #dcaeea;">Type</span>: AWS::EC2::Subnet
+    <span style="color: #dcaeea;">Properties</span>:
+      <span style="color: #dcaeea;">VpcId</span>: <span style="color: #ECBE7B;">!Ref</span> VPC
+      <span style="color: #dcaeea;">AvailabilityZone</span>: <span style="color: #ECBE7B;">!Select</span> [0, <span style="color: #ECBE7B;">!GetAZs</span>  <span style="color: #98be65;">""</span>]
+      <span style="color: #dcaeea;">CidrBlock</span>: <span style="color: #ECBE7B;">!Ref</span> Subnet1CIDR
+      <span style="color: #dcaeea;">MapPublicIpOnLaunch</span>: <span style="color: #a9a1e1;">false</span>
+      <span style="color: #dcaeea;">Tags</span>:
+        - <span style="color: #dcaeea;">Key</span>: Name
+          <span style="color: #dcaeea;">Value</span>: Subnet (AZ1)
+
+  <span style="color: #dcaeea;">Subnet1RouteTableAssociation</span>:
+    <span style="color: #dcaeea;">Type</span>: AWS::EC2::SubnetRouteTableAssociation
+    <span style="color: #dcaeea;">Properties</span>:
+      <span style="color: #dcaeea;">RouteTableId</span>: <span style="color: #ECBE7B;">!Ref</span> RouteTable
+      <span style="color: #dcaeea;">SubnetId</span>: <span style="color: #ECBE7B;">!Ref</span> Subnet1
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org4887d47" class="outline-3">
+<h3 id="org4887d47"><a href="#org4887d47">Public subnet 2</a></h3>
+<div class="outline-text-3" id="text-org4887d47">
+<div class="org-src-container">
+<pre class="src src-yaml">  <span style="color: #dcaeea;">Subnet2</span>:
+    <span style="color: #dcaeea;">Type</span>: AWS::EC2::Subnet
+    <span style="color: #dcaeea;">Properties</span>:
+      <span style="color: #dcaeea;">VpcId</span>: <span style="color: #ECBE7B;">!Ref</span> VPC
+      <span style="color: #dcaeea;">AvailabilityZone</span>: <span style="color: #ECBE7B;">!Select</span> [1, <span style="color: #ECBE7B;">!GetAZs</span>  <span style="color: #98be65;">""</span>]
+      <span style="color: #dcaeea;">CidrBlock</span>: <span style="color: #ECBE7B;">!Ref</span> Subnet2CIDR
+      <span style="color: #dcaeea;">MapPublicIpOnLaunch</span>: <span style="color: #a9a1e1;">false</span>
+      <span style="color: #dcaeea;">Tags</span>:
+        - <span style="color: #dcaeea;">Key</span>: Name
+          <span style="color: #dcaeea;">Value</span>: Subnet (AZ2)
+
+  <span style="color: #dcaeea;">Subnet2RouteTableAssociation</span>:
+    <span style="color: #dcaeea;">Type</span>: AWS::EC2::SubnetRouteTableAssociation
+    <span style="color: #dcaeea;">Properties</span>:
+      <span style="color: #dcaeea;">RouteTableId</span>: <span style="color: #ECBE7B;">!Ref</span> RouteTable
+      <span style="color: #dcaeea;">SubnetId</span>: <span style="color: #ECBE7B;">!Ref</span> Subnet2
+</pre>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org0ad0ba7" class="outline-2">
+<h2 id="org0ad0ba7"><a href="#org0ad0ba7">Outputs</a></h2>
+<div class="outline-text-2" id="text-org0ad0ba7">
+<div class="org-src-container">
+<pre class="src src-yaml"><span style="color: #dcaeea;">Outputs</span>:
+  <span style="color: #dcaeea;">VPC</span>:
+    <span style="color: #dcaeea;">Description</span>: A reference to the created VPC
+    <span style="color: #dcaeea;">Value</span>: <span style="color: #ECBE7B;">!Ref</span> VPC
+
+  <span style="color: #dcaeea;">Subnet1</span>:
+    <span style="color: #dcaeea;">Description</span>: Subnet in the 1st Availability Zone
+    <span style="color: #dcaeea;">Value</span>: <span style="color: #ECBE7B;">!Ref</span> Subnet1
+
+  <span style="color: #dcaeea;">Subnet2</span>:
+    <span style="color: #dcaeea;">Description</span>: Subnet in the 2nd Availability Zone
+    <span style="color: #dcaeea;">Value</span>: <span style="color: #ECBE7B;">!Ref</span> Subnet2
+</pre>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>

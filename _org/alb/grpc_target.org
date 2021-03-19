@@ -1,18 +1,19 @@
-#+TITLE: ALB with Lambda Function
-#+SETUPFILE: ../setup.org
+#+TITLE: ALB with a gRPC Target Group
+#+AUTHOR: Chris Clark
+#+setupfile: ../setup.org
 
 * Overview
 
-This creates an internet-facing ALB that invokes a Lambda Function. That is, you
-can =curl= the ALB and see a response from the Lambda Function.
+This creates an internet-facing ALB with a gRPC target group. You can use a gRPC
+client to invoke a function behind the ALB.
 
 This CloudFormation template imports resources that are exported in the
-[[./network_public_private.org]] stack. That template must be deploying first, and
+[[file:./network_public_private.org]] stack. That template must be deploying first, and
 it must use the same =DeploymentName=.
 
 #+begin_src yaml
 AWSTemplateFormatVersion: 2010-09-09
-Description: A public ALB with a Lambda Function target.
+Description: A public ALB with a gRPC target group.
 Transform: AWS::Serverless-2016-10-31
 #+end_src
 
@@ -22,7 +23,18 @@ Transform: AWS::Serverless-2016-10-31
 Parameters:
 #+end_src
 
-#+INCLUDE: "../params.org::*DeploymentName"
+** DeploymentName
+
+A *deployment* is a complete deployed application, potentially comprised of many
+CloudFormation stacks. This is sometimes called an "environment", but that is an
+overloaded term. Use the =DeploymentName= to indicate which deployment a Stack
+is part of.
+
+#+begin_src yaml
+  DeploymentName:
+    Description: A name for this deployment
+    Type: String
+#+end_src
 
 * Resources
 
@@ -32,22 +44,6 @@ Resources:
 
 ** ALB (internet-facing)
 
-If you want the ALB to be reachable from the internet, the ALB must:
-
-- Use an internet-facing scheme
-- Be associated with /public subnets/
-
-Why can't we use private subnets? Although ALBs /can/ be associated with private
-subnets, in this case that would break everything. An ALB has a couple of IP
-addresses (try =host $ALB_DNS_NAME=). If you associate the ALB with two subnets,
-the ALB has at least 2 IP addresses: one for each subnet. When the ALB is
-associated with a subnet, it creates an Elastic Network Interface (ENI) in that
-subnet, and the ENI is assigned an internet-valid IP address (if this is an
-internet-facing ALB). /That/ IP becomes one of the ALB's IP addresses. If the
-ENI is in a private subnet, network traffic to the ENI's IP has no route into
-the subnet. So, when an ALB is associated with private subnets, querying the ALB
-from the internet will always hang.
-
 #+begin_src yaml
   ALB:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
@@ -56,8 +52,8 @@ from the internet will always hang.
       Scheme: internet-facing
       SecurityGroups: [!Ref AlbSecurityGroup]
       Subnets:
-        - Fn::ImportValue: !Sub "${DeploymentName}-PublicSubnet1"
-        - Fn::ImportValue: !Sub "${DeploymentName}-PublicSubnet2"
+        - Fn::ImportValue: !Sub "${DeploymentName}-PrivateSubnet1"
+        - Fn::ImportValue: !Sub "${DeploymentName}-PrivateSubnet2"
       Type: application
       Tags:
         - Key: Name
@@ -81,10 +77,6 @@ from the internet will always hang.
 #+end_src
 
 ** ALB Routing
-:PROPERTIES:
-:CUSTOM_ID: alb-routing
-:END:
-
 #+begin_src yaml
   ALBListenerHTTP:
     Type: AWS::ElasticLoadBalancingV2::Listener
@@ -97,6 +89,9 @@ from the internet will always hang.
       Protocol: HTTP
 #+end_src
 
+TODO: Restrict access from only the TargetGroup (using SourceArn). This is
+tricky. See: https://forums.aws.amazon.com/thread.jspa?threadID=307784
+
 #+begin_src yaml
   AlbTargetGroupLambda:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
@@ -106,9 +101,6 @@ from the internet will always hang.
       Targets:
         - Id: !GetAtt HelloWorldFunction.Arn
 #+end_src
-
-TODO: Restrict access from only the TargetGroup (using =SourceArn=). This is
-tricky. See: https://forums.aws.amazon.com/thread.jspa?threadID=307784
 
 #+begin_src yaml
   LambdaInvokePermissionElb:
@@ -121,15 +113,11 @@ tricky. See: https://forums.aws.amazon.com/thread.jspa?threadID=307784
 #+end_src
 
 ** Lambda Function
-:PROPERTIES:
-:CUSTOM_ID: lambda-function
-:END:
-
 #+begin_src yaml
   HelloWorldFunction:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Sub "${DeploymentName}-Hello-World"
+      FunctionName: hello-world
       InlineCode: |
         import json
         def handler(event, context) -> dict:
@@ -144,6 +132,29 @@ tricky. See: https://forums.aws.amazon.com/thread.jspa?threadID=307784
       Handler: index.handler
       Runtime: python3.8
       Timeout: 3
+#+end_src
+
+** VPC Endpoint for Lambda
+
+#+begin_src yaml
+  VpcEndpointLambda:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal: "*"
+            Action:
+              - "lambda:*"
+            Resource:
+              - !GetAtt HelloWorldFunction.Arn
+      ServiceName: !Sub "com.amazonaws.${AWS::Region}.lambda"
+      SubnetIds:
+        - Fn::ImportValue: !Sub "${DeploymentName}-PrivateSubnet1"
+        - Fn::ImportValue: !Sub "${DeploymentName}-PrivateSubnet2"
+      VpcEndpointType: Interface
+      VpcId: {Fn::ImportValue: !Sub "${DeploymentName}-VpcId"}
 #+end_src
 
 * Outputs

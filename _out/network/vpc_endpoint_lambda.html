@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Interface VPC Endpoint to Lambda </title>
+<meta name="generator" content="Org Mode" />
+<link rel="stylesheet" type="text/css" href="/static/main.css" />
+</head>
+<body>
+<div id="preamble" class="status">
+<nav id="navbar" class="cf">
+  <ul class="cf">
+    <li class="fl">
+      <a href="/">cfclrk</a>
+    </li>
+    <li class="fr">
+      <a href="/articles/home.html">Articles</a>
+    </li>
+    <li class="fr">
+      <a href="/notes/home.html">Notes</a>
+    </li>
+	<li class="fr">
+      <a href="/cloudformation/home.html">CloudFormation</a>
+    </li>
+  </ul>
+</nav>
+</div>
+<div id="content">
+<header>
+<h1 class="title">Interface VPC Endpoint to Lambda </h1>
+</header><nav id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org9408975">Overview</a></li>
+<li><a href="#orgccc1057">Parameters</a>
+<ul>
+<li><a href="#orgb865c8c">DeploymentName</a></li>
+</ul>
+</li>
+<li><a href="#org53c80a4">VPC Endpoint for Lambda</a></li>
+</ul>
+</div>
+</nav>
+
+<div id="outline-container-org9408975" class="outline-2">
+<h2 id="org9408975"><a href="#org9408975">Overview</a></h2>
+<div class="outline-text-2" id="text-org9408975">
+<div class="org-src-container">
+<pre class="src src-yaml"><span style="color: #dcaeea;">AWSTemplateFormatVersion</span>: 2010-09-09
+<span style="color: #dcaeea;">Description</span>: An interface VPC Endpoint to Lambda
+<span style="color: #dcaeea;">Transform</span>: AWS::Serverless-2016-10-31
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgccc1057" class="outline-2">
+<h2 id="orgccc1057"><a href="#orgccc1057">Parameters</a></h2>
+<div class="outline-text-2" id="text-orgccc1057">
+<div class="org-src-container">
+<pre class="src src-yaml"><span style="color: #dcaeea;">Parameters</span>:
+</pre>
+</div>
+</div>
+
+<div id="outline-container-orgb865c8c" class="outline-3">
+<h3 id="orgb865c8c"><a href="#orgb865c8c">DeploymentName</a></h3>
+<div class="outline-text-3" id="text-orgb865c8c">
+<p>
+A <b>deployment</b> is a complete deployed application, potentially comprised of many
+CloudFormation stacks. This is sometimes called an "environment", but that is an
+overloaded term. Use the <code>DeploymentName</code> to indicate which deployment a Stack
+is part of.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-yaml">  <span style="color: #dcaeea;">DeploymentName</span>:
+    <span style="color: #dcaeea;">Description</span>: A name for this deployment
+    <span style="color: #dcaeea;">Type</span>: String
+</pre>
+</div>
+</div>
+</div>
+</div>
+
+
+<div id="outline-container-org53c80a4" class="outline-2">
+<h2 id="org53c80a4"><a href="#org53c80a4">VPC Endpoint for Lambda</a></h2>
+<div class="outline-text-2" id="text-org53c80a4">
+<div class="org-src-container">
+<pre class="src src-yaml">  <span style="color: #dcaeea;">VpcEndpointSecurityGroup</span>:
+    <span style="color: #dcaeea;">Type</span>: AWS::EC2::SecurityGroup
+    <span style="color: #dcaeea;">Properties</span>:
+      <span style="color: #dcaeea;">GroupDescription</span>: Allow HTTP on port 80
+      <span style="color: #dcaeea;">VpcId</span>: {<span style="color: #dcaeea;">Fn::ImportValue</span>: <span style="color: #ECBE7B;">!Sub</span> <span style="color: #98be65;">"${DeploymentName}-VpcId"</span>}
+      <span style="color: #dcaeea;">SecurityGroupIngress</span>:
+        - <span style="color: #dcaeea;">IpProtocol</span>: tcp
+          <span style="color: #dcaeea;">FromPort</span>: 80
+          <span style="color: #dcaeea;">ToPort</span>: 80
+          <span style="color: #dcaeea;">SourceSecurityGroupId</span>: <span style="color: #ECBE7B;">!Ref</span> AlbSecurityGroup
+      <span style="color: #dcaeea;">Tags</span>:
+        - <span style="color: #dcaeea;">Key</span>: Name
+          <span style="color: #dcaeea;">Value</span>: <span style="color: #ECBE7B;">!Ref</span> AWS::StackName
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-yaml">  <span style="color: #dcaeea;">VpcEndpointLambda</span>:
+    <span style="color: #dcaeea;">Type</span>: AWS::EC2::VPCEndpoint
+    <span style="color: #dcaeea;">Properties</span>:
+      <span style="color: #dcaeea;">PolicyDocument</span>:
+        <span style="color: #dcaeea;">Version</span>: 2012-10-17
+        <span style="color: #dcaeea;">Statement</span>:
+          - <span style="color: #dcaeea;">Effect</span>: Allow
+            <span style="color: #dcaeea;">Principal</span>: <span style="color: #98be65;">"*"</span>
+            <span style="color: #dcaeea;">Action</span>:
+              - <span style="color: #98be65;">"lambda:*"</span>
+            <span style="color: #dcaeea;">Resource</span>:
+              - <span style="color: #ECBE7B;">!GetAtt</span> HelloWorldFunction.Arn
+      <span style="color: #dcaeea;">SecurityGroupIds</span>:
+        - <span style="color: #ECBE7B;">!Ref</span> VpcEndpointSecurityGroup
+      <span style="color: #dcaeea;">ServiceName</span>: <span style="color: #ECBE7B;">!Sub</span> <span style="color: #98be65;">"com.amazonaws.${AWS::Region}.lambda"</span>
+      <span style="color: #dcaeea;">SubnetIds</span>:
+        - <span style="color: #dcaeea;">Fn::ImportValue</span>: <span style="color: #ECBE7B;">!Sub</span> <span style="color: #98be65;">"${DeploymentName}-PrivateSubnet1"</span>
+        - <span style="color: #dcaeea;">Fn::ImportValue</span>: <span style="color: #ECBE7B;">!Sub</span> <span style="color: #98be65;">"${DeploymentName}-PrivateSubnet2"</span>
+      <span style="color: #dcaeea;">VpcEndpointType</span>: Interface
+      <span style="color: #dcaeea;">VpcId</span>: {<span style="color: #dcaeea;">Fn::ImportValue</span>: <span style="color: #ECBE7B;">!Sub</span> <span style="color: #98be65;">"${DeploymentName}-VpcId"</span>}
+</pre>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>

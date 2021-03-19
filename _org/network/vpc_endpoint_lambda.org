@@ -1,0 +1,72 @@
+#+TITLE: Interface VPC Endpoint to Lambda
+#+AUTHOR: Chris Clark
+#+setupfile: ../setup.org
+
+* Overview
+
+#+begin_src yaml
+AWSTemplateFormatVersion: 2010-09-09
+Description: An interface VPC Endpoint to Lambda
+Transform: AWS::Serverless-2016-10-31
+#+end_src
+
+* Parameters
+
+#+begin_src yaml
+Parameters:
+#+end_src
+
+** DeploymentName
+
+A *deployment* is a complete deployed application, potentially comprised of many
+CloudFormation stacks. This is sometimes called an "environment", but that is an
+overloaded term. Use the =DeploymentName= to indicate which deployment a Stack
+is part of.
+
+#+begin_src yaml
+  DeploymentName:
+    Description: A name for this deployment
+    Type: String
+#+end_src
+
+
+* VPC Endpoint for Lambda
+
+#+begin_src yaml
+  VpcEndpointSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow HTTP on port 80
+      VpcId: {Fn::ImportValue: !Sub "${DeploymentName}-VpcId"}
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          SourceSecurityGroupId: !Ref AlbSecurityGroup
+      Tags:
+        - Key: Name
+          Value: !Ref AWS::StackName
+#+end_src
+
+#+begin_src yaml
+  VpcEndpointLambda:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal: "*"
+            Action:
+              - "lambda:*"
+            Resource:
+              - !GetAtt HelloWorldFunction.Arn
+      SecurityGroupIds:
+        - !Ref VpcEndpointSecurityGroup
+      ServiceName: !Sub "com.amazonaws.${AWS::Region}.lambda"
+      SubnetIds:
+        - Fn::ImportValue: !Sub "${DeploymentName}-PrivateSubnet1"
+        - Fn::ImportValue: !Sub "${DeploymentName}-PrivateSubnet2"
+      VpcEndpointType: Interface
+      VpcId: {Fn::ImportValue: !Sub "${DeploymentName}-VpcId"}
+#+end_src

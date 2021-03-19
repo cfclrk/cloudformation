@@ -1,0 +1,44 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: An interface VPC Endpoint to Lambda
+Transform: AWS::Serverless-2016-10-31
+
+Parameters:
+
+  DeploymentName:
+    Description: A name for this deployment
+    Type: String
+
+  VpcEndpointSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow HTTP on port 80
+      VpcId: {Fn::ImportValue: !Sub "${DeploymentName}-VpcId"}
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          SourceSecurityGroupId: !Ref AlbSecurityGroup
+      Tags:
+        - Key: Name
+          Value: !Ref AWS::StackName
+
+  VpcEndpointLambda:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal: "*"
+            Action:
+              - "lambda:*"
+            Resource:
+              - !GetAtt HelloWorldFunction.Arn
+      SecurityGroupIds:
+        - !Ref VpcEndpointSecurityGroup
+      ServiceName: !Sub "com.amazonaws.${AWS::Region}.lambda"
+      SubnetIds:
+        - Fn::ImportValue: !Sub "${DeploymentName}-PrivateSubnet1"
+        - Fn::ImportValue: !Sub "${DeploymentName}-PrivateSubnet2"
+      VpcEndpointType: Interface
+      VpcId: {Fn::ImportValue: !Sub "${DeploymentName}-VpcId"}

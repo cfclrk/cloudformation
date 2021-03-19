@@ -1,0 +1,42 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: VPC with two public Subnets.
+
+Parameters:
+
+  DeploymentName:
+    Description: A name for this deployment
+    Type: String
+
+Resources:
+
+  VpcFlowLogsRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub "${DeploymentName}-VpcFlowLogs"
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: vpc-flow-logs.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ManagedPolicyArns:
+        - !Ref AllowVpcFlowLogs
+
+  AllowVpcFlowLogs:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      Description: Allow VPC Flow Logs to write logs
+      ManagedPolicyName: VpcFlowLog
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - logs:CreateLogGroup
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+              - logs:DescribeLogGroups
+              - logs:DescribeLogStreams
+            Resource: "*"

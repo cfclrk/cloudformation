@@ -33,6 +33,7 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
+<li><a href="#orgfa80dce">Overview</a></li>
 <li><a href="#org74313d7">Parameters</a>
 <ul>
 <li><a href="#org91a044a">DeploymentName</a></li>
@@ -43,18 +44,27 @@
 <li><a href="#org8d74091">VPC</a></li>
 <li><a href="#orgf729f7e">Internet Gateway</a></li>
 <li><a href="#org6eebfcd">Route Table</a></li>
-<li><a href="#org0af2c0f">Public subnet 1</a></li>
-<li><a href="#org4887d47">Public subnet 2</a></li>
+<li><a href="#org86caaf5">Subnets</a></li>
 </ul>
 </li>
 <li><a href="#org0ad0ba7">Outputs</a></li>
 </ul>
 </div>
 </nav>
+
+<div id="outline-container-orgfa80dce" class="outline-2">
+<h2 id="orgfa80dce"><a href="#orgfa80dce">Overview</a></h2>
+<div class="outline-text-2" id="text-orgfa80dce">
+<p>
+This document creates a VPC with two public subnets.
+</p>
+
 <div class="org-src-container">
 <pre class="src src-yaml"><span style="color: #dcaeea;">AWSTemplateFormatVersion</span>: 2010-09-09
 <span style="color: #dcaeea;">Description</span>: VPC with two public Subnets.
 </pre>
+</div>
+</div>
 </div>
 
 <div id="outline-container-org74313d7" class="outline-2">
@@ -84,25 +94,20 @@ is part of.
 </div>
 
 <div class="org-src-container">
-<pre class="src src-yaml">  <span style="color: #dcaeea;">Name</span>:
-    <span style="color: #dcaeea;">Description</span>: Name for resources
-    <span style="color: #dcaeea;">Type</span>: String
-    <span style="color: #dcaeea;">Default</span>: example
-
-  <span style="color: #dcaeea;">VpcCIDR</span>:
-    <span style="color: #dcaeea;">Description</span>: CIDR range for VPC
+<pre class="src src-yaml">  <span style="color: #dcaeea;">VpcCIDR</span>:
+    <span style="color: #dcaeea;">Description</span>: CIDR range for this VPC
     <span style="color: #dcaeea;">Type</span>: String
     <span style="color: #dcaeea;">Default</span>: 10.192.0.0/16
 
-  <span style="color: #dcaeea;">Subnet1CIDR</span>:
-    <span style="color: #dcaeea;">Description</span>: CIDR range for private Subnet 1
+  <span style="color: #dcaeea;">PublicSubnet1CIDR</span>:
+    <span style="color: #dcaeea;">Description</span>: CIDR range for public subnet in 1st AZ
     <span style="color: #dcaeea;">Type</span>: String
-    <span style="color: #dcaeea;">Default</span>: 10.192.20.0/24
+    <span style="color: #dcaeea;">Default</span>: 10.192.10.0/24
 
-  <span style="color: #dcaeea;">Subnet2CIDR</span>:
-    <span style="color: #dcaeea;">Description</span>: CIDR range for private Subnet 2
+  <span style="color: #dcaeea;">PublicSubnet2CIDR</span>:
+    <span style="color: #dcaeea;">Description</span>: CIDR range for public subnet in 2nd AZ
     <span style="color: #dcaeea;">Type</span>: String
-    <span style="color: #dcaeea;">Default</span>: 10.192.21.0/24
+    <span style="color: #dcaeea;">Default</span>: 10.192.11.0/24
 </pre>
 </div>
 </div>
@@ -130,7 +135,7 @@ is part of.
       <span style="color: #dcaeea;">EnableDnsHostnames</span>: <span style="color: #a9a1e1;">true</span>
       <span style="color: #dcaeea;">Tags</span>:
         - <span style="color: #dcaeea;">Key</span>: Name
-          <span style="color: #dcaeea;">Value</span>: <span style="color: #ECBE7B;">!Ref</span> Name
+          <span style="color: #dcaeea;">Value</span>: <span style="color: #ECBE7B;">!Sub</span> <span style="color: #98be65;">"${DeploymentName}"</span>
 </pre>
 </div>
 </div>
@@ -145,7 +150,7 @@ is part of.
     <span style="color: #dcaeea;">Properties</span>:
       <span style="color: #dcaeea;">Tags</span>:
         - <span style="color: #dcaeea;">Key</span>: Name
-          <span style="color: #dcaeea;">Value</span>: <span style="color: #ECBE7B;">!Ref</span> Name
+          <span style="color: #dcaeea;">Value</span>: <span style="color: #ECBE7B;">!Sub</span> <span style="color: #98be65;">"${DeploymentName}"</span>
 
   <span style="color: #dcaeea;">InternetGatewayAttachment</span>:
     <span style="color: #dcaeea;">Type</span>: AWS::EC2::VPCGatewayAttachment
@@ -161,19 +166,22 @@ is part of.
 <h3 id="org6eebfcd"><a href="#org6eebfcd">Route Table</a></h3>
 <div class="outline-text-3" id="text-org6eebfcd">
 <div class="org-src-container">
-<pre class="src src-yaml">  <span style="color: #dcaeea;">RouteTable</span>:
+<pre class="src src-yaml">  <span style="color: #dcaeea;">PublicRouteTable</span>:
     <span style="color: #dcaeea;">Type</span>: AWS::EC2::RouteTable
     <span style="color: #dcaeea;">Properties</span>:
       <span style="color: #dcaeea;">VpcId</span>: <span style="color: #ECBE7B;">!Ref</span> VPC
       <span style="color: #dcaeea;">Tags</span>:
         - <span style="color: #dcaeea;">Key</span>: Name
-          <span style="color: #dcaeea;">Value</span>: <span style="color: #ECBE7B;">!Ref</span> Name
+          <span style="color: #dcaeea;">Value</span>: <span style="color: #ECBE7B;">!Sub</span> <span style="color: #98be65;">"${DeploymentName} Public"</span>
+</pre>
+</div>
 
-  <span style="color: #dcaeea;">PublicRoute</span>:
+<div class="org-src-container">
+<pre class="src src-yaml">  <span style="color: #dcaeea;">DefaultPublicRoute</span>:
     <span style="color: #dcaeea;">Type</span>: AWS::EC2::Route
     <span style="color: #dcaeea;">DependsOn</span>: InternetGatewayAttachment
     <span style="color: #dcaeea;">Properties</span>:
-      <span style="color: #dcaeea;">RouteTableId</span>: <span style="color: #ECBE7B;">!Ref</span> RouteTable
+      <span style="color: #dcaeea;">RouteTableId</span>: <span style="color: #ECBE7B;">!Ref</span> PublicRouteTable
       <span style="color: #dcaeea;">DestinationCidrBlock</span>: 0.0.0.0/0
       <span style="color: #dcaeea;">GatewayId</span>: <span style="color: #ECBE7B;">!Ref</span> InternetGateway
 </pre>
@@ -181,51 +189,46 @@ is part of.
 </div>
 </div>
 
-<div id="outline-container-org0af2c0f" class="outline-3">
-<h3 id="org0af2c0f"><a href="#org0af2c0f">Public subnet 1</a></h3>
-<div class="outline-text-3" id="text-org0af2c0f">
+<div id="outline-container-org86caaf5" class="outline-3">
+<h3 id="org86caaf5"><a href="#org86caaf5">Subnets</a></h3>
+<div class="outline-text-3" id="text-org86caaf5">
 <div class="org-src-container">
-<pre class="src src-yaml">  <span style="color: #dcaeea;">Subnet1</span>:
+<pre class="src src-yaml">  <span style="color: #dcaeea;">PublicSubnet1</span>:
     <span style="color: #dcaeea;">Type</span>: AWS::EC2::Subnet
     <span style="color: #dcaeea;">Properties</span>:
       <span style="color: #dcaeea;">VpcId</span>: <span style="color: #ECBE7B;">!Ref</span> VPC
-      <span style="color: #dcaeea;">AvailabilityZone</span>: <span style="color: #ECBE7B;">!Select</span> [0, <span style="color: #ECBE7B;">!GetAZs</span>  <span style="color: #98be65;">""</span>]
-      <span style="color: #dcaeea;">CidrBlock</span>: <span style="color: #ECBE7B;">!Ref</span> Subnet1CIDR
-      <span style="color: #dcaeea;">MapPublicIpOnLaunch</span>: <span style="color: #a9a1e1;">false</span>
+      <span style="color: #dcaeea;">AvailabilityZone</span>: <span style="color: #ECBE7B;">!Select</span> [0, <span style="color: #ECBE7B;">!GetAZs</span> <span style="color: #98be65;">""</span>]
+      <span style="color: #dcaeea;">CidrBlock</span>: <span style="color: #ECBE7B;">!Ref</span> PublicSubnet1CIDR
+      <span style="color: #dcaeea;">MapPublicIpOnLaunch</span>: <span style="color: #a9a1e1;">true</span>
       <span style="color: #dcaeea;">Tags</span>:
         - <span style="color: #dcaeea;">Key</span>: Name
-          <span style="color: #dcaeea;">Value</span>: Subnet (AZ1)
+          <span style="color: #dcaeea;">Value</span>: <span style="color: #ECBE7B;">!Sub</span> <span style="color: #98be65;">"${DeploymentName} Public (AZ1)"</span>
 
-  <span style="color: #dcaeea;">Subnet1RouteTableAssociation</span>:
+  <span style="color: #dcaeea;">PublicSubnet1RouteTableAssociation</span>:
     <span style="color: #dcaeea;">Type</span>: AWS::EC2::SubnetRouteTableAssociation
     <span style="color: #dcaeea;">Properties</span>:
-      <span style="color: #dcaeea;">RouteTableId</span>: <span style="color: #ECBE7B;">!Ref</span> RouteTable
-      <span style="color: #dcaeea;">SubnetId</span>: <span style="color: #ECBE7B;">!Ref</span> Subnet1
+      <span style="color: #dcaeea;">RouteTableId</span>: <span style="color: #ECBE7B;">!Ref</span> PublicRouteTable
+      <span style="color: #dcaeea;">SubnetId</span>: <span style="color: #ECBE7B;">!Ref</span> PublicSubnet1
 </pre>
 </div>
-</div>
-</div>
 
-<div id="outline-container-org4887d47" class="outline-3">
-<h3 id="org4887d47"><a href="#org4887d47">Public subnet 2</a></h3>
-<div class="outline-text-3" id="text-org4887d47">
 <div class="org-src-container">
-<pre class="src src-yaml">  <span style="color: #dcaeea;">Subnet2</span>:
+<pre class="src src-yaml">  <span style="color: #dcaeea;">PublicSubnet2</span>:
     <span style="color: #dcaeea;">Type</span>: AWS::EC2::Subnet
     <span style="color: #dcaeea;">Properties</span>:
       <span style="color: #dcaeea;">VpcId</span>: <span style="color: #ECBE7B;">!Ref</span> VPC
       <span style="color: #dcaeea;">AvailabilityZone</span>: <span style="color: #ECBE7B;">!Select</span> [1, <span style="color: #ECBE7B;">!GetAZs</span>  <span style="color: #98be65;">""</span>]
-      <span style="color: #dcaeea;">CidrBlock</span>: <span style="color: #ECBE7B;">!Ref</span> Subnet2CIDR
-      <span style="color: #dcaeea;">MapPublicIpOnLaunch</span>: <span style="color: #a9a1e1;">false</span>
+      <span style="color: #dcaeea;">CidrBlock</span>: <span style="color: #ECBE7B;">!Ref</span> PublicSubnet2CIDR
+      <span style="color: #dcaeea;">MapPublicIpOnLaunch</span>: <span style="color: #a9a1e1;">true</span>
       <span style="color: #dcaeea;">Tags</span>:
         - <span style="color: #dcaeea;">Key</span>: Name
-          <span style="color: #dcaeea;">Value</span>: Subnet (AZ2)
+          <span style="color: #dcaeea;">Value</span>: <span style="color: #ECBE7B;">!Sub</span> <span style="color: #98be65;">"${DeploymentName} Public (AZ2)"</span>
 
-  <span style="color: #dcaeea;">Subnet2RouteTableAssociation</span>:
+  <span style="color: #dcaeea;">PublicSubnet2RouteTableAssociation</span>:
     <span style="color: #dcaeea;">Type</span>: AWS::EC2::SubnetRouteTableAssociation
     <span style="color: #dcaeea;">Properties</span>:
-      <span style="color: #dcaeea;">RouteTableId</span>: <span style="color: #ECBE7B;">!Ref</span> RouteTable
-      <span style="color: #dcaeea;">SubnetId</span>: <span style="color: #ECBE7B;">!Ref</span> Subnet2
+      <span style="color: #dcaeea;">RouteTableId</span>: <span style="color: #ECBE7B;">!Ref</span> PublicRouteTable
+      <span style="color: #dcaeea;">SubnetId</span>: <span style="color: #ECBE7B;">!Ref</span> PublicSubnet2
 </pre>
 </div>
 </div>
@@ -237,17 +240,29 @@ is part of.
 <div class="outline-text-2" id="text-org0ad0ba7">
 <div class="org-src-container">
 <pre class="src src-yaml"><span style="color: #dcaeea;">Outputs</span>:
-  <span style="color: #dcaeea;">VPC</span>:
+  <span style="color: #dcaeea;">VpcId</span>:
     <span style="color: #dcaeea;">Description</span>: A reference to the created VPC
     <span style="color: #dcaeea;">Value</span>: <span style="color: #ECBE7B;">!Ref</span> VPC
+    <span style="color: #dcaeea;">Export</span>:
+      <span style="color: #dcaeea;">Name</span>: <span style="color: #ECBE7B;">!Sub</span> <span style="color: #98be65;">"${DeploymentName}-VpcId"</span>
 
-  <span style="color: #dcaeea;">Subnet1</span>:
-    <span style="color: #dcaeea;">Description</span>: Subnet in the 1st Availability Zone
-    <span style="color: #dcaeea;">Value</span>: <span style="color: #ECBE7B;">!Ref</span> Subnet1
+  <span style="color: #dcaeea;">VpcCidr</span>:
+    <span style="color: #dcaeea;">Description</span>: The VPC CIDR range
+    <span style="color: #dcaeea;">Value</span>: <span style="color: #ECBE7B;">!GetAtt</span> VPC.CidrBlock
+    <span style="color: #dcaeea;">Export</span>:
+      <span style="color: #dcaeea;">Name</span>: <span style="color: #ECBE7B;">!Sub</span> <span style="color: #98be65;">"${DeploymentName}-VpcCidr"</span>
 
-  <span style="color: #dcaeea;">Subnet2</span>:
-    <span style="color: #dcaeea;">Description</span>: Subnet in the 2nd Availability Zone
-    <span style="color: #dcaeea;">Value</span>: <span style="color: #ECBE7B;">!Ref</span> Subnet2
+  <span style="color: #dcaeea;">PublicSubnet1</span>:
+    <span style="color: #dcaeea;">Description</span>: The public subnet in the 1st AZ
+    <span style="color: #dcaeea;">Value</span>: <span style="color: #ECBE7B;">!Ref</span> PublicSubnet1
+    <span style="color: #dcaeea;">Export</span>:
+      <span style="color: #dcaeea;">Name</span>: <span style="color: #ECBE7B;">!Sub</span> <span style="color: #98be65;">"${DeploymentName}-PublicSubnet1"</span>
+
+  <span style="color: #dcaeea;">PublicSubnet2</span>:
+    <span style="color: #dcaeea;">Description</span>: The public subnet in the 2nd AZ
+    <span style="color: #dcaeea;">Value</span>: <span style="color: #ECBE7B;">!Ref</span> PublicSubnet2
+    <span style="color: #dcaeea;">Export</span>:
+      <span style="color: #dcaeea;">Name</span>: <span style="color: #ECBE7B;">!Sub</span> <span style="color: #98be65;">"${DeploymentName}-PublicSubnet2"</span>
 </pre>
 </div>
 </div>

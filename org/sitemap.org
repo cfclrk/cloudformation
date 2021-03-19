@@ -9,5 +9,6 @@
 - iam
   - [[file:iam/roles.org][Common IAM Roles]]
 - network
+  - [[file:network/vpc_endpoint_lambda.org][Interface VPC Endpoint to Lambda]]
   - [[file:network/public.org][Network with Public Subnets]]
   - [[file:network/public_private.org][Network with Public and Private Subnets]]

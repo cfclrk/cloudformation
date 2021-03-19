@@ -8,6 +8,8 @@
 #+PROPERTY: header-args+ :var deploymentName=deploymentName
 #+PROPERTY: header-args+ :results output
 
+Build a CloudFormation stack name from a template file path.
+
 #+NAME: name
 #+begin_src emacs-lisp :var template=template :results value
   (let* ((parent-dir (f-base (f-parent template)))
@@ -15,19 +17,17 @@
     (s-join "-" (list parent-dir base-name-dashes)))
 #+end_src
 
-* TODO
-
-  - [ ] Get rid of $name. Just use tempalte file name.
-
 * Create Stack
 ** package
 
    If the template requires packaging. For a list of properties that can be
    filled in by packaging, see the [[https://docs.aws.amazon.com/cli/latest/reference/cloudformation/package.html][package]] command.
 
-   #+begin_src sh
+   TODO!
+
+   #+begin_src sh :var template=template
      aws cloudformation package \
-         --template-file template.yaml \
+         --template-file $template \
          --output-template-file serverless-output.yaml \
          --s3-bucket <<<YOUR BUCKET NAME>>>
    #+end_src
@@ -42,12 +42,17 @@
          --parameters ParameterKey=DeploymentName,ParameterValue=$deploymentName
    #+end_src
 
+   #+RESULTS:
+   : {
+   :     "StackId": "arn:aws:cloudformation:us-east-2:054288142014:stack/cf-alb-lambda-target/717ae670-88b5-11eb-865b-022878fe3076"
+   : }
+
 * Update Stack
 ** In-Place
 
    #+begin_src sh :var name=name
      aws cloudformation update-stack \
-         --stack-name $deploymentName-$name \
+         --stack-name "$deploymentName"-"$name" \
          --template-body file://$template \
          --capabilities CAPABILITY_AUTO_EXPAND CAPABILITY_IAM CAPABILITY_NAMED_IAM \
          --parameters ParameterKey=DeploymentName,ParameterValue=$deploymentName
@@ -91,11 +96,11 @@
 
 * Delete Stack
 
-  #+begin_src sh
-    parent=$(basename $(dirname $template))
-    name=$parent-$(basename $template .yaml | sed "s/_/-/g")
+  #+begin_src sh :var name=name
     aws cloudformation delete-stack --stack-name $name
   #+end_src
+
+  #+RESULTS:
 
 * Get stack logs
 
@@ -110,9 +115,7 @@
   Force regeneration of all files in =make.el=. This way I can do a =make clean=
   and then a =make=.
 
-* From network_public_private
-
-  # Local Variables:
-  # org-src-preserve-indentation: nil
-  # org-adapt-indentation: t
-  # End:
+# Local Variables:
+# org-src-preserve-indentation: nil
+# org-adapt-indentation: t
+# End:

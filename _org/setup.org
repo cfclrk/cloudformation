@@ -1,0 +1,6 @@
+#+OPTIONS: timestamp:nil
+#+TITLE:
+#+AUTHOR: Chris Clark
+#+property: header-args+ :eval never-export
+#+property: header-args+ :exports both
+#+property: header-args+ :tangle yes

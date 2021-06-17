@@ -1,11 +1,10 @@
-#+TITLE: ALB with a gRPC Target Group
+#+TITLE: ALB with a gRPC Target
 #+AUTHOR: Chris Clark
 #+setupfile: ../setup.org
 
 * Overview
 
-This creates an internet-facing ALB with a gRPC target group. You can use a gRPC
-client to invoke a function behind the ALB.
+This creates an internet-facing ALB that invokes a gRPC service.
 
 This CloudFormation template imports resources that are exported in the
 [[file:./network_public_private.org]] stack. That template must be deploying first, and
@@ -13,7 +12,7 @@ it must use the same =DeploymentName=.
 
 #+begin_src yaml
 AWSTemplateFormatVersion: 2010-09-09
-Description: A public ALB with a gRPC target group.
+Description: A public ALB with a gRPC target.
 Transform: AWS::Serverless-2016-10-31
 #+end_src
 
@@ -44,6 +43,22 @@ Resources:
 
 ** ALB (internet-facing)
 
+If you want the ALB to be reachable from the internet, the ALB must:
+
+- Use an internet-facing scheme
+- Be associated with /public subnets/
+
+Why can't we use private subnets? Although ALBs /can/ be associated with private
+subnets, in this case that would break everything. An ALB has a couple of IP
+addresses (try =host $ALB_DNS_NAME=). If you associate the ALB with two subnets,
+the ALB has at least 2 IP addresses: one for each subnet. When the ALB is
+associated with a subnet, it creates an Elastic Network Interface (ENI) in that
+subnet, and the ENI is assigned an internet-valid IP address (if this is an
+internet-facing ALB). /That/ IP becomes one of the ALB's IP addresses. If the
+ENI is in a private subnet, network traffic to the ENI's IP has no route into
+the subnet. So, when an ALB is associated with private subnets, querying the ALB
+from the internet will always hang.
+
 #+begin_src yaml
   ALB:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
@@ -52,8 +67,8 @@ Resources:
       Scheme: internet-facing
       SecurityGroups: [!Ref AlbSecurityGroup]
       Subnets:
-        - Fn::ImportValue: !Sub "${DeploymentName}-PrivateSubnet1"
-        - Fn::ImportValue: !Sub "${DeploymentName}-PrivateSubnet2"
+        - Fn::ImportValue: !Sub "${DeploymentName}-PublicSubnet1"
+        - Fn::ImportValue: !Sub "${DeploymentName}-PublicSubnet2"
       Type: application
       Tags:
         - Key: Name
@@ -89,9 +104,6 @@ Resources:
       Protocol: HTTP
 #+end_src
 
-TODO: Restrict access from only the TargetGroup (using SourceArn). This is
-tricky. See: https://forums.aws.amazon.com/thread.jspa?threadID=307784
-
 #+begin_src yaml
   AlbTargetGroupLambda:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
@@ -101,6 +113,9 @@ tricky. See: https://forums.aws.amazon.com/thread.jspa?threadID=307784
       Targets:
         - Id: !GetAtt HelloWorldFunction.Arn
 #+end_src
+
+TODO: Restrict access from only the TargetGroup (using =SourceArn=). This is
+tricky. See: https://forums.aws.amazon.com/thread.jspa?threadID=307784
 
 #+begin_src yaml
   LambdaInvokePermissionElb:
@@ -117,7 +132,7 @@ tricky. See: https://forums.aws.amazon.com/thread.jspa?threadID=307784
   HelloWorldFunction:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: hello-world
+      FunctionName: !Sub "${DeploymentName}-Hello-World"
       InlineCode: |
         import json
         def handler(event, context) -> dict:
@@ -134,29 +149,6 @@ tricky. See: https://forums.aws.amazon.com/thread.jspa?threadID=307784
       Timeout: 3
 #+end_src
 
-** VPC Endpoint for Lambda
-
-#+begin_src yaml
-  VpcEndpointLambda:
-    Type: AWS::EC2::VPCEndpoint
-    Properties:
-      PolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          - Effect: Allow
-            Principal: "*"
-            Action:
-              - "lambda:*"
-            Resource:
-              - !GetAtt HelloWorldFunction.Arn
-      ServiceName: !Sub "com.amazonaws.${AWS::Region}.lambda"
-      SubnetIds:
-        - Fn::ImportValue: !Sub "${DeploymentName}-PrivateSubnet1"
-        - Fn::ImportValue: !Sub "${DeploymentName}-PrivateSubnet2"
-      VpcEndpointType: Interface
-      VpcId: {Fn::ImportValue: !Sub "${DeploymentName}-VpcId"}
-#+end_src
-
 * Outputs
 
 #+begin_src yaml
@@ -164,8 +156,20 @@ Outputs:
   ALB:
     Description: DNS name for the ALB
     Value: !GetAtt ALB.DNSName
+    Export:
+      Name: !Sub "${DeploymentName}-ALB"
 #+end_src
 
 * Testing
 
-Show how to curl the ALB.
+Send an HTTP GET request to the ALB.
+
+#+begin_src sh
+  alb=$(aws cloudformation list-exports \
+      --query "Exports[?Name=='cf-ALB'].Value" \
+      --output text)
+  curl http://$alb
+#+end_src
+
+#+results:
+: {"hello": "world"}

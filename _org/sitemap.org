@@ -1,4 +1,4 @@
-# Created 2021-03-19 Fri 09:07
+# Created 2021-06-17 Thu 15:49
 #+TITLE: CloudFormation
 #+AUTHOR: Chris Clark
 - [[file:home.org][home]]

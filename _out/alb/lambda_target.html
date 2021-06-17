@@ -3,32 +3,14 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>ALB with Lambda Function </title>
+<title>ALB with a Lambda Target </title>
 <meta name="generator" content="Org Mode" />
 <link rel="stylesheet" type="text/css" href="/static/main.css" />
 </head>
 <body>
-<div id="preamble" class="status">
-<nav id="navbar" class="cf">
-  <ul class="cf">
-    <li class="fl">
-      <a href="/">cfclrk</a>
-    </li>
-    <li class="fr">
-      <a href="/articles/home.html">Articles</a>
-    </li>
-    <li class="fr">
-      <a href="/notes/home.html">Notes</a>
-    </li>
-	<li class="fr">
-      <a href="/cloudformation/home.html">CloudFormation</a>
-    </li>
-  </ul>
-</nav>
-</div>
-<div id="content">
+<div id="content" class="content">
 <header>
-<h1 class="title">ALB with Lambda Function </h1>
+<h1 class="title">ALB with a Lambda Target </h1>
 </header><nav id="table-of-contents">
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
@@ -255,6 +237,8 @@ tricky. See: <a href="https://forums.aws.amazon.com/thread.jspa?threadID=307784"
   <span style="color: #dcaeea;">ALB</span>:
     <span style="color: #dcaeea;">Description</span>: DNS name for the ALB
     <span style="color: #dcaeea;">Value</span>: <span style="color: #ECBE7B;">!GetAtt</span> ALB.DNSName
+    <span style="color: #dcaeea;">Export</span>:
+      <span style="color: #dcaeea;">Name</span>: <span style="color: #ECBE7B;">!Sub</span> <span style="color: #98be65;">"${DeploymentName}-ALB"</span>
 </pre>
 </div>
 </div>
@@ -264,8 +248,20 @@ tricky. See: <a href="https://forums.aws.amazon.com/thread.jspa?threadID=307784"
 <h2 id="orge90c967"><a href="#orge90c967">Testing</a></h2>
 <div class="outline-text-2" id="text-orge90c967">
 <p>
-Show how to curl the ALB.
+Send an HTTP GET request to the ALB.
 </p>
+
+<div class="org-src-container">
+<pre class="src src-sh">  <span style="color: #dcaeea;">alb</span>=$(aws cloudformation list-exports <span style="color: #98be65;">\</span>
+      --query <span style="color: #98be65;">"Exports[?Name=='cf-ALB'].Value"</span> <span style="color: #98be65;">\</span>
+      --output text)
+  curl http://$<span style="color: #dcaeea;">alb</span>
+</pre>
+</div>
+
+<pre class="example">
+{"hello": "world"}
+</pre>
 </div>
 </div>
 </div>

@@ -3,32 +3,14 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>ALB with a gRPC Target Group </title>
+<title>ALB with a gRPC Target </title>
 <meta name="generator" content="Org Mode" />
 <link rel="stylesheet" type="text/css" href="/static/main.css" />
 </head>
 <body>
-<div id="preamble" class="status">
-<nav id="navbar" class="cf">
-  <ul class="cf">
-    <li class="fl">
-      <a href="/">cfclrk</a>
-    </li>
-    <li class="fr">
-      <a href="/articles/home.html">Articles</a>
-    </li>
-    <li class="fr">
-      <a href="/notes/home.html">Notes</a>
-    </li>
-	<li class="fr">
-      <a href="/cloudformation/home.html">CloudFormation</a>
-    </li>
-  </ul>
-</nav>
-</div>
-<div id="content">
+<div id="content" class="content">
 <header>
-<h1 class="title">ALB with a gRPC Target Group </h1>
+<h1 class="title">ALB with a gRPC Target </h1>
 </header><nav id="table-of-contents">
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
@@ -44,7 +26,6 @@
 <li><a href="#org70c6f4e">ALB (internet-facing)</a></li>
 <li><a href="#orgd4bc4d8">ALB Routing</a></li>
 <li><a href="#org9fc6440">Lambda Function</a></li>
-<li><a href="#orgd5f4048">VPC Endpoint for Lambda</a></li>
 </ul>
 </li>
 <li><a href="#org81f63d7">Outputs</a></li>
@@ -57,8 +38,7 @@
 <h2 id="org8226aaf"><a href="#org8226aaf">Overview</a></h2>
 <div class="outline-text-2" id="text-org8226aaf">
 <p>
-This creates an internet-facing ALB with a gRPC target group. You can use a gRPC
-client to invoke a function behind the ALB.
+This creates an internet-facing ALB that invokes a gRPC service.
 </p>
 
 <p>
@@ -69,7 +49,7 @@ it must use the same <code>DeploymentName</code>.
 
 <div class="org-src-container">
 <pre class="src src-yaml"><span style="color: #dcaeea;">AWSTemplateFormatVersion</span>: 2010-09-09
-<span style="color: #dcaeea;">Description</span>: A public ALB with a gRPC target group.
+<span style="color: #dcaeea;">Description</span>: A public ALB with a gRPC target.
 <span style="color: #dcaeea;">Transform</span>: AWS::Serverless-2016-10-31
 </pre>
 </div>
@@ -117,6 +97,28 @@ is part of.
 <div id="outline-container-org70c6f4e" class="outline-3">
 <h3 id="org70c6f4e"><a href="#org70c6f4e">ALB (internet-facing)</a></h3>
 <div class="outline-text-3" id="text-org70c6f4e">
+<p>
+If you want the ALB to be reachable from the internet, the ALB must:
+</p>
+
+<ul class="org-ul">
+<li>Use an internet-facing scheme</li>
+<li>Be associated with <i>public subnets</i></li>
+</ul>
+
+<p>
+Why can't we use private subnets? Although ALBs <i>can</i> be associated with private
+subnets, in this case that would break everything. An ALB has a couple of IP
+addresses (try <code>host $ALB_DNS_NAME</code>). If you associate the ALB with two subnets,
+the ALB has at least 2 IP addresses: one for each subnet. When the ALB is
+associated with a subnet, it creates an Elastic Network Interface (ENI) in that
+subnet, and the ENI is assigned an internet-valid IP address (if this is an
+internet-facing ALB). <i>That</i> IP becomes one of the ALB's IP addresses. If the
+ENI is in a private subnet, network traffic to the ENI's IP has no route into
+the subnet. So, when an ALB is associated with private subnets, querying the ALB
+from the internet will always hang.
+</p>
+
 <div class="org-src-container">
 <pre class="src src-yaml">  <span style="color: #dcaeea;">ALB</span>:
     <span style="color: #dcaeea;">Type</span>: AWS::ElasticLoadBalancingV2::LoadBalancer
@@ -125,8 +127,8 @@ is part of.
       <span style="color: #dcaeea;">Scheme</span>: internet-facing
       <span style="color: #dcaeea;">SecurityGroups</span>: [<span style="color: #ECBE7B;">!Ref</span> AlbSecurityGroup]
       <span style="color: #dcaeea;">Subnets</span>:
-        - <span style="color: #dcaeea;">Fn::ImportValue</span>: <span style="color: #ECBE7B;">!Sub</span> <span style="color: #98be65;">"${DeploymentName}-PrivateSubnet1"</span>
-        - <span style="color: #dcaeea;">Fn::ImportValue</span>: <span style="color: #ECBE7B;">!Sub</span> <span style="color: #98be65;">"${DeploymentName}-PrivateSubnet2"</span>
+        - <span style="color: #dcaeea;">Fn::ImportValue</span>: <span style="color: #ECBE7B;">!Sub</span> <span style="color: #98be65;">"${DeploymentName}-PublicSubnet1"</span>
+        - <span style="color: #dcaeea;">Fn::ImportValue</span>: <span style="color: #ECBE7B;">!Sub</span> <span style="color: #98be65;">"${DeploymentName}-PublicSubnet2"</span>
       <span style="color: #dcaeea;">Type</span>: application
       <span style="color: #dcaeea;">Tags</span>:
         - <span style="color: #dcaeea;">Key</span>: Name
@@ -169,11 +171,6 @@ is part of.
 </pre>
 </div>
 
-<p>
-TODO: Restrict access from only the TargetGroup (using SourceArn). This is
-tricky. See: <a href="https://forums.aws.amazon.com/thread.jspa?threadID=307784">https://forums.aws.amazon.com/thread.jspa?threadID=307784</a>
-</p>
-
 <div class="org-src-container">
 <pre class="src src-yaml">  <span style="color: #dcaeea;">AlbTargetGroupLambda</span>:
     <span style="color: #dcaeea;">Type</span>: AWS::ElasticLoadBalancingV2::TargetGroup
@@ -184,6 +181,11 @@ tricky. See: <a href="https://forums.aws.amazon.com/thread.jspa?threadID=307784"
         - <span style="color: #dcaeea;">Id</span>: <span style="color: #ECBE7B;">!GetAtt</span> HelloWorldFunction.Arn
 </pre>
 </div>
+
+<p>
+TODO: Restrict access from only the TargetGroup (using <code>SourceArn</code>). This is
+tricky. See: <a href="https://forums.aws.amazon.com/thread.jspa?threadID=307784">https://forums.aws.amazon.com/thread.jspa?threadID=307784</a>
+</p>
 
 <div class="org-src-container">
 <pre class="src src-yaml">  <span style="color: #dcaeea;">LambdaInvokePermissionElb</span>:
@@ -205,7 +207,7 @@ tricky. See: <a href="https://forums.aws.amazon.com/thread.jspa?threadID=307784"
 <pre class="src src-yaml">  <span style="color: #dcaeea;">HelloWorldFunction</span>:
     <span style="color: #dcaeea;">Type</span>: AWS::Serverless::Function
     <span style="color: #dcaeea;">Properties</span>:
-      <span style="color: #dcaeea;">FunctionName</span>: hello-world
+      <span style="color: #dcaeea;">FunctionName</span>: <span style="color: #ECBE7B;">!Sub</span> <span style="color: #98be65;">"${DeploymentName}-Hello-World"</span>
       <span style="color: #dcaeea;">InlineCode</span>: |
         <span style="color: #98be65;">import json</span>
 <span style="color: #98be65;">        def handler(event, context) -&gt; dict:</span>
@@ -224,33 +226,6 @@ tricky. See: <a href="https://forums.aws.amazon.com/thread.jspa?threadID=307784"
 </div>
 </div>
 </div>
-
-<div id="outline-container-orgd5f4048" class="outline-3">
-<h3 id="orgd5f4048"><a href="#orgd5f4048">VPC Endpoint for Lambda</a></h3>
-<div class="outline-text-3" id="text-orgd5f4048">
-<div class="org-src-container">
-<pre class="src src-yaml">  <span style="color: #dcaeea;">VpcEndpointLambda</span>:
-    <span style="color: #dcaeea;">Type</span>: AWS::EC2::VPCEndpoint
-    <span style="color: #dcaeea;">Properties</span>:
-      <span style="color: #dcaeea;">PolicyDocument</span>:
-        <span style="color: #dcaeea;">Version</span>: 2012-10-17
-        <span style="color: #dcaeea;">Statement</span>:
-          - <span style="color: #dcaeea;">Effect</span>: Allow
-            <span style="color: #dcaeea;">Principal</span>: <span style="color: #98be65;">"*"</span>
-            <span style="color: #dcaeea;">Action</span>:
-              - <span style="color: #98be65;">"lambda:*"</span>
-            <span style="color: #dcaeea;">Resource</span>:
-              - <span style="color: #ECBE7B;">!GetAtt</span> HelloWorldFunction.Arn
-      <span style="color: #dcaeea;">ServiceName</span>: <span style="color: #ECBE7B;">!Sub</span> <span style="color: #98be65;">"com.amazonaws.${AWS::Region}.lambda"</span>
-      <span style="color: #dcaeea;">SubnetIds</span>:
-        - <span style="color: #dcaeea;">Fn::ImportValue</span>: <span style="color: #ECBE7B;">!Sub</span> <span style="color: #98be65;">"${DeploymentName}-PrivateSubnet1"</span>
-        - <span style="color: #dcaeea;">Fn::ImportValue</span>: <span style="color: #ECBE7B;">!Sub</span> <span style="color: #98be65;">"${DeploymentName}-PrivateSubnet2"</span>
-      <span style="color: #dcaeea;">VpcEndpointType</span>: Interface
-      <span style="color: #dcaeea;">VpcId</span>: {<span style="color: #dcaeea;">Fn::ImportValue</span>: <span style="color: #ECBE7B;">!Sub</span> <span style="color: #98be65;">"${DeploymentName}-VpcId"</span>}
-</pre>
-</div>
-</div>
-</div>
 </div>
 
 <div id="outline-container-org81f63d7" class="outline-2">
@@ -261,6 +236,8 @@ tricky. See: <a href="https://forums.aws.amazon.com/thread.jspa?threadID=307784"
   <span style="color: #dcaeea;">ALB</span>:
     <span style="color: #dcaeea;">Description</span>: DNS name for the ALB
     <span style="color: #dcaeea;">Value</span>: <span style="color: #ECBE7B;">!GetAtt</span> ALB.DNSName
+    <span style="color: #dcaeea;">Export</span>:
+      <span style="color: #dcaeea;">Name</span>: <span style="color: #ECBE7B;">!Sub</span> <span style="color: #98be65;">"${DeploymentName}-ALB"</span>
 </pre>
 </div>
 </div>
@@ -270,8 +247,20 @@ tricky. See: <a href="https://forums.aws.amazon.com/thread.jspa?threadID=307784"
 <h2 id="org51ef58b"><a href="#org51ef58b">Testing</a></h2>
 <div class="outline-text-2" id="text-org51ef58b">
 <p>
-Show how to curl the ALB.
+Send an HTTP GET request to the ALB.
 </p>
+
+<div class="org-src-container">
+<pre class="src src-sh">  <span style="color: #dcaeea;">alb</span>=$(aws cloudformation list-exports <span style="color: #98be65;">\</span>
+      --query <span style="color: #98be65;">"Exports[?Name=='cf-ALB'].Value"</span> <span style="color: #98be65;">\</span>
+      --output text)
+  curl http://$<span style="color: #dcaeea;">alb</span>
+</pre>
+</div>
+
+<pre class="example">
+{"hello": "world"}
+</pre>
 </div>
 </div>
 </div>

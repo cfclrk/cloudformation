@@ -87,3 +87,5 @@ Outputs:
   ALB:
     Description: DNS name for the ALB
     Value: !GetAtt ALB.DNSName
+    Export:
+      Name: !Sub "${DeploymentName}-ALB"

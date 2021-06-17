@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: 2010-09-09
-Description: A public ALB with a gRPC target group.
+Description: A public ALB with a gRPC target.
 Transform: AWS::Serverless-2016-10-31
 
 Parameters:
@@ -17,8 +17,8 @@ Resources:
       Scheme: internet-facing
       SecurityGroups: [!Ref AlbSecurityGroup]
       Subnets:
-        - Fn::ImportValue: !Sub "${DeploymentName}-PrivateSubnet1"
-        - Fn::ImportValue: !Sub "${DeploymentName}-PrivateSubnet2"
+        - Fn::ImportValue: !Sub "${DeploymentName}-PublicSubnet1"
+        - Fn::ImportValue: !Sub "${DeploymentName}-PublicSubnet2"
       Type: application
       Tags:
         - Key: Name
@@ -67,7 +67,7 @@ Resources:
   HelloWorldFunction:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: hello-world
+      FunctionName: !Sub "${DeploymentName}-Hello-World"
       InlineCode: |
         import json
         def handler(event, context) -> dict:
@@ -83,26 +83,9 @@ Resources:
       Runtime: python3.8
       Timeout: 3
 
-  VpcEndpointLambda:
-    Type: AWS::EC2::VPCEndpoint
-    Properties:
-      PolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          - Effect: Allow
-            Principal: "*"
-            Action:
-              - "lambda:*"
-            Resource:
-              - !GetAtt HelloWorldFunction.Arn
-      ServiceName: !Sub "com.amazonaws.${AWS::Region}.lambda"
-      SubnetIds:
-        - Fn::ImportValue: !Sub "${DeploymentName}-PrivateSubnet1"
-        - Fn::ImportValue: !Sub "${DeploymentName}-PrivateSubnet2"
-      VpcEndpointType: Interface
-      VpcId: {Fn::ImportValue: !Sub "${DeploymentName}-VpcId"}
-
 Outputs:
   ALB:
     Description: DNS name for the ALB
     Value: !GetAtt ALB.DNSName
+    Export:
+      Name: !Sub "${DeploymentName}-ALB"

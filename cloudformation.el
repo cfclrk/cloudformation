@@ -101,6 +101,8 @@ modifications."
   :translate-alist '((template . cloudformation/html-template)))
 
 (defconst cloudformation/org-project-alist
+
+  ;; Generate .org files in the _org directory
   `(("cloudformation-org"
      :recursive t
 	 :base-directory ,(expand-file-name
@@ -111,6 +113,7 @@ modifications."
      :auto-sitemap t
      :sitemap-title "CloudFormation")
 
+    ;; Publish generated .org files to the _out directory
     ("cloudformation-out"
      :recursive t
      :base-directory ,(expand-file-name "_org" cloudformation/project-directory)
@@ -128,14 +131,16 @@ modifications."
      :html-self-link-headlines t
      :html-head "<link rel=\"stylesheet\" type=\"text/css\" href=\"/static/main.css\" />")
 
+    ;; Copy files to the cfclrk.com project
     ("cloudformation-copy"
      :recursive t
      :base-directory ,(expand-file-name "_out"
                                         cloudformation/project-directory)
      :publishing-directory ,(expand-file-name "cloudformation" site/publishing-directory)
-     :base-extension "png\\|jpg\\|gif\\|pdf"
+     :base-extension "org\\|yaml\\|html"
      :publishing-function org-publish-attachment)
 
+    ;; Copy images to the cfclrk.com project
     ("cloudformation-img"
      :recursive t
      :base-directory ,(expand-file-name "img"

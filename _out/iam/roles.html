@@ -3,32 +3,14 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Common IAM Roles </title>
+<title>IAM Role for VPC Flow Logs </title>
 <meta name="generator" content="Org Mode" />
 <link rel="stylesheet" type="text/css" href="/static/main.css" />
 </head>
 <body>
-<div id="preamble" class="status">
-<nav id="navbar" class="cf">
-  <ul class="cf">
-    <li class="fl">
-      <a href="/">cfclrk</a>
-    </li>
-    <li class="fr">
-      <a href="/articles/home.html">Articles</a>
-    </li>
-    <li class="fr">
-      <a href="/notes/home.html">Notes</a>
-    </li>
-	<li class="fr">
-      <a href="/cloudformation/home.html">CloudFormation</a>
-    </li>
-  </ul>
-</nav>
-</div>
-<div id="content">
+<div id="content" class="content">
 <header>
-<h1 class="title">Common IAM Roles </h1>
+<h1 class="title">IAM Role for VPC Flow Logs </h1>
 </header><nav id="table-of-contents">
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
@@ -41,7 +23,7 @@
 <li><a href="#orgf0c1f3f">Resources</a>
 <ul>
 <li><a href="#org2ec6310">Role</a></li>
-<li><a href="#org991a9e5">IAM Managed Policies</a></li>
+<li><a href="#org66bdf35">Policy</a></li>
 </ul>
 </li>
 </ul>
@@ -49,7 +31,7 @@
 </nav>
 <div class="org-src-container">
 <pre class="src src-yaml"><span style="color: #dcaeea;">AWSTemplateFormatVersion</span>: 2010-09-09
-<span style="color: #dcaeea;">Description</span>: VPC with two public Subnets.
+<span style="color: #dcaeea;">Description</span>: VPC Flow Logs Role
 </pre>
 </div>
 
@@ -114,9 +96,9 @@ is part of.
 </div>
 </div>
 
-<div id="outline-container-org991a9e5" class="outline-3">
-<h3 id="org991a9e5"><a href="#org991a9e5">IAM Managed Policies</a></h3>
-<div class="outline-text-3" id="text-org991a9e5">
+<div id="outline-container-org66bdf35" class="outline-3">
+<h3 id="org66bdf35"><a href="#org66bdf35">Policy</a></h3>
+<div class="outline-text-3" id="text-org66bdf35">
 <div class="org-src-container">
 <pre class="src src-yaml">  <span style="color: #dcaeea;">AllowVpcFlowLogs</span>:
     <span style="color: #dcaeea;">Type</span>: AWS::IAM::ManagedPolicy

@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: 2010-09-09
-Description: VPC with two public Subnets.
+Description: VPC Flow Logs Role
 
 Parameters:
 

@@ -1,4 +1,4 @@
-#+TITLE: ALB with Lambda Function
+#+TITLE: ALB with a Lambda Target
 #+SETUPFILE: ../setup.org
 
 * Overview
@@ -153,8 +153,20 @@ Outputs:
   ALB:
     Description: DNS name for the ALB
     Value: !GetAtt ALB.DNSName
+    Export:
+      Name: !Sub "${DeploymentName}-ALB"
 #+end_src
 
 * Testing
 
-Show how to curl the ALB.
+Send an HTTP GET request to the ALB.
+
+#+begin_src sh :tangle no :results output
+  alb=$(aws cloudformation list-exports \
+      --query "Exports[?Name=='cf-ALB'].Value" \
+      --output text)
+  curl http://$alb
+#+end_src
+
+#+RESULTS:
+: {"hello": "world"}

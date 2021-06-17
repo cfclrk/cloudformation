@@ -1,9 +1,9 @@
-#+TITLE: Common IAM Roles
+#+TITLE: IAM Role for VPC Flow Logs
 #+SETUPFILE: ../setup.org
 
 #+begin_src yaml
 AWSTemplateFormatVersion: 2010-09-09
-Description: VPC with two public Subnets.
+Description: VPC Flow Logs Role
 #+end_src
 
 * Parameters
@@ -39,7 +39,7 @@ Resources:
         - !Ref AllowVpcFlowLogs
 #+end_src
 
-** IAM Managed Policies
+** Policy
 
 #+begin_src yaml
   AllowVpcFlowLogs:

@@ -1,0 +1,63 @@
+#+TITLE: Allow Access from Organization
+#+SETUPFILE: ../setup.org
+
+#+begin_src yaml
+AWSTemplateFormatVersion: 2010-09-09
+Description: |
+  An IAM Role that allows all accounts in an AWS Organization to access a
+  certain S3 Bucket.
+#+end_src
+
+* Parameters
+
+#+begin_src yaml
+Parameters:
+#+end_src
+
+#+INCLUDE: "../params.org::*DeploymentName"
+
+#+begin_src yaml
+  OrgId:
+    Description: AWS Organization ID (format is o-exampleorgid, not r-examplerootid)
+    Type: String
+#+end_src
+
+* Resources
+
+#+begin_src yaml
+Resources:
+#+end_src
+
+** Role
+
+Not all AWS resources can be shared like this, because some AWS resources
+implement their own sharing mechanisms that are outside of IAM.
+
+For example, AWS AMIs can't currently be shared via an IAM role.
+
+#+begin_src yaml
+  OrgAMIsRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub "${DeploymentName}-OrgAMIs"
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal: "*"
+            Action:
+              - sts:AssumeRole
+            Condition:
+              "ForAnyValue:StringLike":
+                "aws:PrincipalOrgPaths":
+                  - !Sub "${OrgId}/*"
+      Policies:
+        - PolicyName: AllowAmiAccess
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+            - Effect: Allow
+              Action:
+                - sts:AssumeRole
+              Resource: "arn::ec2:::image/*"
+#+end_src

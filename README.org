@@ -1,108 +1,125 @@
-#+PROPERTY: header-args+ :var template=template
-#+PROPERTY: header-args+ :var deploymentName=deploymentName
 #+PROPERTY: header-args+ :results output
 
-* Variables                                                        :noexport:
+* Variables
 
-  #+NAME: template
-  : _out/alb/lambda_target.yaml
+  #+NAME: Env
+  | Env Var            | Value                  |
+  |--------------------+------------------------|
+  | AWS_PROFILE        | cloud-infra-prod       |
+  | AWS_DEFAULT_REGION | us-east-1              |
+  | TEMPLATE_PATH      | _out/ec2/instance.yaml |
+  | DEPLOYMENT_NAME    | test                   |
 
-  #+NAME: deploymentName
-  : cf
+  #+begin_src emacs-lisp :var env=Env
+    (setenv-file-export-pairs env)
+  #+end_src
 
-  Build a CloudFormation stack name from a template file path.
+  #+RESULTS:
+
+  =$TemplateName= is just the =$TEMPLATE_PATH= using dashes and without a file
+  extension.
+
+  #+NAME: TemplateName
+  #+begin_src emacs-lisp :results value
+    (let* ((template-path (getenv "TEMPLATE_PATH"))
+           (parent-dir (f-base (f-parent template-path)))
+           (base-name-dashes (s-replace "_" "-" (f-base template-path))))
+      (concat parent-dir "-" base-name-dashes))
+  #+end_src
+
+  The =$StackName= is always: =$DeploymentName-$TemplateName=.
 
   #+NAME: StackName
-  #+begin_src emacs-lisp :var template=template :results value
-    (let* ((parent-dir (f-base (f-parent template)))
-           (base-name-dashes (s-replace "_" "-" (f-base template))))
-      (s-join "-" (list parent-dir base-name-dashes)))
+  #+begin_src emacs-lisp :var TemplateName=TemplateName :results value
+    (concat DeploymentName "-" TemplateName)
   #+end_src
 
 * Create Stack
 
 ** Package
 
-   If the template requires packaging. For a list of properties that can be
-   filled in by packaging, see the [[https://docs.aws.amazon.com/cli/latest/reference/cloudformation/package.html][package]] command.
+   Only required if the template requires packaging. For a list of properties
+   that can be filled in by packaging, see the [[https://docs.aws.amazon.com/cli/latest/reference/cloudformation/package.html][package]] command.
 
    TODO!
 
-   #+begin_src sh :var template=template
+   #+begin_src sh
      aws cloudformation package \
-         --template-file $template \
-         --output-template-file serverless-output.yaml \
+         --template-file file://$TEMPLATE_PATH \
+         --output-template-file output.yaml \
          --s3-bucket <<<YOUR BUCKET NAME>>>
    #+end_src
 
 ** Create
 
-   #+begin_src sh :var name=name
+   #+begin_src sh :var StackName=StackName
      aws cloudformation create-stack \
-         --stack-name "$deploymentName"-"$name" \
-         --template-body file://$template \
+         --stack-name $StackName \
+         --template-body file://$TEMPLATE_PATH \
          --capabilities CAPABILITY_AUTO_EXPAND CAPABILITY_IAM CAPABILITY_NAMED_IAM \
-         --parameters ParameterKey=DeploymentName,ParameterValue=$deploymentName
+         --parameters ParameterKey=DeploymentName,ParameterValue=$DEPLOYMENT_NAME
    #+end_src
 
 * Update Stack
 
 ** In Place
 
-   #+begin_src sh :var name=name
+   #+begin_src sh :var StackName=StackName
      aws cloudformation update-stack \
-         --stack-name "$deploymentName"-"$name" \
-         --template-body file://$template \
+         --stack-name $StackName \
+         --template-body file://$TemplatePath \
          --capabilities CAPABILITY_AUTO_EXPAND CAPABILITY_IAM CAPABILITY_NAMED_IAM \
-         --parameters ParameterKey=DeploymentName,ParameterValue=$deploymentName
+         --parameters ParameterKey=DeploymentName,ParameterValue=$DEPLOYMENT_NAME
    #+end_src
 
 ** Using a ChangeSet
 
    Create a change set:
 
-   #+begin_src sh
+   #+begin_src sh :var StackName=StackName
      aws cloudformation create-change-set \
-         --stack-name $stackName \
-         --template-body file://$templateFile \
+         --stack-name $StackName \
+         --template-body file://$TEMPLATE_PATH \
          --change-set-name my-changes
    #+end_src
 
    Describe a change set:
 
-   #+begin_src sh
+   #+begin_src sh :var StackName=StackName
      aws cloudformation describe-change-set \
          --change-set-name my-changes \
-         --stack-name $stackName
+         --stack-name $StackName
    #+end_src
 
    Apply a change set:
 
-   #+begin_src sh
+   #+begin_src sh :var StackName=StackName
      aws cloudformation execute-change-set \
          --change-set-name my-changes \
-         --stack-name $stackName
+         --stack-name $StackName
    #+end_src
 
    Delete a change set. Does the change set get deleted automatically when it is
    applied?
 
-   #+begin_src sh
+   #+begin_src sh :var StackName=StackName
      aws cloudformation delete-change-set \
          --change-set-name my-changes \
-         --stack-name $stackName
+         --stack-name $StackName
    #+end_src
 
 * Delete Stack
 
   #+begin_src sh :var StackName=StackName
-    aws cloudformation delete-stack --stack-name $StackName
+    aws cloudformation delete-stack \
+        --stack-name $StackName
   #+end_src
 
-* Get stack logs
+* Get Stack Logs
 
   #+begin_src sh
-    aws cloudformation describe-stack-events --stack-name $name
+    aws cloudformation describe-stack-events \
+        --stack-name $StackName
   #+end_src
 
 * TODO

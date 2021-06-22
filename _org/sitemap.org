@@ -1,14 +1,16 @@
-# Created 2021-06-17 Thu 15:49
+# Created 2021-06-22 Tue 11:25
 #+TITLE: CloudFormation
-#+AUTHOR: Chris Clark
 - [[file:home.org][home]]
 - [[file:params.org][params]]
 - [[file:setup.org][setup]]
 - alb
   - [[file:alb/lambda_target.org][ALB with Lambda Function (Private Subnets)]]
   - [[file:alb/grpc_target.org][ALB with a gRPC Target Group]]
+- ec2
+  - [[file:ec2/instance.org][EC2 Instance]]
 - iam
-  - [[file:iam/roles.org][Common IAM Roles]]
+  - [[file:iam/role_vpc_flow_logs.org][Role for VPC Flow Logs]]
+  - [[file:iam/instance_profile.org][instance_profile]]
 - network
   - [[file:network/vpc_endpoint_lambda.org][Interface VPC Endpoint to Lambda]]
   - [[file:network/public.org][Network with Public Subnets]]

@@ -8,6 +8,24 @@
 <link rel="stylesheet" type="text/css" href="/static/main.css" />
 </head>
 <body>
+<div id="preamble" class="status">
+<nav id="navbar" class="cf">
+  <ul class="cf">
+    <li class="fl">
+      <a href="/">cfclrk</a>
+    </li>
+    <li class="fr">
+      <a href="/articles/home.html">Articles</a>
+    </li>
+    <li class="fr">
+      <a href="/notes/home.html">Notes</a>
+    </li>
+	<li class="fr">
+      <a href="/cloudformation/home.html">CloudFormation</a>
+    </li>
+  </ul>
+</nav>
+</div>
 <div id="content" class="content">
 <header>
 <h1 class="title">ALB with a Lambda Target </h1>
@@ -24,7 +42,7 @@
 <li><a href="#org0bc8bf0">Resources</a>
 <ul>
 <li><a href="#org0669c37">ALB (internet-facing)</a></li>
-<li><a href="#org6cffb94">ALB Routing</a></li>
+<li><a href="#orgc330e54">ALB Routing</a></li>
 <li><a href="#org4004a55">Lambda Function</a></li>
 </ul>
 </li>
@@ -78,8 +96,8 @@ is part of.
 
 <div class="org-src-container">
 <pre class="src src-yaml">  <span style="color: #dcaeea;">DeploymentName</span>:
-    <span style="color: #dcaeea;">Description</span>: A name for this deployment
     <span style="color: #dcaeea;">Type</span>: String
+    <span style="color: #dcaeea;">Description</span>: A name for this deployment
 </pre>
 </div>
 </div>
@@ -156,9 +174,9 @@ from the internet will always hang.
 </div>
 </div>
 
-<div id="outline-container-org6cffb94" class="outline-3">
-<h3 id="org6cffb94"><a href="#org6cffb94">ALB Routing</a></h3>
-<div class="outline-text-3" id="text-org6cffb94">
+<div id="outline-container-orgc330e54" class="outline-3">
+<h3 id="orgc330e54"><a href="#orgc330e54">ALB Routing</a></h3>
+<div class="outline-text-3" id="text-orgc330e54">
 <div class="org-src-container">
 <pre class="src src-yaml">  <span style="color: #dcaeea;">ALBListenerHTTP</span>:
     <span style="color: #dcaeea;">Type</span>: AWS::ElasticLoadBalancingV2::Listener

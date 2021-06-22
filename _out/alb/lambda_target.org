@@ -1,5 +1,4 @@
 #+TITLE: ALB with a Lambda Target
-#+AUTHOR: Chris Clark
 #+setupfile: ../setup.org
 
 * Overview
@@ -32,8 +31,8 @@ is part of.
 
 #+begin_src yaml
   DeploymentName:
-    Description: A name for this deployment
     Type: String
+    Description: A name for this deployment
 #+end_src
 
 * Resources

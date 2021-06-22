@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: 2010-09-09
-Description: VPC Flow Logs Role
+Description: IAM Role for creating VPC Flow Logs
 
 Parameters:
 

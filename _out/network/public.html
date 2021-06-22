@@ -26,14 +26,14 @@
   </ul>
 </nav>
 </div>
-<div id="content">
+<div id="content" class="content">
 <header>
 <h1 class="title">Network with Public Subnets </h1>
 </header><nav id="table-of-contents">
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#orgfa80dce">Overview</a></li>
+<li><a href="#org930e698">Overview</a></li>
 <li><a href="#org74313d7">Parameters</a>
 <ul>
 <li><a href="#org91a044a">DeploymentName</a></li>
@@ -44,7 +44,7 @@
 <li><a href="#org8d74091">VPC</a></li>
 <li><a href="#orgf729f7e">Internet Gateway</a></li>
 <li><a href="#org6eebfcd">Route Table</a></li>
-<li><a href="#org86caaf5">Subnets</a></li>
+<li><a href="#org40de612">Subnets</a></li>
 </ul>
 </li>
 <li><a href="#org0ad0ba7">Outputs</a></li>
@@ -52,9 +52,9 @@
 </div>
 </nav>
 
-<div id="outline-container-orgfa80dce" class="outline-2">
-<h2 id="orgfa80dce"><a href="#orgfa80dce">Overview</a></h2>
-<div class="outline-text-2" id="text-orgfa80dce">
+<div id="outline-container-org930e698" class="outline-2">
+<h2 id="org930e698"><a href="#org930e698">Overview</a></h2>
+<div class="outline-text-2" id="text-org930e698">
 <p>
 This document creates a VPC with two public subnets.
 </p>
@@ -88,8 +88,8 @@ is part of.
 
 <div class="org-src-container">
 <pre class="src src-yaml">  <span style="color: #dcaeea;">DeploymentName</span>:
-    <span style="color: #dcaeea;">Description</span>: A name for this deployment
     <span style="color: #dcaeea;">Type</span>: String
+    <span style="color: #dcaeea;">Description</span>: A name for this deployment
 </pre>
 </div>
 
@@ -189,9 +189,9 @@ is part of.
 </div>
 </div>
 
-<div id="outline-container-org86caaf5" class="outline-3">
-<h3 id="org86caaf5"><a href="#org86caaf5">Subnets</a></h3>
-<div class="outline-text-3" id="text-org86caaf5">
+<div id="outline-container-org40de612" class="outline-3">
+<h3 id="org40de612"><a href="#org40de612">Subnets</a></h3>
+<div class="outline-text-3" id="text-org40de612">
 <div class="org-src-container">
 <pre class="src src-yaml">  <span style="color: #dcaeea;">PublicSubnet1</span>:
     <span style="color: #dcaeea;">Type</span>: AWS::EC2::Subnet

@@ -1,0 +1,97 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: An EC2 Instance
+
+Parameters:
+
+  DeploymentName:
+    Type: String
+    Description: A name for this deployment
+
+  KeyPair:
+    Type: AWS::EC2::KeyPair::KeyName
+    Description: The name of an EC2 KeyPair
+
+Mappings:
+
+  RegionMap:
+    us-east-1:
+      AMI: ami-0aeeebd8d2ab47354
+    us-east-2:
+      AMI: ami-0d8d212151031f51c
+
+Resources:
+
+  InstanceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub "${DeploymentName}-InstanceRole"
+      Description: Allows EC2 instances to call AWS services
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ec2.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ManagedPolicyArns:
+        - !Ref InstancePolicy
+
+  InstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      InstanceProfileName: !Sub "${DeploymentName}-InstanceProfile"
+      Roles:
+        - !Ref InstanceRole
+
+  InstancePolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      Description: Allow logging to CloudWatch
+      ManagedPolicyName: !Sub "${DeploymentName}-InstancePolicy"
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - logs:CreateLogGroup
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+              - logs:DescribeLogStreams
+            Resource: "*"
+
+  SecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow HTTP and SSH
+      GroupName: !Sub "${DeploymentName}"
+      VpcId: {Fn::ImportValue: !Sub "${DeploymentName}-VpcId"}
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 67.23.104.250/32
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 67.23.104.250/32
+      Tags:
+        - Key: Name
+          Value: !Sub "${DeploymentName}-instance"
+
+  Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      IamInstanceProfile: !Sub "${DeploymentName}-InstanceProfile"
+      ImageId: !FindInMap [RegionMap, !Ref AWS::Region, AMI]
+      InstanceType: t2.nano
+      KeyName: !Ref KeyName
+      SecurityGroupIds:
+        - !Ref SecurityGroup
+      # SsmAssociations:
+      #   - SsmAssociation
+      SubnetId: {Fn::ImportValue: !Sub "${DeploymentName}-PublicSubnet1"}
+      Tags:
+        - Key: Name
+          Value: !Sub "${DeploymentName}-instance"
+      # UserData: String

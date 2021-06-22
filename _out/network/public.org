@@ -1,5 +1,4 @@
 #+TITLE: Network with Public Subnets
-#+AUTHOR: Chris Clark
 #+setupfile: ../setup.org
 
 * Overview
@@ -26,8 +25,8 @@ is part of.
 
 #+begin_src yaml
   DeploymentName:
-    Description: A name for this deployment
     Type: String
+    Description: A name for this deployment
 #+end_src
 
 #+begin_src yaml

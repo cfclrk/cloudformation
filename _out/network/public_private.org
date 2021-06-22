@@ -1,18 +1,18 @@
 #+TITLE: Network with Public and Private Subnets
-#+AUTHOR: Chris Clark
 #+setupfile: ../setup.org
 
 * Overview
 
-This document creates a "standard" AWS network. AWS documents this architecture
-[[https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Scenario2.html][here]], and AWS provides a CloudFormation example [[https://docs.aws.amazon.com/codebuild/latest/userguide/cloudformation-vpc-template.html][here]].
+[[file:../../static/img/Network-Public-Private.png]]
+
+This document creates a "standard" AWS network: a VPC with two public subnets
+and two private subnets. AWS documents this architecture [[https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Scenario2.html][here]], and AWS provides
+a CloudFormation example [[https://docs.aws.amazon.com/codebuild/latest/userguide/cloudformation-vpc-template.html][here]].
 
 This is the go-to VPC structure and is usually considered a starting place for
 any AWS network design. For example, when using the AWS CDK, this is the
 infrastrucure that is created when you use the [[https://docs.aws.amazon.com/cdk/api/latest/docs/@aws-cdk_aws-ec2.Vpc.html][VPC construct]] with its default
 options.
-
-[[file:../../static/img/Network-Public-Private.png]]
 
 #+begin_src yaml
 AWSTemplateFormatVersion: 2010-09-09
@@ -37,8 +37,8 @@ is part of.
 
 #+begin_src yaml
   DeploymentName:
-    Description: A name for this deployment
     Type: String
+    Description: A name for this deployment
 #+end_src
 
 #+begin_src yaml

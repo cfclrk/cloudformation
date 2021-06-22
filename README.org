@@ -3,12 +3,12 @@
 * Variables
 
   #+NAME: Env
-  | Env Var            | Value                  |
-  |--------------------+------------------------|
-  | AWS_PROFILE        | cloud-infra-prod       |
-  | AWS_DEFAULT_REGION | us-east-1              |
-  | TEMPLATE_PATH      | _out/ec2/instance.yaml |
-  | DEPLOYMENT_NAME    | test                   |
+  | Env Var            | Value                          |
+  |--------------------+--------------------------------|
+  | AWS_PROFILE        | dev                            |
+  | AWS_DEFAULT_REGION | us-east-2                      |
+  | TEMPLATE_PATH      | _out/iam/instance_profile.yaml |
+  | DEPLOYMENT_NAME    | test                           |
 
   #+begin_src emacs-lisp :var env=Env
     (setenv-file-export-pairs env)
@@ -31,7 +31,7 @@
 
   #+NAME: StackName
   #+begin_src emacs-lisp :var TemplateName=TemplateName :results value
-    (concat DeploymentName "-" TemplateName)
+    (concat (getenv "DEPLOYMENT_NAME") "-" TemplateName)
   #+end_src
 
 * Create Stack
@@ -47,7 +47,7 @@
      aws cloudformation package \
          --template-file file://$TEMPLATE_PATH \
          --output-template-file output.yaml \
-         --s3-bucket <<<YOUR BUCKET NAME>>>
+         --s3-bucket $BucketName
    #+end_src
 
 ** Create
@@ -67,7 +67,7 @@
    #+begin_src sh :var StackName=StackName
      aws cloudformation update-stack \
          --stack-name $StackName \
-         --template-body file://$TemplatePath \
+         --template-body file://$TEMPLATE_PATH \
          --capabilities CAPABILITY_AUTO_EXPAND CAPABILITY_IAM CAPABILITY_NAMED_IAM \
          --parameters ParameterKey=DeploymentName,ParameterValue=$DEPLOYMENT_NAME
    #+end_src

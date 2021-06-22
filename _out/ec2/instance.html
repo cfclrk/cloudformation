@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>EC2 Instance </title>
+<meta name="generator" content="Org Mode" />
+<link rel="stylesheet" type="text/css" href="/static/main.css" />
+</head>
+<body>
+<div id="preamble" class="status">
+<nav id="navbar" class="cf">
+  <ul class="cf">
+    <li class="fl">
+      <a href="/">cfclrk</a>
+    </li>
+    <li class="fr">
+      <a href="/articles/home.html">Articles</a>
+    </li>
+    <li class="fr">
+      <a href="/notes/home.html">Notes</a>
+    </li>
+	<li class="fr">
+      <a href="/cloudformation/home.html">CloudFormation</a>
+    </li>
+  </ul>
+</nav>
+</div>
+<div id="content" class="content">
+<header>
+<h1 class="title">EC2 Instance </h1>
+</header><nav id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgb8cc091">Prerequisets</a></li>
+<li><a href="#orgc6e74a1">Overview</a></li>
+<li><a href="#org1651cd9">Parameters</a>
+<ul>
+<li><a href="#org45a9fb3">DeploymentName</a></li>
+<li><a href="#org0216283">KeyName</a></li>
+</ul>
+</li>
+<li><a href="#org65062bb">Mappings</a></li>
+<li><a href="#org7bc1398">Resources</a>
+<ul>
+<li><a href="#org7755f46">IAM</a>
+<ul>
+<li><a href="#orga781468">Role</a></li>
+<li><a href="#org127e326">Instance Profile</a></li>
+<li><a href="#orgf2d1bf8">Policy</a></li>
+</ul>
+</li>
+<li><a href="#org928d7a9">Security Group</a></li>
+<li><a href="#orga69a7f5">Instance</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</nav>
+
+<div id="outline-container-orgb8cc091" class="outline-2">
+<h2 id="orgb8cc091"><a href="#orgb8cc091">Prerequisets</a></h2>
+<div class="outline-text-2" id="text-orgb8cc091">
+<ul class="org-ul">
+<li><a href="../network/public.html">../network/public.html</a> deployed with the same <code>DeploymentName</code></li>
+<li>An EC2 KeyPair in this region</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgc6e74a1" class="outline-2">
+<h2 id="orgc6e74a1"><a href="#orgc6e74a1">Overview</a></h2>
+<div class="outline-text-2" id="text-orgc6e74a1">
+<p>
+This CloudFormation template creates a single EC2 instance.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-yaml"><span style="color: #dcaeea;">AWSTemplateFormatVersion</span>: 2010-09-09
+<span style="color: #dcaeea;">Description</span>: An EC2 Instance
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org1651cd9" class="outline-2">
+<h2 id="org1651cd9"><a href="#org1651cd9">Parameters</a></h2>
+<div class="outline-text-2" id="text-org1651cd9">
+<div class="org-src-container">
+<pre class="src src-yaml"><span style="color: #dcaeea;">Parameters</span>:
+</pre>
+</div>
+</div>
+
+<div id="outline-container-org45a9fb3" class="outline-3">
+<h3 id="org45a9fb3"><a href="#org45a9fb3">DeploymentName</a></h3>
+<div class="outline-text-3" id="text-org45a9fb3">
+<p>
+A <b>deployment</b> is a complete deployed application, potentially comprised of many
+CloudFormation stacks. This is sometimes called an "environment", but that is an
+overloaded term. Use the <code>DeploymentName</code> to indicate which deployment a Stack
+is part of.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-yaml">  <span style="color: #dcaeea;">DeploymentName</span>:
+    <span style="color: #dcaeea;">Type</span>: String
+    <span style="color: #dcaeea;">Description</span>: A name for this deployment
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org0216283" class="outline-3">
+<h3 id="org0216283"><a href="#org0216283">KeyName</a></h3>
+<div class="outline-text-3" id="text-org0216283">
+<p>
+AWS does not provide a built-in CloudFormation type for EC2 KeyPairs. This was a
+deliberate choice: a KeyPair consists of a public and private key, and AWS does
+not want to expose the private key in CloudFormation outputs.
+</p>
+
+<p>
+This is one example where Terraform has an advantage: since Terraform runs
+locally, it can create a KeyPair and save the private key locally.
+</p>
+
+<p>
+So, in CloudFormation, you have two options:
+</p>
+
+<ol class="org-ol">
+<li>Create the EC2 KeyPair beforehand. Then, provide the existing <code>KeyName</code> to
+your CloudFormation template as a parameter.</li>
+<li>Define a CloudFormation Custom Resource (i.e. a Lambda Function) in your
+CloudFormation template. The Custom Resource could create the KeyPair and
+save the private key somewhere (like SecretsManager or SSM Parameter Store).</li>
+</ol>
+
+<div class="org-src-container">
+<pre class="src src-yaml">  <span style="color: #dcaeea;">KeyPair</span>:
+    <span style="color: #dcaeea;">Type</span>: AWS::EC2::KeyPair::KeyName
+    <span style="color: #dcaeea;">Description</span>: The name of an EC2 KeyPair
+</pre>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org65062bb" class="outline-2">
+<h2 id="org65062bb"><a href="#org65062bb">Mappings</a></h2>
+<div class="outline-text-2" id="text-org65062bb">
+<div class="org-src-container">
+<pre class="src src-yaml"><span style="color: #dcaeea;">Mappings</span>:
+</pre>
+</div>
+
+<p>
+Instance mapping
+</p>
+
+<div class="org-src-container">
+<pre class="src src-yaml">  <span style="color: #dcaeea;">RegionMap</span>:
+    <span style="color: #dcaeea;">us-east-1</span>:
+      <span style="color: #dcaeea;">AMI</span>: ami-0aeeebd8d2ab47354
+    <span style="color: #dcaeea;">us-east-2</span>:
+      <span style="color: #dcaeea;">AMI</span>: ami-0d8d212151031f51c
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org7bc1398" class="outline-2">
+<h2 id="org7bc1398"><a href="#org7bc1398">Resources</a></h2>
+<div class="outline-text-2" id="text-org7bc1398">
+<div class="org-src-container">
+<pre class="src src-yaml"><span style="color: #dcaeea;">Resources</span>:
+</pre>
+</div>
+</div>
+
+<div id="outline-container-org7755f46" class="outline-3">
+<h3 id="org7755f46"><a href="#org7755f46">IAM</a></h3>
+<div class="outline-text-3" id="text-org7755f46">
+<p>
+An EC2 instance isn't <i>required</i> to have an IAM instance profile. However, an
+instance profile is a good idea if the instance will talk to any other AWS
+service. The only alternative would be to copy AWS credentials onto the instance
+somehow.
+</p>
+</div>
+
+<div id="outline-container-orga781468" class="outline-4">
+<h4 id="orga781468"><a href="#orga781468">Role</a></h4>
+<div class="outline-text-4" id="text-orga781468">
+<div class="org-src-container">
+<pre class="src src-yaml">  <span style="color: #dcaeea;">InstanceRole</span>:
+    <span style="color: #dcaeea;">Type</span>: AWS::IAM::Role
+    <span style="color: #dcaeea;">Properties</span>:
+      <span style="color: #dcaeea;">RoleName</span>: <span style="color: #ECBE7B;">!Sub</span> <span style="color: #98be65;">"${DeploymentName}-InstanceRole"</span>
+      <span style="color: #dcaeea;">Description</span>: Allows EC2 instances to call AWS services
+      <span style="color: #dcaeea;">AssumeRolePolicyDocument</span>:
+        <span style="color: #dcaeea;">Version</span>: 2012-10-17
+        <span style="color: #dcaeea;">Statement</span>:
+          - <span style="color: #dcaeea;">Effect</span>: Allow
+            <span style="color: #dcaeea;">Principal</span>:
+              <span style="color: #dcaeea;">Service</span>: ec2.amazonaws.com
+            <span style="color: #dcaeea;">Action</span>:
+              - sts:AssumeRole
+      <span style="color: #dcaeea;">ManagedPolicyArns</span>:
+        - <span style="color: #ECBE7B;">!Ref</span> InstancePolicy
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org127e326" class="outline-4">
+<h4 id="org127e326"><a href="#org127e326">Instance Profile</a></h4>
+<div class="outline-text-4" id="text-org127e326">
+<div class="org-src-container">
+<pre class="src src-yaml">  <span style="color: #dcaeea;">InstanceProfile</span>:
+    <span style="color: #dcaeea;">Type</span>: AWS::IAM::InstanceProfile
+    <span style="color: #dcaeea;">Properties</span>:
+      <span style="color: #dcaeea;">InstanceProfileName</span>: <span style="color: #ECBE7B;">!Sub</span> <span style="color: #98be65;">"${DeploymentName}-InstanceProfile"</span>
+      <span style="color: #dcaeea;">Roles</span>:
+        - <span style="color: #ECBE7B;">!Ref</span> InstanceRole
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgf2d1bf8" class="outline-4">
+<h4 id="orgf2d1bf8"><a href="#orgf2d1bf8">Policy</a></h4>
+<div class="outline-text-4" id="text-orgf2d1bf8">
+<div class="org-src-container">
+<pre class="src src-yaml">  <span style="color: #dcaeea;">InstancePolicy</span>:
+    <span style="color: #dcaeea;">Type</span>: AWS::IAM::ManagedPolicy
+    <span style="color: #dcaeea;">Properties</span>:
+      <span style="color: #dcaeea;">Description</span>: Allow logging to CloudWatch
+      <span style="color: #dcaeea;">ManagedPolicyName</span>: <span style="color: #ECBE7B;">!Sub</span> <span style="color: #98be65;">"${DeploymentName}-InstancePolicy"</span>
+      <span style="color: #dcaeea;">PolicyDocument</span>:
+        <span style="color: #dcaeea;">Version</span>: 2012-10-17
+        <span style="color: #dcaeea;">Statement</span>:
+          - <span style="color: #dcaeea;">Effect</span>: Allow
+            <span style="color: #dcaeea;">Action</span>:
+              - logs:CreateLogGroup
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+              - logs:DescribeLogStreams
+            <span style="color: #dcaeea;">Resource</span>: <span style="color: #98be65;">"*"</span>
+</pre>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org928d7a9" class="outline-3">
+<h3 id="org928d7a9"><a href="#org928d7a9">Security Group</a></h3>
+<div class="outline-text-3" id="text-org928d7a9">
+<div class="org-src-container">
+<pre class="src src-yaml">  <span style="color: #dcaeea;">SecurityGroup</span>:
+    <span style="color: #dcaeea;">Type</span>: AWS::EC2::SecurityGroup
+    <span style="color: #dcaeea;">Properties</span>:
+      <span style="color: #dcaeea;">GroupDescription</span>: Allow HTTP and SSH
+      <span style="color: #dcaeea;">GroupName</span>: <span style="color: #ECBE7B;">!Sub</span> <span style="color: #98be65;">"${DeploymentName}"</span>
+      <span style="color: #dcaeea;">VpcId</span>: {<span style="color: #dcaeea;">Fn::ImportValue</span>: <span style="color: #ECBE7B;">!Sub</span> <span style="color: #98be65;">"${DeploymentName}-VpcId"</span>}
+      <span style="color: #dcaeea;">SecurityGroupIngress</span>:
+        - <span style="color: #dcaeea;">IpProtocol</span>: tcp
+          <span style="color: #dcaeea;">FromPort</span>: 80
+          <span style="color: #dcaeea;">ToPort</span>: 80
+          <span style="color: #dcaeea;">CidrIp</span>: 67.23.104.250/32
+        - <span style="color: #dcaeea;">IpProtocol</span>: tcp
+          <span style="color: #dcaeea;">FromPort</span>: 22
+          <span style="color: #dcaeea;">ToPort</span>: 22
+          <span style="color: #dcaeea;">CidrIp</span>: 67.23.104.250/32
+      <span style="color: #dcaeea;">Tags</span>:
+        - <span style="color: #dcaeea;">Key</span>: Name
+          <span style="color: #dcaeea;">Value</span>: <span style="color: #ECBE7B;">!Sub</span> <span style="color: #98be65;">"${DeploymentName}-instance"</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orga69a7f5" class="outline-3">
+<h3 id="orga69a7f5"><a href="#orga69a7f5">Instance</a></h3>
+<div class="outline-text-3" id="text-orga69a7f5">
+<div class="org-src-container">
+<pre class="src src-yaml">  <span style="color: #dcaeea;">Instance</span>:
+    <span style="color: #dcaeea;">Type</span>: AWS::EC2::Instance
+    <span style="color: #dcaeea;">Properties</span>:
+      <span style="color: #dcaeea;">IamInstanceProfile</span>: <span style="color: #ECBE7B;">!Sub</span> <span style="color: #98be65;">"${DeploymentName}-InstanceProfile"</span>
+      <span style="color: #dcaeea;">ImageId</span>: <span style="color: #ECBE7B;">!FindInMap</span> [RegionMap, <span style="color: #ECBE7B;">!Ref</span> AWS::Region, AMI]
+      <span style="color: #dcaeea;">InstanceType</span>: t2.nano
+      <span style="color: #dcaeea;">KeyName</span>: <span style="color: #ECBE7B;">!Ref</span> KeyName
+      <span style="color: #dcaeea;">SecurityGroupIds</span>:
+        - <span style="color: #ECBE7B;">!Ref</span> SecurityGroup
+      <span style="color: #5B6268;"># </span><span style="color: #5B6268;">SsmAssociations:</span>
+      <span style="color: #5B6268;">#   </span><span style="color: #5B6268;">- SsmAssociation</span>
+      <span style="color: #dcaeea;">SubnetId</span>: {<span style="color: #dcaeea;">Fn::ImportValue</span>: <span style="color: #ECBE7B;">!Sub</span> <span style="color: #98be65;">"${DeploymentName}-PublicSubnet1"</span>}
+      <span style="color: #dcaeea;">Tags</span>:
+        - <span style="color: #dcaeea;">Key</span>: Name
+          <span style="color: #dcaeea;">Value</span>: <span style="color: #ECBE7B;">!Sub</span> <span style="color: #98be65;">"${DeploymentName}-instance"</span>
+      <span style="color: #5B6268;"># </span><span style="color: #5B6268;">UserData: String</span>
+</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>

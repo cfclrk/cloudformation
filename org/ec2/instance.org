@@ -1,0 +1,123 @@
+#+TITLE: EC2 Instance
+#+SETUPFILE: ../setup.org
+
+* Prerequisets
+
+- [[../network/public.org]] deployed with the same =DeploymentName=
+- An EC2 KeyPair in this region
+
+* Overview
+
+This CloudFormation template creates a single EC2 instance.
+
+#+begin_src yaml
+AWSTemplateFormatVersion: 2010-09-09
+Description: An EC2 Instance
+#+end_src
+
+* Parameters
+
+#+begin_src yaml
+Parameters:
+#+end_src
+
+#+INCLUDE: "../params.org::*DeploymentName"
+
+#+INCLUDE: "../params.org::*KeyName"
+
+* Mappings
+
+#+begin_src yaml
+Mappings:
+#+end_src
+
+Instance mapping
+
+#+begin_src yaml
+  RegionMap:
+    us-east-1:
+      AMI: ami-0aeeebd8d2ab47354
+    us-east-2:
+      AMI: ami-0d8d212151031f51c
+#+end_src
+
+* Resources
+
+#+begin_src yaml
+Resources:
+#+end_src
+
+** IAM
+
+An EC2 instance isn't /required/ to have an IAM instance profile. However, an
+instance profile is a good idea if the instance will talk to any other AWS
+service. The only alternative would be to copy AWS credentials onto the instance
+somehow.
+
+#+INCLUDE: "../iam/instance_profile.org::*Role"
+
+#+INCLUDE: "../iam/instance_profile.org::*Instance Profile"
+
+*** Policy
+
+#+begin_src yaml
+  InstancePolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      Description: Allow logging to CloudWatch
+      ManagedPolicyName: !Sub "${DeploymentName}-InstancePolicy"
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - logs:CreateLogGroup
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+              - logs:DescribeLogStreams
+            Resource: "*"
+#+end_src
+
+** Security Group
+
+#+begin_src yaml
+  SecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow HTTP and SSH
+      GroupName: !Sub "${DeploymentName}"
+      VpcId: {Fn::ImportValue: !Sub "${DeploymentName}-VpcId"}
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 67.23.104.250/32
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 67.23.104.250/32
+      Tags:
+        - Key: Name
+          Value: !Sub "${DeploymentName}-instance"
+#+end_src
+
+** Instance
+
+#+begin_src yaml
+  Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      IamInstanceProfile: !Sub "${DeploymentName}-InstanceProfile"
+      ImageId: !FindInMap [RegionMap, !Ref AWS::Region, AMI]
+      InstanceType: t2.nano
+      KeyName: !Ref KeyName
+      SecurityGroupIds:
+        - !Ref SecurityGroup
+      # SsmAssociations:
+      #   - SsmAssociation
+      SubnetId: {Fn::ImportValue: !Sub "${DeploymentName}-PublicSubnet1"}
+      Tags:
+        - Key: Name
+          Value: !Sub "${DeploymentName}-instance"
+      # UserData: String
+#+end_src

@@ -7,8 +7,8 @@ Description: >
 Parameters:
 
   DeploymentName:
-    Description: A name for this deployment
     Type: String
+    Description: A name for this deployment
 
   VpcCIDR:
     Description: CIDR range for this VPC

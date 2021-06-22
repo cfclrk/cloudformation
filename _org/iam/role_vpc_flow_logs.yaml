@@ -1,40 +1,14 @@
-#+TITLE: Role for VPC Flow Logs
-#+AUTHOR: Chris Clark
-#+setupfile: ../setup.org
-
-#+begin_src yaml
 AWSTemplateFormatVersion: 2010-09-09
 Description: IAM Role for creating VPC Flow Logs
-#+end_src
 
-* Parameters
-
-#+begin_src yaml
 Parameters:
-#+end_src
 
-** DeploymentName
-
-A *deployment* is a complete deployed application, potentially comprised of many
-CloudFormation stacks. This is sometimes called an "environment", but that is an
-overloaded term. Use the =DeploymentName= to indicate which deployment a Stack
-is part of.
-
-#+begin_src yaml
   DeploymentName:
-    Description: A name for this deployment
     Type: String
-#+end_src
+    Description: A name for this deployment
 
-* Resources
-
-#+begin_src yaml
 Resources:
-#+end_src
 
-** Role
-
-#+begin_src yaml
   VpcFlowLogsRole:
     Type: AWS::IAM::Role
     Properties:
@@ -49,11 +23,7 @@ Resources:
               - sts:AssumeRole
       ManagedPolicyArns:
         - !Ref AllowVpcFlowLogs
-#+end_src
 
-** Policy
-
-#+begin_src yaml
   AllowVpcFlowLogs:
     Type: AWS::IAM::ManagedPolicy
     Properties:
@@ -70,4 +40,3 @@ Resources:
               - logs:DescribeLogGroups
               - logs:DescribeLogStreams
             Resource: "*"
-#+end_src

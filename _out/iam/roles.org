@@ -1,10 +1,10 @@
-#+TITLE: IAM Role for VPC Flow Logs
+#+TITLE: Role for VPC Flow Logs
 #+AUTHOR: Chris Clark
 #+setupfile: ../setup.org
 
 #+begin_src yaml
 AWSTemplateFormatVersion: 2010-09-09
-Description: VPC Flow Logs Role
+Description: IAM Role for creating VPC Flow Logs
 #+end_src
 
 * Parameters

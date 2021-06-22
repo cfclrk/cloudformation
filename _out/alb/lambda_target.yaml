@@ -5,8 +5,8 @@ Transform: AWS::Serverless-2016-10-31
 Parameters:
 
   DeploymentName:
-    Description: A name for this deployment
     Type: String
+    Description: A name for this deployment
 
 Resources:
 

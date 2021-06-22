@@ -8,6 +8,24 @@
 <link rel="stylesheet" type="text/css" href="/static/main.css" />
 </head>
 <body>
+<div id="preamble" class="status">
+<nav id="navbar" class="cf">
+  <ul class="cf">
+    <li class="fl">
+      <a href="/">cfclrk</a>
+    </li>
+    <li class="fr">
+      <a href="/articles/home.html">Articles</a>
+    </li>
+    <li class="fr">
+      <a href="/notes/home.html">Notes</a>
+    </li>
+	<li class="fr">
+      <a href="/cloudformation/home.html">CloudFormation</a>
+    </li>
+  </ul>
+</nav>
+</div>
 <div id="content" class="content">
 <header>
 <h1 class="title">Role for VPC Flow Logs </h1>
@@ -15,15 +33,15 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#org253c519">Parameters</a>
+<li><a href="#org654512b">Parameters</a>
 <ul>
-<li><a href="#org2cad7b4">DeploymentName</a></li>
+<li><a href="#org6fa54d2">DeploymentName</a></li>
 </ul>
 </li>
-<li><a href="#orgf0c1f3f">Resources</a>
+<li><a href="#org3fde6b3">Resources</a>
 <ul>
-<li><a href="#org2ec6310">Role</a></li>
-<li><a href="#org3f1fff0">Policy</a></li>
+<li><a href="#orgf5fa3fd">Role</a></li>
+<li><a href="#org761d55d">Policy</a></li>
 </ul>
 </li>
 </ul>
@@ -35,18 +53,18 @@
 </pre>
 </div>
 
-<div id="outline-container-org253c519" class="outline-2">
-<h2 id="org253c519"><a href="#org253c519">Parameters</a></h2>
-<div class="outline-text-2" id="text-org253c519">
+<div id="outline-container-org654512b" class="outline-2">
+<h2 id="org654512b"><a href="#org654512b">Parameters</a></h2>
+<div class="outline-text-2" id="text-org654512b">
 <div class="org-src-container">
 <pre class="src src-yaml"><span style="color: #dcaeea;">Parameters</span>:
 </pre>
 </div>
 </div>
 
-<div id="outline-container-org2cad7b4" class="outline-3">
-<h3 id="org2cad7b4"><a href="#org2cad7b4">DeploymentName</a></h3>
-<div class="outline-text-3" id="text-org2cad7b4">
+<div id="outline-container-org6fa54d2" class="outline-3">
+<h3 id="org6fa54d2"><a href="#org6fa54d2">DeploymentName</a></h3>
+<div class="outline-text-3" id="text-org6fa54d2">
 <p>
 A <b>deployment</b> is a complete deployed application, potentially comprised of many
 CloudFormation stacks. This is sometimes called an "environment", but that is an
@@ -56,26 +74,26 @@ is part of.
 
 <div class="org-src-container">
 <pre class="src src-yaml">  <span style="color: #dcaeea;">DeploymentName</span>:
-    <span style="color: #dcaeea;">Description</span>: A name for this deployment
     <span style="color: #dcaeea;">Type</span>: String
+    <span style="color: #dcaeea;">Description</span>: A name for this deployment
 </pre>
 </div>
 </div>
 </div>
 </div>
 
-<div id="outline-container-orgf0c1f3f" class="outline-2">
-<h2 id="orgf0c1f3f"><a href="#orgf0c1f3f">Resources</a></h2>
-<div class="outline-text-2" id="text-orgf0c1f3f">
+<div id="outline-container-org3fde6b3" class="outline-2">
+<h2 id="org3fde6b3"><a href="#org3fde6b3">Resources</a></h2>
+<div class="outline-text-2" id="text-org3fde6b3">
 <div class="org-src-container">
 <pre class="src src-yaml"><span style="color: #dcaeea;">Resources</span>:
 </pre>
 </div>
 </div>
 
-<div id="outline-container-org2ec6310" class="outline-3">
-<h3 id="org2ec6310"><a href="#org2ec6310">Role</a></h3>
-<div class="outline-text-3" id="text-org2ec6310">
+<div id="outline-container-orgf5fa3fd" class="outline-3">
+<h3 id="orgf5fa3fd"><a href="#orgf5fa3fd">Role</a></h3>
+<div class="outline-text-3" id="text-orgf5fa3fd">
 <div class="org-src-container">
 <pre class="src src-yaml">  <span style="color: #dcaeea;">VpcFlowLogsRole</span>:
     <span style="color: #dcaeea;">Type</span>: AWS::IAM::Role
@@ -96,9 +114,9 @@ is part of.
 </div>
 </div>
 
-<div id="outline-container-org3f1fff0" class="outline-3">
-<h3 id="org3f1fff0"><a href="#org3f1fff0">Policy</a></h3>
-<div class="outline-text-3" id="text-org3f1fff0">
+<div id="outline-container-org761d55d" class="outline-3">
+<h3 id="org761d55d"><a href="#org761d55d">Policy</a></h3>
+<div class="outline-text-3" id="text-org761d55d">
 <div class="org-src-container">
 <pre class="src src-yaml">  <span style="color: #dcaeea;">AllowVpcFlowLogs</span>:
     <span style="color: #dcaeea;">Type</span>: AWS::IAM::ManagedPolicy

@@ -26,7 +26,7 @@
   </ul>
 </nav>
 </div>
-<div id="content">
+<div id="content" class="content">
 <header>
 <h1 class="title">Network with Public and Private Subnets </h1>
 </header><nav id="table-of-contents">
@@ -58,9 +58,16 @@
 <div id="outline-container-org3f42b45" class="outline-2">
 <h2 id="org3f42b45"><a href="#org3f42b45">Overview</a></h2>
 <div class="outline-text-2" id="text-org3f42b45">
+
+<figure id="orgd9873d6">
+<img src="../../static/img/Network-Public-Private.png" alt="Network-Public-Private.png">
+
+</figure>
+
 <p>
-This document creates a "standard" AWS network. AWS documents this architecture
-<a href="https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Scenario2.html">here</a>, and AWS provides a CloudFormation example <a href="https://docs.aws.amazon.com/codebuild/latest/userguide/cloudformation-vpc-template.html">here</a>.
+This document creates a "standard" AWS network: a VPC with two public subnets
+and two private subnets. AWS documents this architecture <a href="https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Scenario2.html">here</a>, and AWS provides
+a CloudFormation example <a href="https://docs.aws.amazon.com/codebuild/latest/userguide/cloudformation-vpc-template.html">here</a>.
 </p>
 
 <p>
@@ -69,12 +76,6 @@ any AWS network design. For example, when using the AWS CDK, this is the
 infrastrucure that is created when you use the <a href="https://docs.aws.amazon.com/cdk/api/latest/docs/@aws-cdk_aws-ec2.Vpc.html">VPC construct</a> with its default
 options.
 </p>
-
-
-<figure id="org4b598a4">
-<img src="../../static/img/Network-Public-Private.png" alt="Network-Public-Private.png">
-
-</figure>
 
 <div class="org-src-container">
 <pre class="src src-yaml"><span style="color: #dcaeea;">AWSTemplateFormatVersion</span>: 2010-09-09
@@ -108,8 +109,8 @@ is part of.
 
 <div class="org-src-container">
 <pre class="src src-yaml">  <span style="color: #dcaeea;">DeploymentName</span>:
-    <span style="color: #dcaeea;">Description</span>: A name for this deployment
     <span style="color: #dcaeea;">Type</span>: String
+    <span style="color: #dcaeea;">Description</span>: A name for this deployment
 </pre>
 </div>
 

@@ -1,5 +1,4 @@
 #+TITLE: Role for VPC Flow Logs
-#+AUTHOR: Chris Clark
 #+setupfile: ../setup.org
 
 #+begin_src yaml
@@ -22,8 +21,8 @@ is part of.
 
 #+begin_src yaml
   DeploymentName:
-    Description: A name for this deployment
     Type: String
+    Description: A name for this deployment
 #+end_src
 
 * Resources

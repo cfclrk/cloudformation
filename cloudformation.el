@@ -22,29 +22,28 @@
   ;; Generate .org files in the _org directory
   `(("cloudformation-org"
      :recursive t
-	 :base-directory ,(expand-file-name
-                       "org" cloudformation/project-directory)
-	 :publishing-directory ,(expand-file-name
-                             "_org" cloudformation/project-directory)
+	 :base-directory ,(expand-file-name "org" cloudformation/project-directory)
+	 :publishing-directory ,(expand-file-name "_org" cloudformation/project-directory)
      :publishing-function org-org-publish-to-org
      :auto-sitemap t
-     :sitemap-title "CloudFormation")
+     :sitemap-title "CloudFormation"
+     :with-creator nil
+     :with-author nil)
 
-    ;; Publish generated .org files to the _out directory
+    ;; Publish org files from the _org directory to the _out directory
     ("cloudformation-out"
      :recursive t
      :base-directory ,(expand-file-name "_org" cloudformation/project-directory)
-     :publishing-directory ,(expand-file-name "_out"
-                                              cloudformation/project-directory)
+     :publishing-directory ,(expand-file-name "_out" cloudformation/project-directory)
      :publishing-function (org-babel-tangle-publish
-						   org-html-publish-to-html
+	    				   org-html-publish-to-html
                            org-publish-attachment)
      :html-head-include-scripts nil
      :html-head-include-default-style nil
      :with-creator nil
      :with-author nil
      :section-numbers nil
-     :html-preamble cfclrk/site-preamble
+     :html-preamble site/site-preamble
      :html-self-link-headlines t
      :html-head "<link rel=\"stylesheet\" type=\"text/css\" href=\"/static/main.css\" />")
 

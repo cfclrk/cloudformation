@@ -8,6 +8,7 @@
   - [[file:alb/grpc_target.org][ALB with a gRPC Target Group]]
 - ec2
   - [[file:ec2/instance.org][EC2 Instance]]
+  - [[file:ec2/webserver.org][Web Server]]
 - iam
   - [[file:iam/role_vpc_flow_logs.org][Role for VPC Flow Logs]]
   - [[file:iam/instance_profile.org][instance_profile]]
@@ -15,3 +16,5 @@
   - [[file:network/vpc_endpoint_lambda.org][Interface VPC Endpoint to Lambda]]
   - [[file:network/public.org][Network with Public Subnets]]
   - [[file:network/public_private.org][Network with Public and Private Subnets]]
+- s3
+  - [[file:s3/bucket.org][Instance Profile]]

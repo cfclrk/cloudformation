@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Instance Profile </title>
+<meta name="generator" content="Org Mode" />
+<link rel="stylesheet" type="text/css" href="/static/main.css" />
+</head>
+<body>
+<div id="preamble" class="status">
+<nav id="navbar" class="cf">
+  <ul class="cf">
+    <li class="fl">
+      <a href="/">cfclrk</a>
+    </li>
+    <li class="fr">
+      <a href="/articles/home.html">Articles</a>
+    </li>
+    <li class="fr">
+      <a href="/notes/home.html">Notes</a>
+    </li>
+	<li class="fr">
+      <a href="/cloudformation/home.html">CloudFormation</a>
+    </li>
+  </ul>
+</nav>
+</div>
+<div id="content" class="content">
+<header>
+<h1 class="title">Instance Profile </h1>
+</header><nav id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org7054704">Resources</a>
+<ul>
+<li><a href="#orgc1343ee">Bucket</a></li>
+</ul>
+</li>
+<li><a href="#orgcd5b5e5">Outputs</a></li>
+</ul>
+</div>
+</nav>
+<div class="org-src-container">
+<pre class="src src-yaml"><span style="color: #dcaeea;">AWSTemplateFormatVersion</span>: 2010-09-09
+<span style="color: #dcaeea;">Description</span>: A simple S3 bucket
+</pre>
+</div>
+
+<div id="outline-container-org7054704" class="outline-2">
+<h2 id="org7054704"><a href="#org7054704">Resources</a></h2>
+<div class="outline-text-2" id="text-org7054704">
+<div class="org-src-container">
+<pre class="src src-yaml"><span style="color: #dcaeea;">Resources</span>:
+</pre>
+</div>
+</div>
+
+<div id="outline-container-orgc1343ee" class="outline-3">
+<h3 id="orgc1343ee"><a href="#orgc1343ee">Bucket</a></h3>
+<div class="outline-text-3" id="text-orgc1343ee">
+<div class="org-src-container">
+<pre class="src src-yaml">  <span style="color: #dcaeea;">Bucket</span>:
+    <span style="color: #dcaeea;">Type</span>: AWS::S3::Bucket
+    <span style="color: #dcaeea;">Properties</span>:
+</pre>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgcd5b5e5" class="outline-2">
+<h2 id="orgcd5b5e5"><a href="#orgcd5b5e5">Outputs</a></h2>
+<div class="outline-text-2" id="text-orgcd5b5e5">
+<div class="org-src-container">
+<pre class="src src-yaml"><span style="color: #dcaeea;">Outputs</span>:
+  <span style="color: #dcaeea;">BucketName</span>:
+    <span style="color: #dcaeea;">Description</span>: Name of the created bucket
+    <span style="color: #dcaeea;">Value</span>: <span style="color: #ECBE7B;">!Ref</span> Bucket
+</pre>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>

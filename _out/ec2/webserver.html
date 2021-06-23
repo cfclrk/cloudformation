@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>EC2 Instance </title>
+<title>Web Server </title>
 <meta name="generator" content="Org Mode" />
 <link rel="stylesheet" type="text/css" href="/static/main.css" />
 </head>
@@ -28,52 +28,43 @@
 </div>
 <div id="content" class="content">
 <header>
-<h1 class="title">EC2 Instance </h1>
+<h1 class="title">Web Server </h1>
 </header><nav id="table-of-contents">
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#orgb8cc091">Prerequisets</a></li>
-<li><a href="#orgc6e74a1">Overview</a></li>
-<li><a href="#org1651cd9">Parameters</a>
+<li><a href="#org2809edd">Overview</a></li>
+<li><a href="#org192e3b7">Prerequisets</a></li>
+<li><a href="#org4fc3a71">Parameters</a>
 <ul>
-<li><a href="#org45a9fb3">DeploymentName</a></li>
-<li><a href="#org0216283">KeyName</a></li>
+<li><a href="#orgcf65f37">DeploymentName</a></li>
+<li><a href="#org5b4a9e3">KeyName</a></li>
 </ul>
 </li>
-<li><a href="#org65062bb">Mappings</a></li>
-<li><a href="#org7bc1398">Resources</a>
+<li><a href="#orgec4762c">Mappings</a></li>
+<li><a href="#org4df41a2">Resources</a>
 <ul>
-<li><a href="#org7755f46">IAM</a>
+<li><a href="#org5b4b383">IAM</a>
 <ul>
-<li><a href="#orga781468">Role</a></li>
-<li><a href="#org127e326">Instance Profile</a></li>
-<li><a href="#orgf2d1bf8">Policy</a></li>
+<li><a href="#org5e535ad">Role</a></li>
+<li><a href="#orgedd2571">Instance Profile</a></li>
+<li><a href="#org386042c">Policy</a></li>
 </ul>
 </li>
-<li><a href="#org928d7a9">Security Group</a></li>
-<li><a href="#orga69a7f5">Instance</a></li>
+<li><a href="#org3a71b8f">Security Group</a></li>
+<li><a href="#org402645d">Bucket&#xa0;&#xa0;&#xa0;<span class="tag"><span class="nexport">nexport</span></span></a></li>
+<li><a href="#org6df8ba7">Instance</a></li>
 </ul>
 </li>
 </ul>
 </div>
 </nav>
 
-<div id="outline-container-orgb8cc091" class="outline-2">
-<h2 id="orgb8cc091"><a href="#orgb8cc091">Prerequisets</a></h2>
-<div class="outline-text-2" id="text-orgb8cc091">
-<ul class="org-ul">
-<li><a href="../network/public.html">../network/public.html</a> deployed with the same <code>DeploymentName</code></li>
-<li>An EC2 KeyPair in this region</li>
-</ul>
-</div>
-</div>
-
-<div id="outline-container-orgc6e74a1" class="outline-2">
-<h2 id="orgc6e74a1"><a href="#orgc6e74a1">Overview</a></h2>
-<div class="outline-text-2" id="text-orgc6e74a1">
+<div id="outline-container-org2809edd" class="outline-2">
+<h2 id="org2809edd"><a href="#org2809edd">Overview</a></h2>
+<div class="outline-text-2" id="text-org2809edd">
 <p>
-This CloudFormation template creates a single EC2 instance.
+This CloudFormation template creates an EC2 instance running a web server.
 </p>
 
 <div class="org-src-container">
@@ -84,18 +75,28 @@ This CloudFormation template creates a single EC2 instance.
 </div>
 </div>
 
-<div id="outline-container-org1651cd9" class="outline-2">
-<h2 id="org1651cd9"><a href="#org1651cd9">Parameters</a></h2>
-<div class="outline-text-2" id="text-org1651cd9">
+<div id="outline-container-org192e3b7" class="outline-2">
+<h2 id="org192e3b7"><a href="#org192e3b7">Prerequisets</a></h2>
+<div class="outline-text-2" id="text-org192e3b7">
+<ul class="org-ul">
+<li><a href="../network/public.html">../network/public.html</a> deployed with the same <code>DeploymentName</code></li>
+<li>An EC2 KeyPair in this region</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org4fc3a71" class="outline-2">
+<h2 id="org4fc3a71"><a href="#org4fc3a71">Parameters</a></h2>
+<div class="outline-text-2" id="text-org4fc3a71">
 <div class="org-src-container">
 <pre class="src src-yaml"><span style="color: #dcaeea;">Parameters</span>:
 </pre>
 </div>
 </div>
 
-<div id="outline-container-org45a9fb3" class="outline-3">
-<h3 id="org45a9fb3"><a href="#org45a9fb3">DeploymentName</a></h3>
-<div class="outline-text-3" id="text-org45a9fb3">
+<div id="outline-container-orgcf65f37" class="outline-3">
+<h3 id="orgcf65f37"><a href="#orgcf65f37">DeploymentName</a></h3>
+<div class="outline-text-3" id="text-orgcf65f37">
 <p>
 A <b>deployment</b> is a complete deployed application, potentially comprised of many
 CloudFormation stacks. This is sometimes called an "environment", but that is an
@@ -112,9 +113,9 @@ is part of.
 </div>
 </div>
 
-<div id="outline-container-org0216283" class="outline-3">
-<h3 id="org0216283"><a href="#org0216283">KeyName</a></h3>
-<div class="outline-text-3" id="text-org0216283">
+<div id="outline-container-org5b4a9e3" class="outline-3">
+<h3 id="org5b4a9e3"><a href="#org5b4a9e3">KeyName</a></h3>
+<div class="outline-text-3" id="text-org5b4a9e3">
 <p>
 AWS does not provide a CloudFormation type for EC2 KeyPairs. This was a
 deliberate choice: a KeyPair consists of a public and private key, and AWS does
@@ -149,9 +150,9 @@ private key somewhere (like SecretsManager or SSM Parameter Store).</li>
 </div>
 </div>
 
-<div id="outline-container-org65062bb" class="outline-2">
-<h2 id="org65062bb"><a href="#org65062bb">Mappings</a></h2>
-<div class="outline-text-2" id="text-org65062bb">
+<div id="outline-container-orgec4762c" class="outline-2">
+<h2 id="orgec4762c"><a href="#orgec4762c">Mappings</a></h2>
+<div class="outline-text-2" id="text-orgec4762c">
 <div class="org-src-container">
 <pre class="src src-yaml"><span style="color: #dcaeea;">Mappings</span>:
 </pre>
@@ -172,18 +173,18 @@ Instance mapping
 </div>
 </div>
 
-<div id="outline-container-org7bc1398" class="outline-2">
-<h2 id="org7bc1398"><a href="#org7bc1398">Resources</a></h2>
-<div class="outline-text-2" id="text-org7bc1398">
+<div id="outline-container-org4df41a2" class="outline-2">
+<h2 id="org4df41a2"><a href="#org4df41a2">Resources</a></h2>
+<div class="outline-text-2" id="text-org4df41a2">
 <div class="org-src-container">
 <pre class="src src-yaml"><span style="color: #dcaeea;">Resources</span>:
 </pre>
 </div>
 </div>
 
-<div id="outline-container-org7755f46" class="outline-3">
-<h3 id="org7755f46"><a href="#org7755f46">IAM</a></h3>
-<div class="outline-text-3" id="text-org7755f46">
+<div id="outline-container-org5b4b383" class="outline-3">
+<h3 id="org5b4b383"><a href="#org5b4b383">IAM</a></h3>
+<div class="outline-text-3" id="text-org5b4b383">
 <p>
 An EC2 instance isn't <i>required</i> to have an IAM instance profile. However, an
 instance profile is a good idea if the instance will talk to any other AWS
@@ -192,9 +193,9 @@ somehow.
 </p>
 </div>
 
-<div id="outline-container-orga781468" class="outline-4">
-<h4 id="orga781468"><a href="#orga781468">Role</a></h4>
-<div class="outline-text-4" id="text-orga781468">
+<div id="outline-container-org5e535ad" class="outline-4">
+<h4 id="org5e535ad"><a href="#org5e535ad">Role</a></h4>
+<div class="outline-text-4" id="text-org5e535ad">
 <div class="org-src-container">
 <pre class="src src-yaml">  <span style="color: #dcaeea;">InstanceRole</span>:
     <span style="color: #dcaeea;">Type</span>: AWS::IAM::Role
@@ -216,9 +217,9 @@ somehow.
 </div>
 </div>
 
-<div id="outline-container-org127e326" class="outline-4">
-<h4 id="org127e326"><a href="#org127e326">Instance Profile</a></h4>
-<div class="outline-text-4" id="text-org127e326">
+<div id="outline-container-orgedd2571" class="outline-4">
+<h4 id="orgedd2571"><a href="#orgedd2571">Instance Profile</a></h4>
+<div class="outline-text-4" id="text-orgedd2571">
 <div class="org-src-container">
 <pre class="src src-yaml">  <span style="color: #dcaeea;">InstanceProfile</span>:
     <span style="color: #dcaeea;">Type</span>: AWS::IAM::InstanceProfile
@@ -231,9 +232,9 @@ somehow.
 </div>
 </div>
 
-<div id="outline-container-orgf2d1bf8" class="outline-4">
-<h4 id="orgf2d1bf8"><a href="#orgf2d1bf8">Policy</a></h4>
-<div class="outline-text-4" id="text-orgf2d1bf8">
+<div id="outline-container-org386042c" class="outline-4">
+<h4 id="org386042c"><a href="#org386042c">Policy</a></h4>
+<div class="outline-text-4" id="text-org386042c">
 <div class="org-src-container">
 <pre class="src src-yaml">  <span style="color: #dcaeea;">InstancePolicy</span>:
     <span style="color: #dcaeea;">Type</span>: AWS::IAM::ManagedPolicy
@@ -249,6 +250,8 @@ somehow.
               - logs:CreateLogStream
               - logs:PutLogEvents
               - logs:DescribeLogStreams
+              - cloudformation:DescribeStackResource
+              - cloudformation:SignalResource
             <span style="color: #dcaeea;">Resource</span>: <span style="color: #98be65;">"*"</span>
 </pre>
 </div>
@@ -256,9 +259,9 @@ somehow.
 </div>
 </div>
 
-<div id="outline-container-org928d7a9" class="outline-3">
-<h3 id="org928d7a9"><a href="#org928d7a9">Security Group</a></h3>
-<div class="outline-text-3" id="text-org928d7a9">
+<div id="outline-container-org3a71b8f" class="outline-3">
+<h3 id="org3a71b8f"><a href="#org3a71b8f">Security Group</a></h3>
+<div class="outline-text-3" id="text-org3a71b8f">
 <div class="org-src-container">
 <pre class="src src-yaml">  <span style="color: #dcaeea;">SecurityGroup</span>:
     <span style="color: #dcaeea;">Type</span>: AWS::EC2::SecurityGroup
@@ -267,10 +270,6 @@ somehow.
       <span style="color: #dcaeea;">GroupName</span>: <span style="color: #ECBE7B;">!Sub</span> <span style="color: #98be65;">"${DeploymentName}"</span>
       <span style="color: #dcaeea;">VpcId</span>: {<span style="color: #dcaeea;">Fn::ImportValue</span>: <span style="color: #ECBE7B;">!Sub</span> <span style="color: #98be65;">"${DeploymentName}-VpcId"</span>}
       <span style="color: #dcaeea;">SecurityGroupIngress</span>:
-        - <span style="color: #dcaeea;">IpProtocol</span>: tcp
-          <span style="color: #dcaeea;">FromPort</span>: 80
-          <span style="color: #dcaeea;">ToPort</span>: 80
-          <span style="color: #dcaeea;">CidrIp</span>: 0.0.0.0/0
         - <span style="color: #dcaeea;">IpProtocol</span>: tcp
           <span style="color: #dcaeea;">FromPort</span>: 22
           <span style="color: #dcaeea;">ToPort</span>: 22
@@ -283,12 +282,42 @@ somehow.
 </div>
 </div>
 
-<div id="outline-container-orga69a7f5" class="outline-3">
-<h3 id="orga69a7f5"><a href="#orga69a7f5">Instance</a></h3>
-<div class="outline-text-3" id="text-orga69a7f5">
+<div id="outline-container-org402645d" class="outline-3">
+<h3 id="org402645d"><a href="#org402645d">Bucket&#xa0;&#xa0;&#xa0;<span class="tag"><span class="nexport">nexport</span></span></a></h3>
+<div class="outline-text-3" id="text-org402645d">
+<p>
+An S3 Bucket to store build artifacts.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-yaml">  <span style="color: #dcaeea;">BuildArtifactBucket</span>:
+    <span style="color: #dcaeea;">Type</span>: AWS::S3::Bucket
+    <span style="color: #dcaeea;">Properties</span>:
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org6df8ba7" class="outline-3">
+<h3 id="org6df8ba7"><a href="#org6df8ba7">Instance</a></h3>
+<div class="outline-text-3" id="text-org6df8ba7">
 <div class="org-src-container">
 <pre class="src src-yaml">  <span style="color: #dcaeea;">Instance</span>:
     <span style="color: #dcaeea;">Type</span>: AWS::EC2::Instance
+    <span style="color: #dcaeea;">Metadata</span>:
+      <span style="color: #dcaeea;">AWS::CloudFormation::Init</span>:
+        <span style="color: #dcaeea;">config</span>:
+          <span style="color: #dcaeea;">files</span>:
+            <span style="color: #dcaeea;">/etc/cfn/cfn-hup.conf</span>:
+              <span style="color: #dcaeea;">content</span>: |
+                <span style="color: #98be65;">[main]</span>
+<span style="color: #98be65;">                stack=${AWS::StackName}</span>
+<span style="color: #98be65;">                region=${AWS::Region}</span>
+              <span style="color: #dcaeea;">mode</span>: 000400
+              <span style="color: #dcaeea;">owner</span>: root
+              <span style="color: #dcaeea;">group</span>: root
+          <span style="color: #dcaeea;">sources</span>:
+            <span style="color: #dcaeea;">/home/ec2-user/app</span>: https://github.com/user1/cfn-demo/tarball/main
     <span style="color: #dcaeea;">Properties</span>:
       <span style="color: #dcaeea;">IamInstanceProfile</span>: <span style="color: #ECBE7B;">!Sub</span> <span style="color: #98be65;">"${DeploymentName}-InstanceProfile"</span>
       <span style="color: #dcaeea;">ImageId</span>: Fn::FindInMap [RegionMap, <span style="color: #ECBE7B;">!Ref</span> AWS::Region, AMI]
@@ -296,10 +325,23 @@ somehow.
       <span style="color: #dcaeea;">KeyName</span>: <span style="color: #ECBE7B;">!Ref</span> KeyName
       <span style="color: #dcaeea;">SecurityGroupIds</span>:
         - <span style="color: #ECBE7B;">!Ref</span> SecurityGroup
+      <span style="color: #5B6268;"># </span><span style="color: #5B6268;">SsmAssociations:</span>
+      <span style="color: #5B6268;">#   </span><span style="color: #5B6268;">- SsmAssociation</span>
       <span style="color: #dcaeea;">SubnetId</span>: {<span style="color: #dcaeea;">Fn::ImportValue</span>: <span style="color: #ECBE7B;">!Sub</span> <span style="color: #98be65;">"${DeploymentName}-PublicSubnet1"</span>}
       <span style="color: #dcaeea;">Tags</span>:
         - <span style="color: #dcaeea;">Key</span>: Name
           <span style="color: #dcaeea;">Value</span>: <span style="color: #ECBE7B;">!Sub</span> <span style="color: #98be65;">"${DeploymentName}-instance"</span>
+      <span style="color: #dcaeea;">UserData</span>:
+        <span style="color: #dcaeea;">Fn::Base64</span>: <span style="color: #ECBE7B;">!Sub</span> |
+          <span style="color: #5B6268;">#</span><span style="color: #5B6268;">!/bin/bash</span>
+<span style="color: #98be65;">          yum install -y aws-cfn-bootstrap</span>
+          <span style="color: #5B6268;"># </span><span style="color: #5B6268;">Run cfn-init which processes the AWS::CloudFormation::Init section</span>
+<span style="color: #98be65;">          cfn-init -v \</span>
+<span style="color: #98be65;">              --stack ${AWS::StackName} \</span>
+<span style="color: #98be65;">              --resource Instance \</span>
+<span style="color: #98be65;">              --region ${AWS::Region}</span>
+          <span style="color: #5B6268;"># </span><span style="color: #5B6268;">Start cfn-hup daemon</span>
+          cfn-hup || error_exit <span style="color: #98be65;">'Failed to start cfn-hup'</span>
 </pre>
 </div>
 </div>

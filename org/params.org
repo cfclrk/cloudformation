@@ -13,7 +13,7 @@ is part of.
 
 * KeyName
 
-AWS does not provide a built-in CloudFormation type for EC2 KeyPairs. This was a
+AWS does not provide a CloudFormation type for EC2 KeyPairs. This was a
 deliberate choice: a KeyPair consists of a public and private key, and AWS does
 not want to expose the private key in CloudFormation outputs.
 
@@ -22,14 +22,15 @@ locally, it can create a KeyPair and save the private key locally.
 
 So, in CloudFormation, you have two options:
 
-1. Create the EC2 KeyPair beforehand. Then, provide the existing =KeyName= to
-   your CloudFormation template as a parameter.
-2. Define a CloudFormation Custom Resource (i.e. a Lambda Function) in your
-   CloudFormation template. The Custom Resource could create the KeyPair and
-   save the private key somewhere (like SecretsManager or SSM Parameter Store).
+1. Create the KeyPair beforehand. Then provide the =KeyName= to your
+   CloudFormation template as a parameter.
+2. Create the KeyPair using a CloudFormation Custom Resource (i.e. a Lambda
+   Function) in your CloudFormation template. The Custom Resource must save the
+   private key somewhere (like SecretsManager or SSM Parameter Store).
 
 #+begin_src yaml
   KeyPair:
     Type: AWS::EC2::KeyPair::KeyName
     Description: The name of an EC2 KeyPair
+    Default: test
 #+end_src

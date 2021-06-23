@@ -10,6 +10,7 @@ Parameters:
   KeyPair:
     Type: AWS::EC2::KeyPair::KeyName
     Description: The name of an EC2 KeyPair
+    Default: test
 
 Mappings:
 
@@ -70,11 +71,11 @@ Resources:
         - IpProtocol: tcp
           FromPort: 80
           ToPort: 80
-          CidrIp: 67.23.104.250/32
+          CidrIp: 0.0.0.0/0
         - IpProtocol: tcp
           FromPort: 22
           ToPort: 22
-          CidrIp: 67.23.104.250/32
+          CidrIp: 0.0.0.0/0
       Tags:
         - Key: Name
           Value: !Sub "${DeploymentName}-instance"
@@ -83,15 +84,12 @@ Resources:
     Type: AWS::EC2::Instance
     Properties:
       IamInstanceProfile: !Sub "${DeploymentName}-InstanceProfile"
-      ImageId: !FindInMap [RegionMap, !Ref AWS::Region, AMI]
+      ImageId: Fn::FindInMap [RegionMap, !Ref AWS::Region, AMI]
       InstanceType: t2.nano
       KeyName: !Ref KeyName
       SecurityGroupIds:
         - !Ref SecurityGroup
-      # SsmAssociations:
-      #   - SsmAssociation
       SubnetId: {Fn::ImportValue: !Sub "${DeploymentName}-PublicSubnet1"}
       Tags:
         - Key: Name
           Value: !Sub "${DeploymentName}-instance"
-      # UserData: String

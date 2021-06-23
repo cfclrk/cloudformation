@@ -1,19 +1,19 @@
-#+TITLE: EC2 Instance
+#+TITLE: Web Server
 #+setupfile: ../setup.org
-
-* Prerequisets
-
-- [[file:../network/public.org]] deployed with the same =DeploymentName=
-- An EC2 KeyPair in this region
 
 * Overview
 
-This CloudFormation template creates a single EC2 instance.
+This CloudFormation template creates an EC2 instance running a web server.
 
 #+begin_src yaml
 AWSTemplateFormatVersion: 2010-09-09
 Description: An EC2 Instance
 #+end_src
+
+* Prerequisets
+
+- [[file:../network/public.org]] deployed with the same =DeploymentName=
+- An EC2 KeyPair in this region
 
 * Parameters
 
@@ -135,6 +135,8 @@ somehow.
               - logs:CreateLogStream
               - logs:PutLogEvents
               - logs:DescribeLogStreams
+              - cloudformation:DescribeStackResource
+              - cloudformation:SignalResource
             Resource: "*"
 #+end_src
 
@@ -149,10 +151,6 @@ somehow.
       VpcId: {Fn::ImportValue: !Sub "${DeploymentName}-VpcId"}
       SecurityGroupIngress:
         - IpProtocol: tcp
-          FromPort: 80
-          ToPort: 80
-          CidrIp: 0.0.0.0/0
-        - IpProtocol: tcp
           FromPort: 22
           ToPort: 22
           CidrIp: 0.0.0.0/0
@@ -161,11 +159,35 @@ somehow.
           Value: !Sub "${DeploymentName}-instance"
 #+end_src
 
+** Bucket                                                           :nexport:
+
+An S3 Bucket to store build artifacts.
+
+#+begin_src yaml
+  BuildArtifactBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+#+end_src
+
 ** Instance
 
 #+begin_src yaml
   Instance:
     Type: AWS::EC2::Instance
+    Metadata:
+      AWS::CloudFormation::Init:
+        config:
+          files:
+            /etc/cfn/cfn-hup.conf:
+              content: |
+                [main]
+                stack=${AWS::StackName}
+                region=${AWS::Region}
+              mode: 000400
+              owner: root
+              group: root
+    #       sources:
+    #         /home/ec2-user/app: https://github.com/user1/cfn-demo/tarball/main
     Properties:
       IamInstanceProfile: !Sub "${DeploymentName}-InstanceProfile"
       ImageId: Fn::FindInMap [RegionMap, !Ref AWS::Region, AMI]
@@ -173,8 +195,21 @@ somehow.
       KeyName: !Ref KeyName
       SecurityGroupIds:
         - !Ref SecurityGroup
+      # SsmAssociations:
+      #   - SsmAssociation
       SubnetId: {Fn::ImportValue: !Sub "${DeploymentName}-PublicSubnet1"}
       Tags:
         - Key: Name
           Value: !Sub "${DeploymentName}-instance"
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          yum install -y aws-cfn-bootstrap
+          # Run cfn-init which processes the AWS::CloudFormation::Init section
+          cfn-init -v \
+              --stack ${AWS::StackName} \
+              --resource Instance \
+              --region ${AWS::Region}
+          # Start cfn-hup daemon
+          cfn-hup || error_exit 'Failed to start cfn-hup'
 #+end_src

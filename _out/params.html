@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- 2021-06-22 Tue 10:59 -->
+<!-- 2021-06-23 Wed 11:06 -->
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>&lrm;</title>
@@ -9,6 +9,24 @@
 <link rel="stylesheet" type="text/css" href="/static/main.css" />
 </head>
 <body>
+<div id="preamble" class="status">
+<nav id="navbar" class="cf">
+  <ul class="cf">
+    <li class="fl">
+      <a href="/">cfclrk</a>
+    </li>
+    <li class="fr">
+      <a href="/articles/home.html">Articles</a>
+    </li>
+    <li class="fr">
+      <a href="/notes/home.html">Notes</a>
+    </li>
+	<li class="fr">
+      <a href="/cloudformation/home.html">CloudFormation</a>
+    </li>
+  </ul>
+</nav>
+</div>
 <div id="content" class="content">
 <nav id="table-of-contents">
 <h2>Table of Contents</h2>
@@ -42,7 +60,7 @@ is part of.
 <h2 id="org668f849"><a href="#org668f849">KeyName</a></h2>
 <div class="outline-text-2" id="text-org668f849">
 <p>
-AWS does not provide a built-in CloudFormation type for EC2 KeyPairs. This was a
+AWS does not provide a CloudFormation type for EC2 KeyPairs. This was a
 deliberate choice: a KeyPair consists of a public and private key, and AWS does
 not want to expose the private key in CloudFormation outputs.
 </p>
@@ -57,17 +75,18 @@ So, in CloudFormation, you have two options:
 </p>
 
 <ol class="org-ol">
-<li>Create the EC2 KeyPair beforehand. Then, provide the existing <code>KeyName</code> to
-your CloudFormation template as a parameter.</li>
-<li>Define a CloudFormation Custom Resource (i.e. a Lambda Function) in your
-CloudFormation template. The Custom Resource could create the KeyPair and
-save the private key somewhere (like SecretsManager or SSM Parameter Store).</li>
+<li>Create the KeyPair beforehand. Then provide the <code>KeyName</code> to your
+CloudFormation template as a parameter.</li>
+<li>Create the KeyPair using a CloudFormation Custom Resource (i.e. a Lambda
+Function) in your CloudFormation template. The Custom Resource must save the
+private key somewhere (like SecretsManager or SSM Parameter Store).</li>
 </ol>
 
 <div class="org-src-container">
 <pre class="src src-yaml">  <span style="color: #dcaeea;">KeyPair</span>:
     <span style="color: #dcaeea;">Type</span>: AWS::EC2::KeyPair::KeyName
     <span style="color: #dcaeea;">Description</span>: The name of an EC2 KeyPair
+    <span style="color: #dcaeea;">Default</span>: test
 </pre>
 </div>
 </div>

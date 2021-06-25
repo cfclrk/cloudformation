@@ -1,0 +1,28 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: >
+  An IAM instance profile, which allows code running on an EC2 instance to
+  assume an IAM role.
+
+Parameters:
+
+  DeploymentName:
+    Type: String
+    Description: A name for this deployment
+
+Resources:
+
+  InstanceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub "${DeploymentName}-InstanceRole"
+      Description: Allows EC2 instances to call AWS services
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ec2.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ManagedPolicyArns:
+        - !Ref InstancePolicy

@@ -17,6 +17,7 @@ the extension) at the same location.
   - [[file:ec2/instance.org][EC2 Instance]]
   - [[file:ec2/webserver.org][Web Server]]
 - iam
+  - [[file:iam/inline_role.org][Instance Profile]]
   - [[file:iam/role_vpc_flow_logs.org][Role for VPC Flow Logs]]
   - [[file:iam/instance_profile.org][instance_profile]]
 - network

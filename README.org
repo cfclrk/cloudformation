@@ -3,12 +3,12 @@
 * Variables
 
   #+NAME: Env
-  | Env Var            | Value                          |
-  |--------------------+--------------------------------|
-  | AWS_PROFILE        | dev                            |
-  | AWS_DEFAULT_REGION | us-east-2                      |
-  | TEMPLATE_PATH      | _out/iam/instance_profile.yaml |
-  | DEPLOYMENT_NAME    | test                           |
+  | Env Var            | Value                   |
+  |--------------------+-------------------------|
+  | AWS_PROFILE        | cloud-infra-prod        |
+  | AWS_DEFAULT_REGION | us-east-2               |
+  | TEMPLATE_PATH      | _out/ec2/webserver.yaml |
+  | DEPLOYMENT_NAME    | test                    |
 
   #+begin_src emacs-lisp :var env=Env
     (setenv-file-export-pairs env)
@@ -59,6 +59,11 @@
          --capabilities CAPABILITY_AUTO_EXPAND CAPABILITY_IAM CAPABILITY_NAMED_IAM \
          --parameters ParameterKey=DeploymentName,ParameterValue=$DEPLOYMENT_NAME
    #+end_src
+
+   #+RESULTS:
+   : {
+   :     "StackId": "arn:aws:cloudformation:us-east-2:054288142014:stack/test-ec2-webserver/a49e9e90-d52f-11eb-b24f-06c1059fc22a"
+   : }
 
 * Update Stack
 
@@ -114,6 +119,8 @@
     aws cloudformation delete-stack \
         --stack-name $StackName
   #+end_src
+
+  #+RESULTS:
 
 * Get Stack Logs
 

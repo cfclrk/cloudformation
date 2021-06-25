@@ -1,4 +1,4 @@
-# Created 2021-06-23 Wed 11:34
+# Created 2021-06-24 Thu 17:07
 #+TITLE: CloudFormation
 - [[file:home.org][home]]
 - [[file:params.org][params]]
@@ -10,6 +10,7 @@
   - [[file:ec2/instance.org][EC2 Instance]]
   - [[file:ec2/webserver.org][Web Server]]
 - iam
+  - [[file:iam/inline_role.org][Instance Profile]]
   - [[file:iam/role_vpc_flow_logs.org][Role for VPC Flow Logs]]
   - [[file:iam/instance_profile.org][instance_profile]]
 - network

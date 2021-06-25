@@ -7,7 +7,7 @@ Parameters:
     Type: String
     Description: A name for this deployment
 
-  KeyPair:
+  KeyName:
     Type: AWS::EC2::KeyPair::KeyName
     Description: The name of an EC2 KeyPair
     Default: test

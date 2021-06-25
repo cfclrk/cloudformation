@@ -1,4 +1,4 @@
-# Created 2021-06-23 Wed 11:05
+# Created 2021-06-23 Wed 11:40
 #+TITLE:
 * DeploymentName
 
@@ -31,7 +31,7 @@ So, in CloudFormation, you have two options:
    private key somewhere (like SecretsManager or SSM Parameter Store).
 
 #+begin_src yaml
-  KeyPair:
+  KeyName:
     Type: AWS::EC2::KeyPair::KeyName
     Description: The name of an EC2 KeyPair
     Default: test

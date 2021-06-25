@@ -39,6 +39,7 @@
 <ul>
 <li><a href="#orgcf65f37">DeploymentName</a></li>
 <li><a href="#org5b4a9e3">KeyName</a></li>
+<li><a href="#org984b62d">BuiltArtifactBucketName</a></li>
 </ul>
 </li>
 <li><a href="#orgec4762c">Mappings</a></li>
@@ -48,14 +49,13 @@
 <ul>
 <li><a href="#org5e535ad">Role</a></li>
 <li><a href="#orgedd2571">Instance Profile</a></li>
-<li><a href="#org386042c">Policy</a></li>
 </ul>
 </li>
 <li><a href="#org3a71b8f">Security Group</a></li>
-<li><a href="#org402645d">Bucket&#xa0;&#xa0;&#xa0;<span class="tag"><span class="nexport">nexport</span></span></a></li>
 <li><a href="#org6df8ba7">Instance</a></li>
 </ul>
 </li>
+<li><a href="#org49701bd">Outputs</a></li>
 </ul>
 </div>
 </nav>
@@ -140,10 +140,23 @@ private key somewhere (like SecretsManager or SSM Parameter Store).</li>
 </ol>
 
 <div class="org-src-container">
-<pre class="src src-yaml">  <span style="color: #dcaeea;">KeyPair</span>:
+<pre class="src src-yaml">  <span style="color: #dcaeea;">KeyName</span>:
     <span style="color: #dcaeea;">Type</span>: AWS::EC2::KeyPair::KeyName
     <span style="color: #dcaeea;">Description</span>: The name of an EC2 KeyPair
     <span style="color: #dcaeea;">Default</span>: test
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org984b62d" class="outline-3">
+<h3 id="org984b62d"><a href="#org984b62d">BuiltArtifactBucketName</a></h3>
+<div class="outline-text-3" id="text-org984b62d">
+<div class="org-src-container">
+<pre class="src src-yaml">  <span style="color: #dcaeea;">BuildArtifactBucketName</span>:
+    <span style="color: #dcaeea;">Type</span>: String
+    <span style="color: #dcaeea;">Description</span>: Name of the S3 bucket with build artifacts
+    <span style="color: #dcaeea;">Default</span>: test-s3-bucket-bucket-1n9japign3xm7
 </pre>
 </div>
 </div>
@@ -186,10 +199,7 @@ Instance mapping
 <h3 id="org5b4b383"><a href="#org5b4b383">IAM</a></h3>
 <div class="outline-text-3" id="text-org5b4b383">
 <p>
-An EC2 instance isn't <i>required</i> to have an IAM instance profile. However, an
-instance profile is a good idea if the instance will talk to any other AWS
-service. The only alternative would be to copy AWS credentials onto the instance
-somehow.
+The EC2 instance needs access to CloudWatch Logs and S3.
 </p>
 </div>
 
@@ -210,8 +220,24 @@ somehow.
               <span style="color: #dcaeea;">Service</span>: ec2.amazonaws.com
             <span style="color: #dcaeea;">Action</span>:
               - sts:AssumeRole
-      <span style="color: #dcaeea;">ManagedPolicyArns</span>:
-        - <span style="color: #ECBE7B;">!Ref</span> InstancePolicy
+      <span style="color: #dcaeea;">Policies</span>:
+        - <span style="color: #dcaeea;">PolicyName</span>: InstancePolicy
+          <span style="color: #dcaeea;">PolicyDocument</span>:
+            <span style="color: #dcaeea;">Version</span>: 2012-10-17
+            <span style="color: #dcaeea;">Statement</span>:
+              - <span style="color: #dcaeea;">Effect</span>: Allow
+                <span style="color: #dcaeea;">Action</span>:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                  - logs:DescribeLogStreams
+                  - cloudformation:DescribeStackResource
+                  - cloudformation:SignalResource
+                <span style="color: #dcaeea;">Resource</span>: <span style="color: #98be65;">"*"</span>
+              - <span style="color: #dcaeea;">Effect</span>: Allow
+                <span style="color: #dcaeea;">Action</span>:
+                  - s3:GetObject
+                <span style="color: #dcaeea;">Resource</span>: <span style="color: #ECBE7B;">!Sub</span> <span style="color: #98be65;">"arn:aws:s3:::${BuildArtifactBucketName}/*"</span>
 </pre>
 </div>
 </div>
@@ -227,32 +253,6 @@ somehow.
       <span style="color: #dcaeea;">InstanceProfileName</span>: <span style="color: #ECBE7B;">!Sub</span> <span style="color: #98be65;">"${DeploymentName}-InstanceProfile"</span>
       <span style="color: #dcaeea;">Roles</span>:
         - <span style="color: #ECBE7B;">!Ref</span> InstanceRole
-</pre>
-</div>
-</div>
-</div>
-
-<div id="outline-container-org386042c" class="outline-4">
-<h4 id="org386042c"><a href="#org386042c">Policy</a></h4>
-<div class="outline-text-4" id="text-org386042c">
-<div class="org-src-container">
-<pre class="src src-yaml">  <span style="color: #dcaeea;">InstancePolicy</span>:
-    <span style="color: #dcaeea;">Type</span>: AWS::IAM::ManagedPolicy
-    <span style="color: #dcaeea;">Properties</span>:
-      <span style="color: #dcaeea;">Description</span>: Allow logging to CloudWatch
-      <span style="color: #dcaeea;">ManagedPolicyName</span>: <span style="color: #ECBE7B;">!Sub</span> <span style="color: #98be65;">"${DeploymentName}-InstancePolicy"</span>
-      <span style="color: #dcaeea;">PolicyDocument</span>:
-        <span style="color: #dcaeea;">Version</span>: 2012-10-17
-        <span style="color: #dcaeea;">Statement</span>:
-          - <span style="color: #dcaeea;">Effect</span>: Allow
-            <span style="color: #dcaeea;">Action</span>:
-              - logs:CreateLogGroup
-              - logs:CreateLogStream
-              - logs:PutLogEvents
-              - logs:DescribeLogStreams
-              - cloudformation:DescribeStackResource
-              - cloudformation:SignalResource
-            <span style="color: #dcaeea;">Resource</span>: <span style="color: #98be65;">"*"</span>
 </pre>
 </div>
 </div>
@@ -273,26 +273,10 @@ somehow.
         - <span style="color: #dcaeea;">IpProtocol</span>: tcp
           <span style="color: #dcaeea;">FromPort</span>: 22
           <span style="color: #dcaeea;">ToPort</span>: 22
-          <span style="color: #dcaeea;">CidrIp</span>: 0.0.0.0/0
+          <span style="color: #dcaeea;">CidrIp</span>: 0.0.0.0/32
       <span style="color: #dcaeea;">Tags</span>:
         - <span style="color: #dcaeea;">Key</span>: Name
           <span style="color: #dcaeea;">Value</span>: <span style="color: #ECBE7B;">!Sub</span> <span style="color: #98be65;">"${DeploymentName}-instance"</span>
-</pre>
-</div>
-</div>
-</div>
-
-<div id="outline-container-org402645d" class="outline-3">
-<h3 id="org402645d"><a href="#org402645d">Bucket&#xa0;&#xa0;&#xa0;<span class="tag"><span class="nexport">nexport</span></span></a></h3>
-<div class="outline-text-3" id="text-org402645d">
-<p>
-An S3 Bucket to store build artifacts.
-</p>
-
-<div class="org-src-container">
-<pre class="src src-yaml">  <span style="color: #dcaeea;">BuildArtifactBucket</span>:
-    <span style="color: #dcaeea;">Type</span>: AWS::S3::Bucket
-    <span style="color: #dcaeea;">Properties</span>:
 </pre>
 </div>
 </div>
@@ -305,22 +289,51 @@ An S3 Bucket to store build artifacts.
 <pre class="src src-yaml">  <span style="color: #dcaeea;">Instance</span>:
     <span style="color: #dcaeea;">Type</span>: AWS::EC2::Instance
     <span style="color: #dcaeea;">Metadata</span>:
+      <span style="color: #dcaeea;">AWS::CloudFormation::Authentication</span>:
+        <span style="color: #dcaeea;">S3AccessCreds</span>:
+          <span style="color: #dcaeea;">type</span>: S3
+          <span style="color: #dcaeea;">buckets</span>:
+            - <span style="color: #ECBE7B;">!Sub</span> <span style="color: #98be65;">"${BuildArtifactBucketName}"</span>
+          <span style="color: #dcaeea;">roleName</span>: <span style="color: #ECBE7B;">!Ref</span> InstanceRole
       <span style="color: #dcaeea;">AWS::CloudFormation::Init</span>:
         <span style="color: #dcaeea;">config</span>:
           <span style="color: #dcaeea;">files</span>:
+
+            <span style="color: #5B6268;"># </span><span style="color: #5B6268;">Config file for cfn-hup</span>
             <span style="color: #dcaeea;">/etc/cfn/cfn-hup.conf</span>:
-              <span style="color: #dcaeea;">content</span>: |
+              <span style="color: #dcaeea;">content</span>: <span style="color: #ECBE7B;">!Sub</span> |
                 <span style="color: #98be65;">[main]</span>
 <span style="color: #98be65;">                stack=${AWS::StackName}</span>
 <span style="color: #98be65;">                region=${AWS::Region}</span>
-              <span style="color: #dcaeea;">mode</span>: 000400
+<span style="color: #98be65;">                verbose=true</span>
+<span style="color: #98be65;">                interval=3</span>
+              <span style="color: #dcaeea;">mode</span>: <span style="color: #98be65;">"000400"</span>
               <span style="color: #dcaeea;">owner</span>: root
               <span style="color: #dcaeea;">group</span>: root
-          <span style="color: #dcaeea;">sources</span>:
-            <span style="color: #dcaeea;">/home/ec2-user/app</span>: https://github.com/user1/cfn-demo/tarball/main
+
+            <span style="color: #5B6268;"># </span><span style="color: #5B6268;">Re-run cfn-init after every cloudformation update</span>
+            <span style="color: #dcaeea;">/etc/cfn/hooks.d/cfn-auto-reloader.conf</span>:
+              <span style="color: #dcaeea;">content</span>: <span style="color: #ECBE7B;">!Sub</span> |
+                <span style="color: #98be65;">[cfn-auto-reloader-hook]</span>
+<span style="color: #98be65;">                triggers=post.update</span>
+<span style="color: #98be65;">                path=Resources.Instance.Metadata.AWS::CloudFormation::Init</span>
+<span style="color: #98be65;">                action=/opt/aws/bin/cfn-init -v --stack ${AWS::StackName} --resource Instance --region ${AWS::Region}</span>
+<span style="color: #98be65;">                runas=root</span>
+              <span style="color: #dcaeea;">mode</span>: <span style="color: #98be65;">"000400"</span>
+              <span style="color: #dcaeea;">owner</span>: root
+              <span style="color: #dcaeea;">group</span>: root
+
+            <span style="color: #5B6268;"># </span><span style="color: #5B6268;">TODO: Restart the web server after every cloudformation update</span>
+
+            <span style="color: #dcaeea;">/home/ec2-user/go-webserver</span>:
+              <span style="color: #dcaeea;">source</span>: https://test-s3-bucket-bucket-1n9japign3xm7.s3.us-east-2.amazonaws.com/main/go-webserver-amd64
+              <span style="color: #dcaeea;">mode</span>: <span style="color: #98be65;">"000755"</span>
+              <span style="color: #dcaeea;">owner</span>: root
+              <span style="color: #dcaeea;">group</span>: root
+              <span style="color: #dcaeea;">authentication</span>: S3AccessCreds
     <span style="color: #dcaeea;">Properties</span>:
       <span style="color: #dcaeea;">IamInstanceProfile</span>: <span style="color: #ECBE7B;">!Sub</span> <span style="color: #98be65;">"${DeploymentName}-InstanceProfile"</span>
-      <span style="color: #dcaeea;">ImageId</span>: Fn::FindInMap [RegionMap, <span style="color: #ECBE7B;">!Ref</span> AWS::Region, AMI]
+      <span style="color: #dcaeea;">ImageId</span>: <span style="color: #ECBE7B;">!FindInMap</span> [RegionMap, <span style="color: #ECBE7B;">!Ref</span> <span style="color: #98be65;">"AWS::Region"</span>, AMI]
       <span style="color: #dcaeea;">InstanceType</span>: t2.nano
       <span style="color: #dcaeea;">KeyName</span>: <span style="color: #ECBE7B;">!Ref</span> KeyName
       <span style="color: #dcaeea;">SecurityGroupIds</span>:
@@ -336,14 +349,30 @@ An S3 Bucket to store build artifacts.
           <span style="color: #5B6268;">#</span><span style="color: #5B6268;">!/bin/bash</span>
 <span style="color: #98be65;">          yum install -y aws-cfn-bootstrap</span>
           <span style="color: #5B6268;"># </span><span style="color: #5B6268;">Run cfn-init which processes the AWS::CloudFormation::Init section</span>
-<span style="color: #98be65;">          cfn-init -v \</span>
-<span style="color: #98be65;">              --stack ${AWS::StackName} \</span>
-<span style="color: #98be65;">              --resource Instance \</span>
-<span style="color: #98be65;">              --region ${AWS::Region}</span>
-          <span style="color: #5B6268;"># </span><span style="color: #5B6268;">Start cfn-hup daemon</span>
-          cfn-hup || error_exit <span style="color: #98be65;">'Failed to start cfn-hup'</span>
+<span style="color: #98be65;">          /opt/aws/bin/cfn-init -v --stack ${AWS::StackName} --resource Instance --region ${AWS::Region}</span>
+          <span style="color: #5B6268;"># </span><span style="color: #5B6268;">Start cfn-hup daemon, which checks Metadata every $interval and then</span>
+          <span style="color: #5B6268;"># </span><span style="color: #5B6268;">performs actions in /etc/cfn/hooks.d/</span>
+          <span style="color: #5B6268;">#</span>
+          <span style="color: #5B6268;"># </span><span style="color: #5B6268;">TODO: Should this be a systemd service? See:</span>
+          <span style="color: #5B6268;"># </span><span style="color: #5B6268;">https://aws.amazon.com/premiumsupport/knowledge-center/install-cloudformation-scripts/</span>
+          /opt/aws/bin/cfn-hup || error_exit <span style="color: #98be65;">"Failed to start cfn-hup"</span>
 </pre>
 </div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org49701bd" class="outline-2">
+<h2 id="org49701bd"><a href="#org49701bd">Outputs</a></h2>
+<div class="outline-text-2" id="text-org49701bd">
+<div class="org-src-container">
+<pre class="src src-yaml"><span style="color: #dcaeea;">Outputs</span>:
+  <span style="color: #dcaeea;">PublicIP</span>:
+    <span style="color: #dcaeea;">Description</span>: Public IP of the EC2 instance
+    <span style="color: #dcaeea;">Value</span>: <span style="color: #ECBE7B;">!GetAtt</span> Instance.PublicDnsName
+    <span style="color: #dcaeea;">Export</span>:
+      <span style="color: #dcaeea;">Name</span>: <span style="color: #ECBE7B;">!Sub</span> <span style="color: #98be65;">"${DeploymentName}-PublicIP"</span>
+</pre>
 </div>
 </div>
 </div>

@@ -7,10 +7,15 @@ Parameters:
     Type: String
     Description: A name for this deployment
 
-  KeyPair:
+  KeyName:
     Type: AWS::EC2::KeyPair::KeyName
     Description: The name of an EC2 KeyPair
     Default: test
+
+  BuildArtifactBucketName:
+    Type: String
+    Description: Name of the S3 bucket with build artifacts
+    Default: test-s3-bucket-bucket-1n9japign3xm7
 
 Mappings:
 
@@ -35,8 +40,24 @@ Resources:
               Service: ec2.amazonaws.com
             Action:
               - sts:AssumeRole
-      ManagedPolicyArns:
-        - !Ref InstancePolicy
+      Policies:
+        - PolicyName: InstancePolicy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                  - logs:DescribeLogStreams
+                  - cloudformation:DescribeStackResource
+                  - cloudformation:SignalResource
+                Resource: "*"
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                Resource: !Sub "arn:aws:s3:::${BuildArtifactBucketName}/*"
 
   InstanceProfile:
     Type: AWS::IAM::InstanceProfile
@@ -44,24 +65,6 @@ Resources:
       InstanceProfileName: !Sub "${DeploymentName}-InstanceProfile"
       Roles:
         - !Ref InstanceRole
-
-  InstancePolicy:
-    Type: AWS::IAM::ManagedPolicy
-    Properties:
-      Description: Allow logging to CloudWatch
-      ManagedPolicyName: !Sub "${DeploymentName}-InstancePolicy"
-      PolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          - Effect: Allow
-            Action:
-              - logs:CreateLogGroup
-              - logs:CreateLogStream
-              - logs:PutLogEvents
-              - logs:DescribeLogStreams
-              - cloudformation:DescribeStackResource
-              - cloudformation:SignalResource
-            Resource: "*"
 
   SecurityGroup:
     Type: AWS::EC2::SecurityGroup
@@ -73,34 +76,59 @@ Resources:
         - IpProtocol: tcp
           FromPort: 22
           ToPort: 22
-          CidrIp: 0.0.0.0/0
+          CidrIp: 0.0.0.0/32
       Tags:
         - Key: Name
           Value: !Sub "${DeploymentName}-instance"
 
-  BuildArtifactBucket:
-    Type: AWS::S3::Bucket
-    Properties:
-
   Instance:
     Type: AWS::EC2::Instance
     Metadata:
+      AWS::CloudFormation::Authentication:
+        S3AccessCreds:
+          type: S3
+          buckets:
+            - !Sub "${BuildArtifactBucketName}"
+          roleName: !Ref InstanceRole
       AWS::CloudFormation::Init:
         config:
           files:
+
+            # Config file for cfn-hup
             /etc/cfn/cfn-hup.conf:
-              content: |
+              content: !Sub |
                 [main]
                 stack=${AWS::StackName}
                 region=${AWS::Region}
-              mode: 000400
+                verbose=true
+                interval=3
+              mode: "000400"
               owner: root
               group: root
-          sources:
-            /home/ec2-user/app: https://github.com/user1/cfn-demo/tarball/main
+
+            # Re-run cfn-init after every cloudformation update
+            /etc/cfn/hooks.d/cfn-auto-reloader.conf:
+              content: !Sub |
+                [cfn-auto-reloader-hook]
+                triggers=post.update
+                path=Resources.Instance.Metadata.AWS::CloudFormation::Init
+                action=/opt/aws/bin/cfn-init -v --stack ${AWS::StackName} --resource Instance --region ${AWS::Region}
+                runas=root
+              mode: "000400"
+              owner: root
+              group: root
+
+            # TODO: Restart the web server after every cloudformation update
+
+            /home/ec2-user/go-webserver:
+              source: https://test-s3-bucket-bucket-1n9japign3xm7.s3.us-east-2.amazonaws.com/main/go-webserver-amd64
+              mode: "000755"
+              owner: root
+              group: root
+              authentication: S3AccessCreds
     Properties:
       IamInstanceProfile: !Sub "${DeploymentName}-InstanceProfile"
-      ImageId: Fn::FindInMap [RegionMap, !Ref AWS::Region, AMI]
+      ImageId: !FindInMap [RegionMap, !Ref "AWS::Region", AMI]
       InstanceType: t2.nano
       KeyName: !Ref KeyName
       SecurityGroupIds:
@@ -116,9 +144,17 @@ Resources:
           #!/bin/bash
           yum install -y aws-cfn-bootstrap
           # Run cfn-init which processes the AWS::CloudFormation::Init section
-          cfn-init -v \
-              --stack ${AWS::StackName} \
-              --resource Instance \
-              --region ${AWS::Region}
-          # Start cfn-hup daemon
-          cfn-hup || error_exit 'Failed to start cfn-hup'
+          /opt/aws/bin/cfn-init -v --stack ${AWS::StackName} --resource Instance --region ${AWS::Region}
+          # Start cfn-hup daemon, which checks Metadata every $interval and then
+          # performs actions in /etc/cfn/hooks.d/
+          #
+          # TODO: Should this be a systemd service? See:
+          # https://aws.amazon.com/premiumsupport/knowledge-center/install-cloudformation-scripts/
+          /opt/aws/bin/cfn-hup || error_exit "Failed to start cfn-hup"
+
+Outputs:
+  PublicIP:
+    Description: Public IP of the EC2 instance
+    Value: !GetAtt Instance.PublicDnsName
+    Export:
+      Name: !Sub "${DeploymentName}-PublicIP"

@@ -12,10 +12,14 @@ Parameters:
     Description: The name of an EC2 KeyPair
     Default: test
 
-  BuildArtifactBucketName:
+  BuildArtifactBucket:
     Type: String
-    Description: Name of the S3 bucket with build artifacts
+    Description: Name of an S3 bucket with the web server build artifacts
     Default: test-s3-bucket-bucket-1n9japign3xm7
+
+  BuildArtifactKey:
+    Type: String
+    Description: S3 object key for a web server build artifact
 
 Mappings:
 
@@ -57,7 +61,7 @@ Resources:
               - Effect: Allow
                 Action:
                   - s3:GetObject
-                Resource: !Sub "arn:aws:s3:::${BuildArtifactBucketName}/*"
+                Resource: !Sub "arn:aws:s3:::${BuildArtifactBucket}/*"
 
   InstanceProfile:
     Type: AWS::IAM::InstanceProfile
@@ -76,7 +80,11 @@ Resources:
         - IpProtocol: tcp
           FromPort: 22
           ToPort: 22
-          CidrIp: 0.0.0.0/32
+          CidrIp: 67.23.104.250/32
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 67.23.104.250/32
       Tags:
         - Key: Name
           Value: !Sub "${DeploymentName}-instance"
@@ -88,7 +96,7 @@ Resources:
         S3AccessCreds:
           type: S3
           buckets:
-            - !Sub "${BuildArtifactBucketName}"
+            - !Sub "${BuildArtifactBucket}"
           roleName: !Ref InstanceRole
       AWS::CloudFormation::Init:
         config:
@@ -106,26 +114,50 @@ Resources:
               owner: root
               group: root
 
-            # Re-run cfn-init after every cloudformation update
+            # Tell cfn-hup to rerun cfn-init after every cloudformation update
             /etc/cfn/hooks.d/cfn-auto-reloader.conf:
               content: !Sub |
                 [cfn-auto-reloader-hook]
                 triggers=post.update
                 path=Resources.Instance.Metadata.AWS::CloudFormation::Init
-                action=/opt/aws/bin/cfn-init -v --stack ${AWS::StackName} --resource Instance --region ${AWS::Region}
+                action=/opt/aws/bin/cfn-init -v \
+                    --region ${AWS::Region} \
+                    --stack ${AWS::StackName} \
+                    --resource Instance
                 runas=root
               mode: "000400"
               owner: root
               group: root
 
-            # TODO: Restart the web server after every cloudformation update
-
+            # Download the web server binary from S3
             /home/ec2-user/go-webserver:
-              source: https://test-s3-bucket-bucket-1n9japign3xm7.s3.us-east-2.amazonaws.com/main/go-webserver-amd64
+              source: !Join
+                - ""
+                - - https://
+                  - !Ref BuildArtifactBucket
+                  - !Sub .s3.${AWS::Region}.amazonaws.com/
+                  - !Ref BuildArtifactKey
               mode: "000755"
               owner: root
               group: root
               authentication: S3AccessCreds
+
+            # Create a systemd unit file for our web application
+            /lib/systemd/system/go-webserver.service:
+              content: |
+                [Unit]
+                Description=The go-webserver application
+                [Service]
+                Type=simple
+                ExecStart=/home/ec2-user/go-webserver
+                Restart=always
+
+            commands:
+              01_enable:
+                command: systemctl enable go-webserver
+              02_start:
+                command: systemctl start go-webserver
+
     Properties:
       IamInstanceProfile: !Sub "${DeploymentName}-InstanceProfile"
       ImageId: !FindInMap [RegionMap, !Ref "AWS::Region", AMI]
@@ -142,19 +174,20 @@ Resources:
       UserData:
         Fn::Base64: !Sub |
           #!/bin/bash
+          yum update -y
           yum install -y aws-cfn-bootstrap
           # Run cfn-init which processes the AWS::CloudFormation::Init section
-          /opt/aws/bin/cfn-init -v --stack ${AWS::StackName} --resource Instance --region ${AWS::Region}
+          /opt/aws/bin/cfn-init -v \
+              --region ${AWS::Region} \
+              --stack ${AWS::StackName} \
+              --resource Instance
           # Start cfn-hup daemon, which checks Metadata every $interval and then
           # performs actions in /etc/cfn/hooks.d/
-          #
-          # TODO: Should this be a systemd service? See:
-          # https://aws.amazon.com/premiumsupport/knowledge-center/install-cloudformation-scripts/
           /opt/aws/bin/cfn-hup || error_exit "Failed to start cfn-hup"
 
 Outputs:
   PublicIP:
     Description: Public IP of the EC2 instance
-    Value: !GetAtt Instance.PublicDnsName
+    Value: !GetAtt Instance.PublicIp
     Export:
       Name: !Sub "${DeploymentName}-PublicIP"

@@ -60,11 +60,6 @@
          --parameters ParameterKey=DeploymentName,ParameterValue=$DEPLOYMENT_NAME
    #+end_src
 
-   #+RESULTS:
-   : {
-   :     "StackId": "arn:aws:cloudformation:us-east-2:054288142014:stack/test-ec2-webserver/a49e9e90-d52f-11eb-b24f-06c1059fc22a"
-   : }
-
 * Update Stack
 
 ** In Place

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Instance Profile </title>
+<title>Role with Inline Policy </title>
 <meta name="generator" content="Org Mode" />
 <link rel="stylesheet" type="text/css" href="/static/main.css" />
 </head>
@@ -28,7 +28,7 @@
 </div>
 <div id="content" class="content">
 <header>
-<h1 class="title">Instance Profile </h1>
+<h1 class="title">Role with Inline Policy </h1>
 </header><nav id="table-of-contents">
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
@@ -48,9 +48,7 @@
 </nav>
 <div class="org-src-container">
 <pre class="src src-yaml"><span style="color: #dcaeea;">AWSTemplateFormatVersion</span>: 2010-09-09
-<span style="color: #dcaeea;">Description</span>: &gt;
-  <span style="color: #98be65;">An IAM instance profile, which allows code running on an EC2 instance to</span>
-<span style="color: #98be65;">  assume an IAM role.</span>
+<span style="color: #dcaeea;">Description</span>: An IAM Role with an inline policy
 </pre>
 </div>
 
@@ -96,10 +94,10 @@ is part of.
 <h3 id="org64f5601"><a href="#org64f5601">Role</a></h3>
 <div class="outline-text-3" id="text-org64f5601">
 <div class="org-src-container">
-<pre class="src src-yaml">  <span style="color: #dcaeea;">InstanceRole</span>:
+<pre class="src src-yaml">  <span style="color: #dcaeea;">Role</span>:
     <span style="color: #dcaeea;">Type</span>: AWS::IAM::Role
     <span style="color: #dcaeea;">Properties</span>:
-      <span style="color: #dcaeea;">RoleName</span>: <span style="color: #ECBE7B;">!Sub</span> <span style="color: #98be65;">"${DeploymentName}-InstanceRole"</span>
+      <span style="color: #dcaeea;">RoleName</span>: <span style="color: #ECBE7B;">!Sub</span> <span style="color: #98be65;">"${DeploymentName}-Role"</span>
       <span style="color: #dcaeea;">Description</span>: Allows EC2 instances to call AWS services
       <span style="color: #dcaeea;">AssumeRolePolicyDocument</span>:
         <span style="color: #dcaeea;">Version</span>: 2012-10-17
@@ -109,8 +107,19 @@ is part of.
               <span style="color: #dcaeea;">Service</span>: ec2.amazonaws.com
             <span style="color: #dcaeea;">Action</span>:
               - sts:AssumeRole
-      <span style="color: #dcaeea;">ManagedPolicyArns</span>:
-        - <span style="color: #ECBE7B;">!Ref</span> InstancePolicy
+      <span style="color: #dcaeea;">Policies</span>:
+        - <span style="color: #dcaeea;">PolicyName</span>: InstancePolicy
+          <span style="color: #dcaeea;">PolicyDocument</span>:
+            <span style="color: #dcaeea;">Version</span>: 2012-10-17
+            <span style="color: #dcaeea;">Statement</span>:
+              - <span style="color: #dcaeea;">Effect</span>: Allow
+                <span style="color: #dcaeea;">Action</span>:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                  - logs:DescribeLogStreams
+                  - cloudformation:DescribeStackResource
+                <span style="color: #dcaeea;">Resource</span>: <span style="color: #98be65;">"*"</span>
 </pre>
 </div>
 </div>

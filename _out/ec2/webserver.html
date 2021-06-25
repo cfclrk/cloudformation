@@ -33,13 +33,18 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#org2809edd">Overview</a></li>
+<li><a href="#org2809edd">Overview</a>
+<ul>
+<li><a href="#orgf49c5cf">CICD Process</a></li>
+</ul>
+</li>
 <li><a href="#org192e3b7">Prerequisets</a></li>
 <li><a href="#org4fc3a71">Parameters</a>
 <ul>
 <li><a href="#orgcf65f37">DeploymentName</a></li>
 <li><a href="#org5b4a9e3">KeyName</a></li>
-<li><a href="#org984b62d">BuiltArtifactBucketName</a></li>
+<li><a href="#org68885e9">BuildArtifactBucket</a></li>
+<li><a href="#org40e019c">BuildArtifactKey</a></li>
 </ul>
 </li>
 <li><a href="#orgec4762c">Mappings</a></li>
@@ -64,13 +69,59 @@
 <h2 id="org2809edd"><a href="#org2809edd">Overview</a></h2>
 <div class="outline-text-2" id="text-org2809edd">
 <p>
-This CloudFormation template creates an EC2 instance running a web server.
+This CloudFormation template creates an EC2 instance running a web server. The
+web server is a golang binary stored in S3.
 </p>
+
+<p>
+Automatically start the service with systemd on the instance.
+</p>
+</div>
+
+<div id="outline-container-orgf49c5cf" class="outline-3">
+<h3 id="orgf49c5cf"><a href="#orgf49c5cf">CICD Process</a></h3>
+<div class="outline-text-3" id="text-orgf49c5cf">
+<p>
+Here is a CI/CD process that creates a deployment for every git branch.
+</p>
+
+<ul class="org-ul">
+<li>Push commit to repository</li>
+<li>CICD commit builds artifact and pushes to S3</li>
+<li>S3 object located at <code>$BUCKET/$commit</code>
+<ul class="org-ul">
+<li>Should there maybe be folders per <code>$branch</code>?</li>
+</ul></li>
+<li>CICD runs a <code>cloudformation update</code>
+<ul class="org-ul">
+<li><p>
+Updates <code>$BuildArtifactKey</code> in <code>AWS::CloudFormation::Init</code>
+</p>
+
+<p>
+TODO: export but do not tangle
+</p>
+
+<pre class="example" id="orgb68b518">
+    config:
+      files:
+        /home/ec2-user/go-webserver:
+          source: $ARTIFACT_URL
+</pre></li>
+</ul></li>
+
+<li>On the ec2 instance, <code>cfn-hup</code> eventually runs and realizes there was a change
+to <code>AWS::CloudFormation::Init</code> (specifically, the above artifact URL changed)
+<ul class="org-ul">
+<li><code>cfn-hup</code> runs and pulls down the new artifact</li>
+</ul></li>
+</ul>
 
 <div class="org-src-container">
 <pre class="src src-yaml"><span style="color: #dcaeea;">AWSTemplateFormatVersion</span>: 2010-09-09
 <span style="color: #dcaeea;">Description</span>: An EC2 Instance
 </pre>
+</div>
 </div>
 </div>
 </div>
@@ -149,14 +200,37 @@ private key somewhere (like SecretsManager or SSM Parameter Store).</li>
 </div>
 </div>
 
-<div id="outline-container-org984b62d" class="outline-3">
-<h3 id="org984b62d"><a href="#org984b62d">BuiltArtifactBucketName</a></h3>
-<div class="outline-text-3" id="text-org984b62d">
+<div id="outline-container-org68885e9" class="outline-3">
+<h3 id="org68885e9"><a href="#org68885e9">BuildArtifactBucket</a></h3>
+<div class="outline-text-3" id="text-org68885e9">
+<p>
+The S3 Bucket where the web server artifact is stored.
+</p>
+
 <div class="org-src-container">
-<pre class="src src-yaml">  <span style="color: #dcaeea;">BuildArtifactBucketName</span>:
+<pre class="src src-yaml">  <span style="color: #dcaeea;">BuildArtifactBucket</span>:
     <span style="color: #dcaeea;">Type</span>: String
-    <span style="color: #dcaeea;">Description</span>: Name of the S3 bucket with build artifacts
+    <span style="color: #dcaeea;">Description</span>: Name of an S3 bucket with the web server build artifacts
     <span style="color: #dcaeea;">Default</span>: test-s3-bucket-bucket-1n9japign3xm7
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org40e019c" class="outline-3">
+<h3 id="org40e019c"><a href="#org40e019c">BuildArtifactKey</a></h3>
+<div class="outline-text-3" id="text-org40e019c">
+<p>
+An S3 object key which identifies a particular object in the
+<code>BuildArtifactBucket</code>. Values for this key will likely be a git commit hash, or
+perhaps a git tag name, so that an artifact can be associated to a particular
+git commit.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-yaml">  <span style="color: #dcaeea;">BuildArtifactKey</span>:
+    <span style="color: #dcaeea;">Type</span>: String
+    <span style="color: #dcaeea;">Description</span>: S3 object key for a web server build artifact
 </pre>
 </div>
 </div>
@@ -237,7 +311,7 @@ The EC2 instance needs access to CloudWatch Logs and S3.
               - <span style="color: #dcaeea;">Effect</span>: Allow
                 <span style="color: #dcaeea;">Action</span>:
                   - s3:GetObject
-                <span style="color: #dcaeea;">Resource</span>: <span style="color: #ECBE7B;">!Sub</span> <span style="color: #98be65;">"arn:aws:s3:::${BuildArtifactBucketName}/*"</span>
+                <span style="color: #dcaeea;">Resource</span>: <span style="color: #ECBE7B;">!Sub</span> <span style="color: #98be65;">"arn:aws:s3:::${BuildArtifactBucket}/*"</span>
 </pre>
 </div>
 </div>
@@ -273,7 +347,11 @@ The EC2 instance needs access to CloudWatch Logs and S3.
         - <span style="color: #dcaeea;">IpProtocol</span>: tcp
           <span style="color: #dcaeea;">FromPort</span>: 22
           <span style="color: #dcaeea;">ToPort</span>: 22
-          <span style="color: #dcaeea;">CidrIp</span>: 0.0.0.0/32
+          <span style="color: #dcaeea;">CidrIp</span>: 67.23.104.250/32
+        - <span style="color: #dcaeea;">IpProtocol</span>: tcp
+          <span style="color: #dcaeea;">FromPort</span>: 80
+          <span style="color: #dcaeea;">ToPort</span>: 80
+          <span style="color: #dcaeea;">CidrIp</span>: 67.23.104.250/32
       <span style="color: #dcaeea;">Tags</span>:
         - <span style="color: #dcaeea;">Key</span>: Name
           <span style="color: #dcaeea;">Value</span>: <span style="color: #ECBE7B;">!Sub</span> <span style="color: #98be65;">"${DeploymentName}-instance"</span>
@@ -285,6 +363,55 @@ The EC2 instance needs access to CloudWatch Logs and S3.
 <div id="outline-container-org6df8ba7" class="outline-3">
 <h3 id="org6df8ba7"><a href="#org6df8ba7">Instance</a></h3>
 <div class="outline-text-3" id="text-org6df8ba7">
+<p>
+In this case we are using a combination of <code>UserData</code> and the
+<code>AWS::CloudFormation::Init</code> section to define how to provision the EC2 instance.
+</p>
+
+<p>
+AWS <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/best-practices.html#cfninit">says this is a best practice</a>, and this works ok for small examples, but has
+some drawbacks:
+</p>
+
+<ul class="org-ul">
+<li>Makes the CloudFormation template really long.</li>
+<li>The provisioning logic is AWS-specific. You can't use the same YAML to
+provision a vagrant machine or Azure VM.</li>
+<li>You may run into <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cloudformation-limits.html">CloudFormation limits</a>:
+<ul class="org-ul">
+<li>max template length (51,200 bytes)</li>
+<li>max length of the <code>AWS::CloudFormation::Init</code> section</li>
+</ul></li>
+<li>cfn-hup does not run immediately after a <code>cloudformation update</code>. Instead, it
+runs periodically (configurable with the <code>interval</code> option). So several
+minutes will go by after a <code>cloudformation update</code> before cfn-hup re-runs
+cfn-init, which in turn re-provisions the instance. Considering how
+complicated this setup is, you'd think it would at least be event-based, not
+poll-based.</li>
+</ul>
+
+<p>
+Even in this simple case, the CloudFormation gets pretty long with information
+that might otherwise be specified using a configuration management tool (like
+ansible, salt, or chef).
+</p>
+
+<p>
+Some alternatives:
+</p>
+
+<ul class="org-ul">
+<li>Use cfn-init to download a git repo or gist with provisioning scripts. Re-run
+the provisioning scripts after every CI/CD build by updating a flag file in
+the <code>AWS::CloudFormation::Init</code> section (e.g. a file who's name is the git
+commit hash).</li>
+<li>Specify the provisioning logic in AWS Systems Manager Run Command. Then use an
+EventBridge event to kick off the Run Command. (Can those scripts be managed
+in git?)</li>
+<li>Use a CM tool (e.g. ansible, salt). It would run from your CI/CD runtime on
+every build.</li>
+</ul>
+
 <div class="org-src-container">
 <pre class="src src-yaml">  <span style="color: #dcaeea;">Instance</span>:
     <span style="color: #dcaeea;">Type</span>: AWS::EC2::Instance
@@ -293,7 +420,7 @@ The EC2 instance needs access to CloudWatch Logs and S3.
         <span style="color: #dcaeea;">S3AccessCreds</span>:
           <span style="color: #dcaeea;">type</span>: S3
           <span style="color: #dcaeea;">buckets</span>:
-            - <span style="color: #ECBE7B;">!Sub</span> <span style="color: #98be65;">"${BuildArtifactBucketName}"</span>
+            - <span style="color: #ECBE7B;">!Sub</span> <span style="color: #98be65;">"${BuildArtifactBucket}"</span>
           <span style="color: #dcaeea;">roleName</span>: <span style="color: #ECBE7B;">!Ref</span> InstanceRole
       <span style="color: #dcaeea;">AWS::CloudFormation::Init</span>:
         <span style="color: #dcaeea;">config</span>:
@@ -311,26 +438,50 @@ The EC2 instance needs access to CloudWatch Logs and S3.
               <span style="color: #dcaeea;">owner</span>: root
               <span style="color: #dcaeea;">group</span>: root
 
-            <span style="color: #5B6268;"># </span><span style="color: #5B6268;">Re-run cfn-init after every cloudformation update</span>
+            <span style="color: #5B6268;"># </span><span style="color: #5B6268;">Tell cfn-hup to rerun cfn-init after every cloudformation update</span>
             <span style="color: #dcaeea;">/etc/cfn/hooks.d/cfn-auto-reloader.conf</span>:
               <span style="color: #dcaeea;">content</span>: <span style="color: #ECBE7B;">!Sub</span> |
                 <span style="color: #98be65;">[cfn-auto-reloader-hook]</span>
 <span style="color: #98be65;">                triggers=post.update</span>
 <span style="color: #98be65;">                path=Resources.Instance.Metadata.AWS::CloudFormation::Init</span>
-<span style="color: #98be65;">                action=/opt/aws/bin/cfn-init -v --stack ${AWS::StackName} --resource Instance --region ${AWS::Region}</span>
+<span style="color: #98be65;">                action=/opt/aws/bin/cfn-init -v \</span>
+<span style="color: #98be65;">                    --region ${AWS::Region} \</span>
+<span style="color: #98be65;">                    --stack ${AWS::StackName} \</span>
+<span style="color: #98be65;">                    --resource Instance</span>
 <span style="color: #98be65;">                runas=root</span>
               <span style="color: #dcaeea;">mode</span>: <span style="color: #98be65;">"000400"</span>
               <span style="color: #dcaeea;">owner</span>: root
               <span style="color: #dcaeea;">group</span>: root
 
-            <span style="color: #5B6268;"># </span><span style="color: #5B6268;">TODO: Restart the web server after every cloudformation update</span>
-
+            <span style="color: #5B6268;"># </span><span style="color: #5B6268;">Download the web server binary from S3</span>
             <span style="color: #dcaeea;">/home/ec2-user/go-webserver</span>:
-              <span style="color: #dcaeea;">source</span>: https://test-s3-bucket-bucket-1n9japign3xm7.s3.us-east-2.amazonaws.com/main/go-webserver-amd64
+              <span style="color: #dcaeea;">source</span>: <span style="color: #ECBE7B;">!Join</span>
+                - <span style="color: #98be65;">""</span>
+                - - https://
+                  - <span style="color: #ECBE7B;">!Ref</span> BuildArtifactBucket
+                  - <span style="color: #ECBE7B;">!Sub</span> .s3.${AWS::Region}.amazonaws.com/
+                  - <span style="color: #ECBE7B;">!Ref</span> BuildArtifactKey
               <span style="color: #dcaeea;">mode</span>: <span style="color: #98be65;">"000755"</span>
               <span style="color: #dcaeea;">owner</span>: root
               <span style="color: #dcaeea;">group</span>: root
               <span style="color: #dcaeea;">authentication</span>: S3AccessCreds
+
+            <span style="color: #5B6268;"># </span><span style="color: #5B6268;">Create a systemd unit file for our web application</span>
+            <span style="color: #dcaeea;">/lib/systemd/system/go-webserver.service</span>:
+              <span style="color: #dcaeea;">content</span>: |
+                <span style="color: #98be65;">[Unit]</span>
+<span style="color: #98be65;">                Description=The go-webserver application</span>
+<span style="color: #98be65;">                [Service]</span>
+<span style="color: #98be65;">                Type=simple</span>
+<span style="color: #98be65;">                ExecStart=/home/ec2-user/go-webserver</span>
+<span style="color: #98be65;">                Restart=always</span>
+
+            <span style="color: #dcaeea;">commands</span>:
+              <span style="color: #dcaeea;">01_enable</span>:
+                <span style="color: #dcaeea;">command</span>: systemctl enable go-webserver
+              <span style="color: #dcaeea;">02_start</span>:
+                <span style="color: #dcaeea;">command</span>: systemctl start go-webserver
+
     <span style="color: #dcaeea;">Properties</span>:
       <span style="color: #dcaeea;">IamInstanceProfile</span>: <span style="color: #ECBE7B;">!Sub</span> <span style="color: #98be65;">"${DeploymentName}-InstanceProfile"</span>
       <span style="color: #dcaeea;">ImageId</span>: <span style="color: #ECBE7B;">!FindInMap</span> [RegionMap, <span style="color: #ECBE7B;">!Ref</span> <span style="color: #98be65;">"AWS::Region"</span>, AMI]
@@ -347,14 +498,15 @@ The EC2 instance needs access to CloudWatch Logs and S3.
       <span style="color: #dcaeea;">UserData</span>:
         <span style="color: #dcaeea;">Fn::Base64</span>: <span style="color: #ECBE7B;">!Sub</span> |
           <span style="color: #5B6268;">#</span><span style="color: #5B6268;">!/bin/bash</span>
+<span style="color: #98be65;">          yum update -y</span>
 <span style="color: #98be65;">          yum install -y aws-cfn-bootstrap</span>
           <span style="color: #5B6268;"># </span><span style="color: #5B6268;">Run cfn-init which processes the AWS::CloudFormation::Init section</span>
-<span style="color: #98be65;">          /opt/aws/bin/cfn-init -v --stack ${AWS::StackName} --resource Instance --region ${AWS::Region}</span>
+<span style="color: #98be65;">          /opt/aws/bin/cfn-init -v \</span>
+<span style="color: #98be65;">              --region ${AWS::Region} \</span>
+<span style="color: #98be65;">              --stack ${AWS::StackName} \</span>
+<span style="color: #98be65;">              --resource Instance</span>
           <span style="color: #5B6268;"># </span><span style="color: #5B6268;">Start cfn-hup daemon, which checks Metadata every $interval and then</span>
           <span style="color: #5B6268;"># </span><span style="color: #5B6268;">performs actions in /etc/cfn/hooks.d/</span>
-          <span style="color: #5B6268;">#</span>
-          <span style="color: #5B6268;"># </span><span style="color: #5B6268;">TODO: Should this be a systemd service? See:</span>
-          <span style="color: #5B6268;"># </span><span style="color: #5B6268;">https://aws.amazon.com/premiumsupport/knowledge-center/install-cloudformation-scripts/</span>
           /opt/aws/bin/cfn-hup || error_exit <span style="color: #98be65;">"Failed to start cfn-hup"</span>
 </pre>
 </div>
@@ -369,7 +521,7 @@ The EC2 instance needs access to CloudWatch Logs and S3.
 <pre class="src src-yaml"><span style="color: #dcaeea;">Outputs</span>:
   <span style="color: #dcaeea;">PublicIP</span>:
     <span style="color: #dcaeea;">Description</span>: Public IP of the EC2 instance
-    <span style="color: #dcaeea;">Value</span>: <span style="color: #ECBE7B;">!GetAtt</span> Instance.PublicDnsName
+    <span style="color: #dcaeea;">Value</span>: <span style="color: #ECBE7B;">!GetAtt</span> Instance.PublicIp
     <span style="color: #dcaeea;">Export</span>:
       <span style="color: #dcaeea;">Name</span>: <span style="color: #ECBE7B;">!Sub</span> <span style="color: #98be65;">"${DeploymentName}-PublicIP"</span>
 </pre>

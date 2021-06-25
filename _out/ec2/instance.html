@@ -268,10 +268,6 @@ somehow.
       <span style="color: #dcaeea;">VpcId</span>: {<span style="color: #dcaeea;">Fn::ImportValue</span>: <span style="color: #ECBE7B;">!Sub</span> <span style="color: #98be65;">"${DeploymentName}-VpcId"</span>}
       <span style="color: #dcaeea;">SecurityGroupIngress</span>:
         - <span style="color: #dcaeea;">IpProtocol</span>: tcp
-          <span style="color: #dcaeea;">FromPort</span>: 80
-          <span style="color: #dcaeea;">ToPort</span>: 80
-          <span style="color: #dcaeea;">CidrIp</span>: 0.0.0.0/0
-        - <span style="color: #dcaeea;">IpProtocol</span>: tcp
           <span style="color: #dcaeea;">FromPort</span>: 22
           <span style="color: #dcaeea;">ToPort</span>: 22
           <span style="color: #dcaeea;">CidrIp</span>: 0.0.0.0/0

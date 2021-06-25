@@ -1,11 +1,9 @@
-#+TITLE: Instance Profile
+#+TITLE: Role with Inline Policy
 #+SETUPFILE: ../setup.org
 
 #+begin_src yaml
 AWSTemplateFormatVersion: 2010-09-09
-Description: >
-  An IAM instance profile, which allows code running on an EC2 instance to
-  assume an IAM role.
+Description: An IAM Role with an inline policy
 #+end_src
 
 * Parameters
@@ -25,10 +23,10 @@ Resources:
 ** Role
 
 #+begin_src yaml
-  InstanceRole:
+  Role:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: !Sub "${DeploymentName}-InstanceRole"
+      RoleName: !Sub "${DeploymentName}-Role"
       Description: Allows EC2 instances to call AWS services
       AssumeRolePolicyDocument:
         Version: 2012-10-17
@@ -38,6 +36,17 @@ Resources:
               Service: ec2.amazonaws.com
             Action:
               - sts:AssumeRole
-      ManagedPolicyArns:
-        - !Ref InstancePolicy
+      Policies:
+        - PolicyName: InstancePolicy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                  - logs:DescribeLogStreams
+                  - cloudformation:DescribeStackResource
+                Resource: "*"
 #+end_src

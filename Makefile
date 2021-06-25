@@ -11,10 +11,10 @@ export-org:
 
 .PHONY: tangle-cf
 tangle-cf:
-	cask exec emacs -batch -l make.el -f tangle-cf
+	cask exec ${EMACS} -batch -l make.el -f tangle-cf
 
 clean:
 	rm -rf _org _yaml org/sitemap.org
 
 org-version:
-	cask exec emacs -batch -l make.el -f org-version
+	cask exec ${EMACS} -batch -l make.el -f org-version

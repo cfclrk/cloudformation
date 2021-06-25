@@ -3,7 +3,34 @@
 
 * Overview
 
-This CloudFormation template creates an EC2 instance running a web server.
+This CloudFormation template creates an EC2 instance running a web server. The
+web server is a golang binary stored in S3.
+
+Automatically start the service with systemd on the instance.
+
+** CICD Process
+
+Here is a CI/CD process that creates a deployment for every git branch.
+
+- Push commit to repository
+- CICD commit builds artifact and pushes to S3
+- S3 object located at =$BUCKET/$commit=
+  - Should there maybe be folders per =$branch=?
+- CICD runs a =cloudformation update=
+  - Updates =$BuildArtifactKey= in =AWS::CloudFormation::Init=
+
+    TODO: export but do not tangle
+
+    #+begin_example
+config:
+  files:
+    /home/ec2-user/go-webserver:
+      source: $ARTIFACT_URL
+    #+end_example
+
+- On the ec2 instance, =cfn-hup= eventually runs and realizes there was a change
+  to =AWS::CloudFormation::Init= (specifically, the above artifact URL changed)
+  - =cfn-hup= runs and pulls down the new artifact
 
 #+begin_src yaml
 AWSTemplateFormatVersion: 2010-09-09
@@ -25,13 +52,28 @@ Parameters:
 
 #+INCLUDE: "../params.org::*KeyName"
 
-** BuiltArtifactBucketName
+** BuildArtifactBucket
+
+The S3 Bucket where the web server artifact is stored.
 
 #+begin_src yaml
-  BuildArtifactBucketName:
+  BuildArtifactBucket:
     Type: String
-    Description: Name of the S3 bucket with build artifacts
+    Description: Name of an S3 bucket with the web server build artifacts
     Default: test-s3-bucket-bucket-1n9japign3xm7
+#+end_src
+
+** BuildArtifactKey
+
+An S3 object key which identifies a particular object in the
+=BuildArtifactBucket=. Values for this key will likely be a git commit hash, or
+perhaps a git tag name, so that an artifact can be associated to a particular
+git commit.
+
+#+begin_src yaml
+  BuildArtifactKey:
+    Type: String
+    Description: S3 object key for a web server build artifact
 #+end_src
 
 * Mappings
@@ -93,7 +135,7 @@ The EC2 instance needs access to CloudWatch Logs and S3.
               - Effect: Allow
                 Action:
                   - s3:GetObject
-                Resource: !Sub "arn:aws:s3:::${BuildArtifactBucketName}/*"
+                Resource: !Sub "arn:aws:s3:::${BuildArtifactBucket}/*"
 #+end_src
 
 *** Instance Profile
@@ -121,12 +163,51 @@ The EC2 instance needs access to CloudWatch Logs and S3.
           FromPort: 22
           ToPort: 22
           CidrIp: 67.23.104.250/32
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 67.23.104.250/32
       Tags:
         - Key: Name
           Value: !Sub "${DeploymentName}-instance"
 #+end_src
 
 ** Instance
+
+In this case we are using a combination of =UserData= and the
+=AWS::CloudFormation::Init= section to define how to provision the EC2 instance.
+
+AWS [[https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/best-practices.html#cfninit][says this is a best practice]], and this works ok for small examples, but has
+some drawbacks:
+
+- Makes the CloudFormation template really long.
+- The provisioning logic is AWS-specific. You can't use the same YAML to
+  provision a vagrant machine or Azure VM.
+- You may run into [[https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cloudformation-limits.html][CloudFormation limits]]:
+  - max template length (51,200 bytes)
+  - max length of the =AWS::CloudFormation::Init= section
+- cfn-hup does not run immediately after a =cloudformation update=. Instead, it
+  runs periodically (configurable with the =interval= option). So several
+  minutes will go by after a =cloudformation update= before cfn-hup re-runs
+  cfn-init, which in turn re-provisions the instance. Considering how
+  complicated this setup is, you'd think it would at least be event-based, not
+  poll-based.
+
+Even in this simple case, the CloudFormation gets pretty long with information
+that might otherwise be specified using a configuration management tool (like
+ansible, salt, or chef).
+
+Some alternatives:
+
+- Use cfn-init to download a git repo or gist with provisioning scripts. Re-run
+  the provisioning scripts after every CI/CD build by updating a flag file in
+  the =AWS::CloudFormation::Init= section (e.g. a file who's name is the git
+  commit hash).
+- Specify the provisioning logic in AWS Systems Manager Run Command. Then use an
+  EventBridge event to kick off the Run Command. (Can those scripts be managed
+  in git?)
+- Use a CM tool (e.g. ansible, salt). It would run from your CI/CD runtime on
+  every build.
 
 #+begin_src yaml
   Instance:
@@ -136,7 +217,7 @@ The EC2 instance needs access to CloudWatch Logs and S3.
         S3AccessCreds:
           type: S3
           buckets:
-            - !Sub "${BuildArtifactBucketName}"
+            - !Sub "${BuildArtifactBucket}"
           roleName: !Ref InstanceRole
       AWS::CloudFormation::Init:
         config:
@@ -154,26 +235,50 @@ The EC2 instance needs access to CloudWatch Logs and S3.
               owner: root
               group: root
 
-            # Re-run cfn-init after every cloudformation update
+            # Tell cfn-hup to rerun cfn-init after every cloudformation update
             /etc/cfn/hooks.d/cfn-auto-reloader.conf:
               content: !Sub |
                 [cfn-auto-reloader-hook]
                 triggers=post.update
                 path=Resources.Instance.Metadata.AWS::CloudFormation::Init
-                action=/opt/aws/bin/cfn-init -v --stack ${AWS::StackName} --resource Instance --region ${AWS::Region}
+                action=/opt/aws/bin/cfn-init -v \
+                    --region ${AWS::Region} \
+                    --stack ${AWS::StackName} \
+                    --resource Instance
                 runas=root
               mode: "000400"
               owner: root
               group: root
 
-            # TODO: Restart the web server after every cloudformation update
-
+            # Download the web server binary from S3
             /home/ec2-user/go-webserver:
-              source: https://test-s3-bucket-bucket-1n9japign3xm7.s3.us-east-2.amazonaws.com/main/go-webserver-amd64
+              source: !Join
+                - ""
+                - - https://
+                  - !Ref BuildArtifactBucket
+                  - !Sub .s3.${AWS::Region}.amazonaws.com/
+                  - !Ref BuildArtifactKey
               mode: "000755"
               owner: root
               group: root
               authentication: S3AccessCreds
+
+            # Create a systemd unit file for our web application
+            /lib/systemd/system/go-webserver.service:
+              content: |
+                [Unit]
+                Description=The go-webserver application
+                [Service]
+                Type=simple
+                ExecStart=/home/ec2-user/go-webserver
+                Restart=always
+
+            commands:
+              01_enable:
+                command: systemctl enable go-webserver
+              02_start:
+                command: systemctl start go-webserver
+
     Properties:
       IamInstanceProfile: !Sub "${DeploymentName}-InstanceProfile"
       ImageId: !FindInMap [RegionMap, !Ref "AWS::Region", AMI]
@@ -190,14 +295,15 @@ The EC2 instance needs access to CloudWatch Logs and S3.
       UserData:
         Fn::Base64: !Sub |
           #!/bin/bash
+          yum update -y
           yum install -y aws-cfn-bootstrap
           # Run cfn-init which processes the AWS::CloudFormation::Init section
-          /opt/aws/bin/cfn-init -v --stack ${AWS::StackName} --resource Instance --region ${AWS::Region}
+          /opt/aws/bin/cfn-init -v \
+              --region ${AWS::Region} \
+              --stack ${AWS::StackName} \
+              --resource Instance
           # Start cfn-hup daemon, which checks Metadata every $interval and then
           # performs actions in /etc/cfn/hooks.d/
-          #
-          # TODO: Should this be a systemd service? See:
-          # https://aws.amazon.com/premiumsupport/knowledge-center/install-cloudformation-scripts/
           /opt/aws/bin/cfn-hup || error_exit "Failed to start cfn-hup"
 #+end_src
 
@@ -207,7 +313,7 @@ The EC2 instance needs access to CloudWatch Logs and S3.
 Outputs:
   PublicIP:
     Description: Public IP of the EC2 instance
-    Value: !GetAtt Instance.PublicDnsName
+    Value: !GetAtt Instance.PublicIp
     Export:
       Name: !Sub "${DeploymentName}-PublicIP"
 #+end_src

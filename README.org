@@ -5,16 +5,22 @@
   #+NAME: Env
   | Env Var            | Value                   |
   |--------------------+-------------------------|
-  | AWS_PROFILE        | cloud-infra-prod        |
+  | AWS_PROFILE        | dev                     |
   | AWS_DEFAULT_REGION | us-east-2               |
   | TEMPLATE_PATH      | _out/ec2/webserver.yaml |
   | DEPLOYMENT_NAME    | test                    |
 
-  #+begin_src emacs-lisp :var env=Env
+  #+begin_src emacs-lisp :var env=Env :exports none
     (setenv-file-export-pairs env)
   #+end_src
 
-  #+RESULTS:
+  #+NAME: Params
+  | Param               | Value                   |
+  |---------------------+-------------------------|
+  | DeploymentName      | test                    |
+  | KeyName             | test                    |
+  | BuildArtifactBucket | my-bucket               |
+  | BuildArtifactKey    | main/go-webserver-amd64 |
 
   =$TemplateName= is just the =$TEMPLATE_PATH= using dashes and without a file
   extension.
@@ -32,6 +38,14 @@
   #+NAME: StackName
   #+begin_src emacs-lisp :var TemplateName=TemplateName :results value
     (concat (getenv "DEPLOYMENT_NAME") "-" TemplateName)
+  #+end_src
+
+  #+NAME: ParamString
+  #+begin_src emacs-lisp :var Params=Params :results value
+    (let ((cf-format-param
+           (lambda (pair)
+             (s-format "ParameterKey=$0,ParameterValue=$1" 'elt pair))))
+      (s-join " " (mapcar cf-format-param Params)))
   #+end_src
 
 * Create Stack
@@ -52,24 +66,24 @@
 
 ** Create
 
-   #+begin_src sh :var StackName=StackName
+   #+begin_src sh :var StackName=StackName ParamString=ParamString
      aws cloudformation create-stack \
          --stack-name $StackName \
          --template-body file://$TEMPLATE_PATH \
          --capabilities CAPABILITY_AUTO_EXPAND CAPABILITY_IAM CAPABILITY_NAMED_IAM \
-         --parameters ParameterKey=DeploymentName,ParameterValue=$DEPLOYMENT_NAME
+         --parameters $ParamString
    #+end_src
 
 * Update Stack
 
 ** In Place
 
-   #+begin_src sh :var StackName=StackName
+   #+begin_src sh :var StackName=StackName ParamString=ParamString
      aws cloudformation update-stack \
          --stack-name $StackName \
          --template-body file://$TEMPLATE_PATH \
          --capabilities CAPABILITY_AUTO_EXPAND CAPABILITY_IAM CAPABILITY_NAMED_IAM \
-         --parameters ParameterKey=DeploymentName,ParameterValue=$DEPLOYMENT_NAME
+         --parameters $ParamString
    #+end_src
 
 ** Using a ChangeSet

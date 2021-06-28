@@ -102,7 +102,7 @@ Updates <code>$BuildArtifactKey</code> in <code>AWS::CloudFormation::Init</code>
 TODO: export but do not tangle
 </p>
 
-<pre class="example" id="orgb68b518">
+<pre class="example" id="orgcd6e0f8">
     config:
       files:
         /home/ec2-user/go-webserver:
@@ -347,11 +347,11 @@ The EC2 instance needs access to CloudWatch Logs and S3.
         - <span style="color: #dcaeea;">IpProtocol</span>: tcp
           <span style="color: #dcaeea;">FromPort</span>: 22
           <span style="color: #dcaeea;">ToPort</span>: 22
-          <span style="color: #dcaeea;">CidrIp</span>: 67.23.104.250/32
+          <span style="color: #dcaeea;">CidrIp</span>: 0.0.0.0/0
         - <span style="color: #dcaeea;">IpProtocol</span>: tcp
           <span style="color: #dcaeea;">FromPort</span>: 80
           <span style="color: #dcaeea;">ToPort</span>: 80
-          <span style="color: #dcaeea;">CidrIp</span>: 67.23.104.250/32
+          <span style="color: #dcaeea;">CidrIp</span>: 0.0.0.0/0
       <span style="color: #dcaeea;">Tags</span>:
         - <span style="color: #dcaeea;">Key</span>: Name
           <span style="color: #dcaeea;">Value</span>: <span style="color: #ECBE7B;">!Sub</span> <span style="color: #98be65;">"${DeploymentName}-instance"</span>
@@ -476,11 +476,11 @@ every build.</li>
 <span style="color: #98be65;">                ExecStart=/home/ec2-user/go-webserver</span>
 <span style="color: #98be65;">                Restart=always</span>
 
-            <span style="color: #dcaeea;">commands</span>:
-              <span style="color: #dcaeea;">01_enable</span>:
-                <span style="color: #dcaeea;">command</span>: systemctl enable go-webserver
-              <span style="color: #dcaeea;">02_start</span>:
-                <span style="color: #dcaeea;">command</span>: systemctl start go-webserver
+          <span style="color: #dcaeea;">commands</span>:
+            <span style="color: #dcaeea;">01_enable</span>:
+              <span style="color: #dcaeea;">command</span>: systemctl enable go-webserver
+            <span style="color: #dcaeea;">02_start</span>:
+              <span style="color: #dcaeea;">command</span>: systemctl restart go-webserver
 
     <span style="color: #dcaeea;">Properties</span>:
       <span style="color: #dcaeea;">IamInstanceProfile</span>: <span style="color: #ECBE7B;">!Sub</span> <span style="color: #98be65;">"${DeploymentName}-InstanceProfile"</span>

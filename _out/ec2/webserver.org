@@ -195,11 +195,11 @@ The EC2 instance needs access to CloudWatch Logs and S3.
         - IpProtocol: tcp
           FromPort: 22
           ToPort: 22
-          CidrIp: 67.23.104.250/32
+          CidrIp: 0.0.0.0/0
         - IpProtocol: tcp
           FromPort: 80
           ToPort: 80
-          CidrIp: 67.23.104.250/32
+          CidrIp: 0.0.0.0/0
       Tags:
         - Key: Name
           Value: !Sub "${DeploymentName}-instance"
@@ -306,11 +306,11 @@ Some alternatives:
                 ExecStart=/home/ec2-user/go-webserver
                 Restart=always
 
-            commands:
-              01_enable:
-                command: systemctl enable go-webserver
-              02_start:
-                command: systemctl start go-webserver
+          commands:
+            01_enable:
+              command: systemctl enable go-webserver
+            02_start:
+              command: systemctl restart go-webserver
 
     Properties:
       IamInstanceProfile: !Sub "${DeploymentName}-InstanceProfile"

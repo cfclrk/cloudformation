@@ -3,6 +3,8 @@
 
 * Overview
 
+[[../../static/img/Network-Public.png]]
+
 This document creates a VPC with two public subnets.
 
 #+begin_src yaml

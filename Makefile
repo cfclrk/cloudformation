@@ -14,7 +14,7 @@ tangle-cf:
 	cask exec ${EMACS} -batch -l make.el -f tangle-cf
 
 clean:
-	rm -rf _org _yaml org/sitemap.org
+	rm -rf _org _out org/sitemap.org
 
 org-version:
 	cask exec ${EMACS} -batch -l make.el -f org-version

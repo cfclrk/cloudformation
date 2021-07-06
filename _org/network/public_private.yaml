@@ -1,8 +1,8 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: >
-  VPC with two public Subnets and two private Subnets. Each public Subnet
-  includes a NAT Gateway, which allows outbound traffic from the private
-  Subnets.
+  A VPC with two public Subnets and two private Subnets. Each public Subnet
+  includes a NAT Gateway which provides outbound connectivity from the private
+  Subnets to the internet (but not vice versa).
 
 Parameters:
 

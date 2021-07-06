@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: 2010-09-09
-Description: An EC2 Instance
+Description: A web server running on an EC2 instance
 
 Parameters:
 
@@ -45,23 +45,25 @@ Resources:
             Action:
               - sts:AssumeRole
       Policies:
-        - PolicyName: InstancePolicy
+        - PolicyName: CfnInit
           PolicyDocument:
             Version: 2012-10-17
             Statement:
               - Effect: Allow
                 Action:
-                  - logs:CreateLogGroup
-                  - logs:CreateLogStream
-                  - logs:PutLogEvents
-                  - logs:DescribeLogStreams
                   - cloudformation:DescribeStackResource
                   - cloudformation:SignalResource
                 Resource: "*"
+        - PolicyName: GetBuildArtifacts
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
               - Effect: Allow
                 Action:
                   - s3:GetObject
                 Resource: !Sub "arn:aws:s3:::${BuildArtifactBucket}/*"
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy
 
   InstanceProfile:
     Type: AWS::IAM::InstanceProfile
@@ -99,17 +101,25 @@ Resources:
             - !Sub "${BuildArtifactBucket}"
           roleName: !Ref InstanceRole
       AWS::CloudFormation::Init:
-        config:
-          files:
+        configSets:
+          all:
+            - 01_install_cfn_hup
+            - 02_install_cloudwatch_agent
+            - 03_install_web_server
 
-            # Config file for cfn-hup
+          # Configure and start the cfn-hup daemon, which checks CloudFormation
+          # AWS::CloudFormation::Init section every $interval and then performs
+          # the actions in /etc/cfn/hooks.d/ hook files.
+        01_install_cfn_hup:
+          files:
+            # A config file for cfn-hup (can it use IMDS for region?)
             /etc/cfn/cfn-hup.conf:
               content: !Sub |
                 [main]
                 stack=${AWS::StackName}
                 region=${AWS::Region}
                 verbose=true
-                interval=3
+                interval=2
               mode: "000400"
               owner: root
               group: root
@@ -123,12 +133,70 @@ Resources:
                 action=/opt/aws/bin/cfn-init -v \
                     --region ${AWS::Region} \
                     --stack ${AWS::StackName} \
-                    --resource Instance
+                    --resource Instance \
+                    --configsets all
                 runas=root
               mode: "000400"
               owner: root
               group: root
 
+            # cfn-hup systemd unit file
+            /lib/systemd/system/cfn-hup.service:
+              content: |
+                [Unit]
+                Description=cfn-hup daemon
+                [Service]
+                Type=simple
+                ExecStart=/opt/aws/bin/cfn-hup
+                Restart=always
+                [Install]
+                WantedBy=multi-user.target
+
+        commands:
+          01_enable_cfn_hup:
+            command: systemctl enable cfn-hup
+          02_start_cfn_hup:
+            command: systemctl restart cfn-hup
+
+        02_install_cloudwatch_agent:
+          files:
+            /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json:
+              content: |
+                {
+                  "metrics": {
+                    "append_dimensions": {
+                      "ImageId": "${!aws:ImageId}",
+                      "InstanceId": "${!aws:InstanceId}",
+                      "InstanceType": "${!aws:InstanceType}"
+                    },
+                    "metrics_collected": {
+                      "mem": {
+                        "measurement": [
+                          "mem_used_percent"
+                        ]
+                      },
+                      "swap": {
+                        "measurement": [
+                          "swap_used_percent"
+                        ]
+                      }
+                    }
+                  }
+                }
+
+          commands:
+            01_stop_cwa:
+              command: /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a stop
+            02_start_cwa:
+              command: |
+                /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl \
+                    -a fetch-config \
+                    -m ec2 \
+                    -c file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json \
+                    -s
+
+        03_install_web_server:
+          files:
             # Download the web server binary from S3
             /home/ec2-user/go-webserver:
               source: !Join
@@ -151,11 +219,13 @@ Resources:
                 Type=simple
                 ExecStart=/home/ec2-user/go-webserver
                 Restart=always
+                [Install]
+                WantedBy=multi-user.target
 
           commands:
-            01_enable:
+            01_enable_webserver:
               command: systemctl enable go-webserver
-            02_start:
+            02_start_webserver:
               command: systemctl restart go-webserver
 
     Properties:
@@ -175,15 +245,14 @@ Resources:
         Fn::Base64: !Sub |
           #!/bin/bash
           yum update -y
-          yum install -y aws-cfn-bootstrap
+          yum install -y \
+              aws-cfn-bootstrap amazon-cloudwatch-agent
           # Run cfn-init which processes the AWS::CloudFormation::Init section
           /opt/aws/bin/cfn-init -v \
               --region ${AWS::Region} \
               --stack ${AWS::StackName} \
-              --resource Instance
-          # Start cfn-hup daemon, which checks Metadata every $interval and then
-          # performs actions in /etc/cfn/hooks.d/
-          /opt/aws/bin/cfn-hup || error_exit "Failed to start cfn-hup"
+              --resource Instance \
+              --configsets all
 
 Outputs:
   PublicIP:

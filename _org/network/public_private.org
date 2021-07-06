@@ -1,26 +1,31 @@
 #+TITLE: Network with Public and Private Subnets
 #+setupfile: ../setup.org
 
+#+begin_src yaml
+AWSTemplateFormatVersion: 2010-09-09
+Description: >
+  A VPC with two public Subnets and two private Subnets. Each public Subnet
+  includes a NAT Gateway which provides outbound connectivity from the private
+  Subnets to the internet (but not vice versa).
+#+end_src
+
 * Overview
 
 [[file:../../static/img/Network-Public-Private.png]]
 
-This document creates a "standard" AWS network: a VPC with two public subnets
-and two private subnets. AWS documents this architecture [[https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Scenario2.html][here]], and AWS provides
-a CloudFormation example [[https://docs.aws.amazon.com/codebuild/latest/userguide/cloudformation-vpc-template.html][here]].
+This CloudFormation template creates the "standard" AWS network: a VPC with two
+public subnets and two private subnets. AWS documents this architecture [[https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Scenario2.html][here]],
+and AWS provides a CloudFormation example [[https://docs.aws.amazon.com/codebuild/latest/userguide/cloudformation-vpc-template.html][here]].
 
-This is the go-to VPC structure and is usually considered a starting place for
-any AWS network design. For example, when using the AWS CDK, this is the
-infrastrucure that is created when you use the [[https://docs.aws.amazon.com/cdk/api/latest/docs/@aws-cdk_aws-ec2.Vpc.html][VPC construct]] with its default
-options.
+This is the go-to VPC architecture; it is a good starting place for AWS network
+design. For example, when using the AWS CDK, this is the infrastrucure that is
+created when you use the [[https://docs.aws.amazon.com/cdk/api/latest/docs/@aws-cdk_aws-ec2.Vpc.html][VPC construct]] with its default options.
 
-#+begin_src yaml
-AWSTemplateFormatVersion: 2010-09-09
-Description: >
-  VPC with two public Subnets and two private Subnets. Each public Subnet
-  includes a NAT Gateway, which allows outbound traffic from the private
-  Subnets.
-#+end_src
+All that having been said, using NAT Gateways is expensive, and there are often
+ways around it. Some possibilities are:
+
+- Use only public subnets
+- Even with private subnets, you can access AWS services through VPC Endpoints.
 
 * Parameters
 
@@ -211,23 +216,25 @@ Resources:
 
 There are two differences between "public" and "private" subnets:
 
-1. Public subnets have a *route to an Internet Gateway*.
-2. Public subnets usually specify =MapPublicIpOnLaunch: true=.
+1. Public subnets must have a *route to an Internet Gateway*.
 
-The first item (a *route to an Intenet Gateway*) isn't actually a quality of
-the subnet itself; rather, it's a matter of what routes are in the Route
-Table that the subnet is associated with.
+   This allows internet traffic to flow between the internet and the
+   instance. Note: this isn't actually a quality of the subnet itself;
+   rather, it's a matter of what routes are in the Route Table that the
+   subnet is associated with.
 
-The second item (=MapPublicIpOnLaunch: true=) tells AWS to assign public IP
-addresses to EC2 instances in the subnet, which is required if you plan to
-launch internet-reachable EC2 instances in the subnet. This is /usually/ the
-case, but one can imagine a public subnet that exists only for use with
-non-EC2 services.
+2. Public subnets often specify =MapPublicIpOnLaunch: true=.
 
-Private subnets /can/ specify =MapPublicIpOnLaunch: true= in order to assign
-internet-valid IP addresses to instances. That could be useful if, say, you
-want to be able to make the subnet to temporarily public (by temporarily
-adding a route to the Internet Gateway).
+   This tells AWS to assign public IP addresses to EC2 instances in the
+   subnet. This is required if you want to be able to =ssh
+         user@$INSTANCE_IP=. Which is usually what you want, but one could imagine
+   a situation when public IP addresses wouldn't be necessary.
+
+   Private subnets can also specify =MapPublicIpOnLaunch: true=.
+   Internet-valid IP addresses would be assigned to instances, but there
+   would be no route from the internet to those intstances. That /could/ be
+   useful if, say, you want to be able to make a subnet temporarily public by
+   temporarily adding a route to the Internet Gateway.
 
 #+begin_src yaml
   PrivateSubnet1:

@@ -33,6 +33,7 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
+<li><a href="#org738df9b">TODO</a></li>
 <li><a href="#org2809edd">Overview</a>
 <ul>
 <li><a href="#orgf49c5cf">CICD Process</a></li>
@@ -64,6 +65,22 @@
 </ul>
 </div>
 </nav>
+<div class="org-src-container">
+<pre class="src src-yaml"><span style="color: #dcaeea;">AWSTemplateFormatVersion</span>: 2010-09-09
+<span style="color: #dcaeea;">Description</span>: A web server running on an EC2 instance
+</pre>
+</div>
+
+<div id="outline-container-org738df9b" class="outline-2">
+<h2 id="org738df9b"><a href="#org738df9b">TODO</a></h2>
+<div class="outline-text-2" id="text-org738df9b">
+<ul class="org-ul">
+<li class="off"><input type='checkbox' /> Forward application logs to CloudWatch (journald or file?)</li>
+<li class="off"><input type='checkbox' /> Note where to look for logs on instance</li>
+<li class="off"><input type='checkbox' /> Can cloud-init, cfn-init, or cfn-hup logs fill up? Do they need to be rolled?</li>
+</ul>
+</div>
+</div>
 
 <div id="outline-container-org2809edd" class="outline-2">
 <h2 id="org2809edd"><a href="#org2809edd">Overview</a></h2>
@@ -75,6 +92,11 @@ web server is a golang binary stored in S3.
 
 <p>
 Automatically start the service with systemd on the instance.
+</p>
+
+<p>
+Install the CloudWatch Logs agent, and configure it to send the web server logs
+to CloudWatch.
 </p>
 </div>
 
@@ -102,7 +124,7 @@ Updates <code>$BuildArtifactKey</code> in <code>AWS::CloudFormation::Init</code>
 TODO: export but do not tangle
 </p>
 
-<pre class="example" id="orgcd6e0f8">
+<pre class="example" id="org60c767f">
     config:
       files:
         /home/ec2-user/go-webserver:
@@ -116,12 +138,6 @@ to <code>AWS::CloudFormation::Init</code> (specifically, the above artifact URL 
 <li><code>cfn-hup</code> runs and pulls down the new artifact</li>
 </ul></li>
 </ul>
-
-<div class="org-src-container">
-<pre class="src src-yaml"><span style="color: #dcaeea;">AWSTemplateFormatVersion</span>: 2010-09-09
-<span style="color: #dcaeea;">Description</span>: An EC2 Instance
-</pre>
-</div>
 </div>
 </div>
 </div>
@@ -295,23 +311,25 @@ The EC2 instance needs access to CloudWatch Logs and S3.
             <span style="color: #dcaeea;">Action</span>:
               - sts:AssumeRole
       <span style="color: #dcaeea;">Policies</span>:
-        - <span style="color: #dcaeea;">PolicyName</span>: InstancePolicy
+        - <span style="color: #dcaeea;">PolicyName</span>: CfnInit
           <span style="color: #dcaeea;">PolicyDocument</span>:
             <span style="color: #dcaeea;">Version</span>: 2012-10-17
             <span style="color: #dcaeea;">Statement</span>:
               - <span style="color: #dcaeea;">Effect</span>: Allow
                 <span style="color: #dcaeea;">Action</span>:
-                  - logs:CreateLogGroup
-                  - logs:CreateLogStream
-                  - logs:PutLogEvents
-                  - logs:DescribeLogStreams
                   - cloudformation:DescribeStackResource
                   - cloudformation:SignalResource
                 <span style="color: #dcaeea;">Resource</span>: <span style="color: #98be65;">"*"</span>
+        - <span style="color: #dcaeea;">PolicyName</span>: GetBuildArtifacts
+          <span style="color: #dcaeea;">PolicyDocument</span>:
+            <span style="color: #dcaeea;">Version</span>: 2012-10-17
+            <span style="color: #dcaeea;">Statement</span>:
               - <span style="color: #dcaeea;">Effect</span>: Allow
                 <span style="color: #dcaeea;">Action</span>:
                   - s3:GetObject
                 <span style="color: #dcaeea;">Resource</span>: <span style="color: #ECBE7B;">!Sub</span> <span style="color: #98be65;">"arn:aws:s3:::${BuildArtifactBucket}/*"</span>
+      <span style="color: #dcaeea;">ManagedPolicyArns</span>:
+        - arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy
 </pre>
 </div>
 </div>
@@ -408,8 +426,19 @@ commit hash).</li>
 <li>Specify the provisioning logic in AWS Systems Manager Run Command. Then use an
 EventBridge event to kick off the Run Command. (Can those scripts be managed
 in git?)</li>
-<li>Use a CM tool (e.g. ansible, salt). It would run from your CI/CD runtime on
-every build.</li>
+<li><p>
+Use a CM tool (e.g. ansible, salt). It would run from your CI/CD runtime on
+every build.
+</p>
+
+<p>
+TODO:
+</p>
+<ul class="org-ul">
+<li class="off"><input type='checkbox' /> Use only one configset. Because: what if you want to update something
+about cfn-hup on a running instance? The cfn-hup service should be
+restarted.</li>
+</ul></li>
 </ul>
 
 <div class="org-src-container">
@@ -423,17 +452,25 @@ every build.</li>
             - <span style="color: #ECBE7B;">!Sub</span> <span style="color: #98be65;">"${BuildArtifactBucket}"</span>
           <span style="color: #dcaeea;">roleName</span>: <span style="color: #ECBE7B;">!Ref</span> InstanceRole
       <span style="color: #dcaeea;">AWS::CloudFormation::Init</span>:
-        <span style="color: #dcaeea;">config</span>:
-          <span style="color: #dcaeea;">files</span>:
+        <span style="color: #dcaeea;">configSets</span>:
+          <span style="color: #dcaeea;">all</span>:
+            - 01_install_cfn_hup
+            - 02_install_cloudwatch_agent
+            - 03_install_web_server
 
-            <span style="color: #5B6268;"># </span><span style="color: #5B6268;">Config file for cfn-hup</span>
+          <span style="color: #5B6268;"># </span><span style="color: #5B6268;">Configure and start the cfn-hup daemon, which checks CloudFormation</span>
+          <span style="color: #5B6268;"># </span><span style="color: #5B6268;">AWS::CloudFormation::Init section every $interval and then performs</span>
+          <span style="color: #5B6268;"># </span><span style="color: #5B6268;">the actions in /etc/cfn/hooks.d/ hook files.</span>
+        <span style="color: #dcaeea;">01_install_cfn_hup</span>:
+          <span style="color: #dcaeea;">files</span>:
+            <span style="color: #5B6268;"># </span><span style="color: #5B6268;">A config file for cfn-hup (can it use IMDS for region?)</span>
             <span style="color: #dcaeea;">/etc/cfn/cfn-hup.conf</span>:
               <span style="color: #dcaeea;">content</span>: <span style="color: #ECBE7B;">!Sub</span> |
                 <span style="color: #98be65;">[main]</span>
 <span style="color: #98be65;">                stack=${AWS::StackName}</span>
 <span style="color: #98be65;">                region=${AWS::Region}</span>
 <span style="color: #98be65;">                verbose=true</span>
-<span style="color: #98be65;">                interval=3</span>
+<span style="color: #98be65;">                interval=2</span>
               <span style="color: #dcaeea;">mode</span>: <span style="color: #98be65;">"000400"</span>
               <span style="color: #dcaeea;">owner</span>: root
               <span style="color: #dcaeea;">group</span>: root
@@ -447,12 +484,70 @@ every build.</li>
 <span style="color: #98be65;">                action=/opt/aws/bin/cfn-init -v \</span>
 <span style="color: #98be65;">                    --region ${AWS::Region} \</span>
 <span style="color: #98be65;">                    --stack ${AWS::StackName} \</span>
-<span style="color: #98be65;">                    --resource Instance</span>
+<span style="color: #98be65;">                    --resource Instance \</span>
+<span style="color: #98be65;">                    --configsets all</span>
 <span style="color: #98be65;">                runas=root</span>
               <span style="color: #dcaeea;">mode</span>: <span style="color: #98be65;">"000400"</span>
               <span style="color: #dcaeea;">owner</span>: root
               <span style="color: #dcaeea;">group</span>: root
 
+            <span style="color: #5B6268;"># </span><span style="color: #5B6268;">cfn-hup systemd unit file</span>
+            <span style="color: #dcaeea;">/lib/systemd/system/cfn-hup.service</span>:
+              <span style="color: #dcaeea;">content</span>: |
+                <span style="color: #98be65;">[Unit]</span>
+<span style="color: #98be65;">                Description=cfn-hup daemon</span>
+<span style="color: #98be65;">                [Service]</span>
+<span style="color: #98be65;">                Type=simple</span>
+<span style="color: #98be65;">                ExecStart=/opt/aws/bin/cfn-hup</span>
+<span style="color: #98be65;">                Restart=always</span>
+<span style="color: #98be65;">                [Install]</span>
+<span style="color: #98be65;">                WantedBy=multi-user.target</span>
+
+        <span style="color: #dcaeea;">commands</span>:
+          <span style="color: #dcaeea;">01_enable_cfn_hup</span>:
+            <span style="color: #dcaeea;">command</span>: systemctl enable cfn-hup
+          <span style="color: #dcaeea;">02_start_cfn_hup</span>:
+            <span style="color: #dcaeea;">command</span>: systemctl restart cfn-hup
+
+        <span style="color: #dcaeea;">02_install_cloudwatch_agent</span>:
+          <span style="color: #dcaeea;">files</span>:
+            <span style="color: #dcaeea;">/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json</span>:
+              <span style="color: #dcaeea;">content</span>: |
+                <span style="color: #98be65;">{</span>
+                  <span style="color: #98be65;">"metrics"</span>: {
+                    <span style="color: #98be65;">"append_dimensions"</span>: {
+                      <span style="color: #98be65;">"ImageId"</span>: <span style="color: #98be65;">"${!aws:ImageId}"</span>,
+                      <span style="color: #98be65;">"InstanceId"</span>: <span style="color: #98be65;">"${!aws:InstanceId}"</span>,
+                      <span style="color: #98be65;">"InstanceType"</span>: <span style="color: #98be65;">"${!aws:InstanceType}"</span>
+<span style="color: #98be65;">                    },</span>
+                    <span style="color: #98be65;">"metrics_collected"</span>: {
+                      <span style="color: #98be65;">"mem"</span>: {
+                        <span style="color: #98be65;">"measurement"</span>: [
+                          <span style="color: #98be65;">"mem_used_percent"</span>
+<span style="color: #98be65;">                        ]</span>
+<span style="color: #98be65;">                      },</span>
+                      <span style="color: #98be65;">"swap"</span>: {
+                        <span style="color: #98be65;">"measurement"</span>: [
+                          <span style="color: #98be65;">"swap_used_percent"</span>
+<span style="color: #98be65;">                        ]</span>
+<span style="color: #98be65;">                      }</span>
+<span style="color: #98be65;">                    }</span>
+<span style="color: #98be65;">                  }</span>
+<span style="color: #98be65;">                }</span>
+
+          <span style="color: #dcaeea;">commands</span>:
+            <span style="color: #dcaeea;">01_stop_cwa</span>:
+              <span style="color: #dcaeea;">command</span>: /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a stop
+            <span style="color: #dcaeea;">02_start_cwa</span>:
+              <span style="color: #dcaeea;">command</span>: |
+                <span style="color: #98be65;">/opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl \</span>
+<span style="color: #98be65;">                    -a fetch-config \</span>
+<span style="color: #98be65;">                    -m ec2 \</span>
+<span style="color: #98be65;">                    -c file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json \</span>
+<span style="color: #98be65;">                    -s</span>
+
+        <span style="color: #dcaeea;">03_install_web_server</span>:
+          <span style="color: #dcaeea;">files</span>:
             <span style="color: #5B6268;"># </span><span style="color: #5B6268;">Download the web server binary from S3</span>
             <span style="color: #dcaeea;">/home/ec2-user/go-webserver</span>:
               <span style="color: #dcaeea;">source</span>: <span style="color: #ECBE7B;">!Join</span>
@@ -475,11 +570,13 @@ every build.</li>
 <span style="color: #98be65;">                Type=simple</span>
 <span style="color: #98be65;">                ExecStart=/home/ec2-user/go-webserver</span>
 <span style="color: #98be65;">                Restart=always</span>
+<span style="color: #98be65;">                [Install]</span>
+<span style="color: #98be65;">                WantedBy=multi-user.target</span>
 
           <span style="color: #dcaeea;">commands</span>:
-            <span style="color: #dcaeea;">01_enable</span>:
+            <span style="color: #dcaeea;">01_enable_webserver</span>:
               <span style="color: #dcaeea;">command</span>: systemctl enable go-webserver
-            <span style="color: #dcaeea;">02_start</span>:
+            <span style="color: #dcaeea;">02_start_webserver</span>:
               <span style="color: #dcaeea;">command</span>: systemctl restart go-webserver
 
     <span style="color: #dcaeea;">Properties</span>:
@@ -499,15 +596,14 @@ every build.</li>
         <span style="color: #dcaeea;">Fn::Base64</span>: <span style="color: #ECBE7B;">!Sub</span> |
           <span style="color: #5B6268;">#</span><span style="color: #5B6268;">!/bin/bash</span>
 <span style="color: #98be65;">          yum update -y</span>
-<span style="color: #98be65;">          yum install -y aws-cfn-bootstrap</span>
+<span style="color: #98be65;">          yum install -y \</span>
+<span style="color: #98be65;">              aws-cfn-bootstrap amazon-cloudwatch-agent</span>
           <span style="color: #5B6268;"># </span><span style="color: #5B6268;">Run cfn-init which processes the AWS::CloudFormation::Init section</span>
 <span style="color: #98be65;">          /opt/aws/bin/cfn-init -v \</span>
 <span style="color: #98be65;">              --region ${AWS::Region} \</span>
 <span style="color: #98be65;">              --stack ${AWS::StackName} \</span>
-<span style="color: #98be65;">              --resource Instance</span>
-          <span style="color: #5B6268;"># </span><span style="color: #5B6268;">Start cfn-hup daemon, which checks Metadata every $interval and then</span>
-          <span style="color: #5B6268;"># </span><span style="color: #5B6268;">performs actions in /etc/cfn/hooks.d/</span>
-          /opt/aws/bin/cfn-hup || error_exit <span style="color: #98be65;">"Failed to start cfn-hup"</span>
+<span style="color: #98be65;">              --resource Instance \</span>
+<span style="color: #98be65;">              --configsets all</span>
 </pre>
 </div>
 </div>

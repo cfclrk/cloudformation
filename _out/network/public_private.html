@@ -54,37 +54,45 @@
 </ul>
 </div>
 </nav>
+<div class="org-src-container">
+<pre class="src src-yaml"><span style="color: #dcaeea;">AWSTemplateFormatVersion</span>: 2010-09-09
+<span style="color: #dcaeea;">Description</span>: &gt;
+  <span style="color: #98be65;">A VPC with two public Subnets and two private Subnets. Each public Subnet</span>
+<span style="color: #98be65;">  includes a NAT Gateway which provides outbound connectivity from the private</span>
+<span style="color: #98be65;">  Subnets to the internet (but not vice versa).</span>
+</pre>
+</div>
 
 <div id="outline-container-org3f42b45" class="outline-2">
 <h2 id="org3f42b45"><a href="#org3f42b45">Overview</a></h2>
 <div class="outline-text-2" id="text-org3f42b45">
 
-<figure id="orgfc97672">
+<figure id="orgc2eef02">
 <img src="../../static/img/Network-Public-Private.png" alt="Network-Public-Private.png">
 
 </figure>
 
 <p>
-This document creates a "standard" AWS network: a VPC with two public subnets
-and two private subnets. AWS documents this architecture <a href="https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Scenario2.html">here</a>, and AWS provides
-a CloudFormation example <a href="https://docs.aws.amazon.com/codebuild/latest/userguide/cloudformation-vpc-template.html">here</a>.
+This CloudFormation template creates the "standard" AWS network: a VPC with two
+public subnets and two private subnets. AWS documents this architecture <a href="https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Scenario2.html">here</a>,
+and AWS provides a CloudFormation example <a href="https://docs.aws.amazon.com/codebuild/latest/userguide/cloudformation-vpc-template.html">here</a>.
 </p>
 
 <p>
-This is the go-to VPC structure and is usually considered a starting place for
-any AWS network design. For example, when using the AWS CDK, this is the
-infrastrucure that is created when you use the <a href="https://docs.aws.amazon.com/cdk/api/latest/docs/@aws-cdk_aws-ec2.Vpc.html">VPC construct</a> with its default
-options.
+This is the go-to VPC architecture; it is a good starting place for AWS network
+design. For example, when using the AWS CDK, this is the infrastrucure that is
+created when you use the <a href="https://docs.aws.amazon.com/cdk/api/latest/docs/@aws-cdk_aws-ec2.Vpc.html">VPC construct</a> with its default options.
 </p>
 
-<div class="org-src-container">
-<pre class="src src-yaml"><span style="color: #dcaeea;">AWSTemplateFormatVersion</span>: 2010-09-09
-<span style="color: #dcaeea;">Description</span>: &gt;
-  <span style="color: #98be65;">VPC with two public Subnets and two private Subnets. Each public Subnet</span>
-<span style="color: #98be65;">  includes a NAT Gateway, which allows outbound traffic from the private</span>
-<span style="color: #98be65;">  Subnets.</span>
-</pre>
-</div>
+<p>
+All that having been said, using NAT Gateways is expensive, and there are often
+ways around it. Some possibilities are:
+</p>
+
+<ul class="org-ul">
+<li>Use only public subnets</li>
+<li>Even with private subnets, you can access AWS services through VPC Endpoints.</li>
+</ul>
 </div>
 </div>
 
@@ -320,30 +328,36 @@ There are two differences between "public" and "private" subnets:
 </p>
 
 <ol class="org-ol">
-<li>Public subnets have a <b>route to an Internet Gateway</b>.</li>
-<li>Public subnets usually specify <code>MapPublicIpOnLaunch: true</code>.</li>
+<li><p>
+Public subnets must have a <b>route to an Internet Gateway</b>.
+</p>
+
+<p>
+This allows internet traffic to flow between the internet and the
+instance. Note: this isn't actually a quality of the subnet itself;
+rather, it's a matter of what routes are in the Route Table that the
+subnet is associated with.
+</p></li>
+
+<li><p>
+Public subnets often specify <code>MapPublicIpOnLaunch: true</code>.
+</p>
+
+<p>
+This tells AWS to assign public IP addresses to EC2 instances in the
+subnet. This is required if you want to be able to <code>ssh
+         user@$INSTANCE_IP</code>. Which is usually what you want, but one could imagine
+a situation when public IP addresses wouldn't be necessary.
+</p>
+
+<p>
+Private subnets can also specify <code>MapPublicIpOnLaunch: true</code>.
+Internet-valid IP addresses would be assigned to instances, but there
+would be no route from the internet to those intstances. That <i>could</i> be
+useful if, say, you want to be able to make a subnet temporarily public by
+temporarily adding a route to the Internet Gateway.
+</p></li>
 </ol>
-
-<p>
-The first item (a <b>route to an Intenet Gateway</b>) isn't actually a quality of
-the subnet itself; rather, it's a matter of what routes are in the Route
-Table that the subnet is associated with.
-</p>
-
-<p>
-The second item (<code>MapPublicIpOnLaunch: true</code>) tells AWS to assign public IP
-addresses to EC2 instances in the subnet, which is required if you plan to
-launch internet-reachable EC2 instances in the subnet. This is <i>usually</i> the
-case, but one can imagine a public subnet that exists only for use with
-non-EC2 services.
-</p>
-
-<p>
-Private subnets <i>can</i> specify <code>MapPublicIpOnLaunch: true</code> in order to assign
-internet-valid IP addresses to instances. That could be useful if, say, you
-want to be able to make the subnet to temporarily public (by temporarily
-adding a route to the Internet Gateway).
-</p>
 
 <div class="org-src-container">
 <pre class="src src-yaml">  <span style="color: #dcaeea;">PrivateSubnet1</span>:

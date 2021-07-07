@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- 2021-06-23 Wed 11:41 -->
+<!-- 2021-07-07 Wed 10:57 -->
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>&lrm;</title>
@@ -34,6 +34,7 @@
 <ul>
 <li><a href="#org12c1554">DeploymentName</a></li>
 <li><a href="#org668f849">KeyName</a></li>
+<li><a href="#org7cfeee4">SSHCIDR</a></li>
 </ul>
 </div>
 </nav>
@@ -87,6 +88,22 @@ private key somewhere (like SecretsManager or SSM Parameter Store).</li>
     <span style="color: #dcaeea;">Type</span>: AWS::EC2::KeyPair::KeyName
     <span style="color: #dcaeea;">Description</span>: The name of an EC2 KeyPair
     <span style="color: #dcaeea;">Default</span>: test
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org7cfeee4" class="outline-2">
+<h2 id="org7cfeee4"><a href="#org7cfeee4">SSHCIDR</a></h2>
+<div class="outline-text-2" id="text-org7cfeee4">
+<p>
+Allow SSH access from this CIDR range.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-yaml">  <span style="color: #dcaeea;">SSHCIDR</span>:
+    <span style="color: #dcaeea;">Type</span>: String
+    <span style="color: #dcaeea;">Description</span>: IP CIDR range
 </pre>
 </div>
 </div>

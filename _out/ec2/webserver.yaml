@@ -12,6 +12,10 @@ Parameters:
     Description: The name of an EC2 KeyPair
     Default: test
 
+  SSHCIDR:
+    Type: String
+    Description: IP CIDR range
+
   BuildArtifactBucket:
     Type: String
     Description: Name of an S3 bucket with the web server build artifacts
@@ -82,11 +86,11 @@ Resources:
         - IpProtocol: tcp
           FromPort: 22
           ToPort: 22
-          CidrIp: 67.23.104.250/32
+          CidrIp: !Ref SSHCIDR
         - IpProtocol: tcp
           FromPort: 80
           ToPort: 80
-          CidrIp: 67.23.104.250/32
+          CidrIp: !Ref SSHCIDR
       Tags:
         - Key: Name
           Value: !Sub "${DeploymentName}-instance"

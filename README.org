@@ -8,7 +8,6 @@
   | AWS_PROFILE        | dev                     |
   | AWS_DEFAULT_REGION | us-east-2               |
   | TEMPLATE_PATH      | _out/ec2/webserver.yaml |
-  | DEPLOYMENT_NAME    | test                    |
 
   #+begin_src emacs-lisp :var env=Env :exports none
     (setenv-file-export-pairs env)
@@ -19,7 +18,8 @@
   |---------------------+-------------------------|
   | DeploymentName      | test                    |
   | KeyName             | test                    |
-  | BuildArtifactBucket | my-bucket               |
+  | SSHCIDR             | 0.0.0.0/0               |
+  | BuildArtifactBucket | my-bucket-name          |
   | BuildArtifactKey    | main/go-webserver-amd64 |
 
   =$TemplateName= is just the =$TEMPLATE_PATH= using dashes and without a file
@@ -33,15 +33,15 @@
       (concat parent-dir "-" base-name-dashes))
   #+end_src
 
-  The =$StackName= is always: =$DeploymentName-$TemplateName=.
+  =$StackName= is always: =$DeploymentName-$TemplateName=.
 
   #+NAME: StackName
-  #+begin_src emacs-lisp :var TemplateName=TemplateName :results value
-    (concat (getenv "DEPLOYMENT_NAME") "-" TemplateName)
+  #+begin_src emacs-lisp :var TemplateName=TemplateName Params=Params :results value
+    (concat (nth 1 (assoc "DeploymentName" Params)) "-" TemplateName)
   #+end_src
 
-  This variable produces a string of parameters suitable for use with the =aws
-  cloudformation create-stack= command.
+  =CreateParamString= produces a string of parameters suitable for use with the
+  =aws cloudformation create-stack= command.
 
   #+NAME: CreateParamString
   #+begin_src emacs-lisp :var Params=Params :results value
@@ -51,8 +51,8 @@
       (s-join " " (mapcar format-param Params)))
   #+end_src
 
-  This variable produces a string of poramaters suitable for use with the =aws
-  cloudformation deploy= command.
+  =DeployParamString= produces a string of paramaters suitable for use with the
+  =aws cloudformation deploy= command.
 
   #+NAME: DeployParamString
   #+begin_src emacs-lisp :var Params=Params :results value
@@ -87,12 +87,6 @@
          --capabilities CAPABILITY_AUTO_EXPAND CAPABILITY_IAM CAPABILITY_NAMED_IAM \
          --parameter-overrides $ParamString
    #+end_src
-
-   #+RESULTS:
-   :
-   : Waiting for changeset to be created..
-   : Waiting for stack create/update to complete
-   : Successfully created/updated stack - test-ec2-webserver
 
 ** Create
 

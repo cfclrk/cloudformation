@@ -34,3 +34,13 @@ So, in CloudFormation, you have two options:
     Description: The name of an EC2 KeyPair
     Default: test
 #+end_src
+
+* SSHCIDR
+
+Allow SSH access from this CIDR range.
+
+#+begin_src yaml
+  SSHCIDR:
+    Type: String
+    Description: IP CIDR range
+#+end_src

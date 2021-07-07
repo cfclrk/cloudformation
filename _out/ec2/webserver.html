@@ -44,6 +44,7 @@
 <ul>
 <li><a href="#orgcf65f37">DeploymentName</a></li>
 <li><a href="#org5b4a9e3">KeyName</a></li>
+<li><a href="#orgf2906d0">SSHCIDR</a></li>
 <li><a href="#org68885e9">BuildArtifactBucket</a></li>
 <li><a href="#org40e019c">BuildArtifactKey</a></li>
 </ul>
@@ -124,7 +125,7 @@ Updates <code>$BuildArtifactKey</code> in <code>AWS::CloudFormation::Init</code>
 TODO: export but do not tangle
 </p>
 
-<pre class="example" id="org9329174">
+<pre class="example" id="org2bc00ca">
     config:
       files:
         /home/ec2-user/go-webserver:
@@ -211,6 +212,22 @@ private key somewhere (like SecretsManager or SSM Parameter Store).</li>
     <span style="color: #dcaeea;">Type</span>: AWS::EC2::KeyPair::KeyName
     <span style="color: #dcaeea;">Description</span>: The name of an EC2 KeyPair
     <span style="color: #dcaeea;">Default</span>: test
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgf2906d0" class="outline-3">
+<h3 id="orgf2906d0"><a href="#orgf2906d0">SSHCIDR</a></h3>
+<div class="outline-text-3" id="text-orgf2906d0">
+<p>
+Allow SSH access from this CIDR range.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-yaml">  <span style="color: #dcaeea;">SSHCIDR</span>:
+    <span style="color: #dcaeea;">Type</span>: String
+    <span style="color: #dcaeea;">Description</span>: IP CIDR range
 </pre>
 </div>
 </div>
@@ -365,11 +382,11 @@ The EC2 instance needs access to CloudWatch Logs and S3.
         - <span style="color: #dcaeea;">IpProtocol</span>: tcp
           <span style="color: #dcaeea;">FromPort</span>: 22
           <span style="color: #dcaeea;">ToPort</span>: 22
-          <span style="color: #dcaeea;">CidrIp</span>: 67.23.104.250/32
+          <span style="color: #dcaeea;">CidrIp</span>: <span style="color: #ECBE7B;">!Ref</span> SSHCIDR
         - <span style="color: #dcaeea;">IpProtocol</span>: tcp
           <span style="color: #dcaeea;">FromPort</span>: 80
           <span style="color: #dcaeea;">ToPort</span>: 80
-          <span style="color: #dcaeea;">CidrIp</span>: 67.23.104.250/32
+          <span style="color: #dcaeea;">CidrIp</span>: <span style="color: #ECBE7B;">!Ref</span> SSHCIDR
       <span style="color: #dcaeea;">Tags</span>:
         - <span style="color: #dcaeea;">Key</span>: Name
           <span style="color: #dcaeea;">Value</span>: <span style="color: #ECBE7B;">!Sub</span> <span style="color: #98be65;">"${DeploymentName}-instance"</span>

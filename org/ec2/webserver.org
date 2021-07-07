@@ -61,6 +61,8 @@ Parameters:
 
 #+INCLUDE: "../params.org::*KeyName"
 
+#+INCLUDE: "../params.org::*SSHCIDR"
+
 ** BuildArtifactBucket
 
 The S3 Bucket where the web server artifact is stored.
@@ -174,11 +176,11 @@ The EC2 instance needs access to CloudWatch Logs and S3.
         - IpProtocol: tcp
           FromPort: 22
           ToPort: 22
-          CidrIp: 67.23.104.250/32
+          CidrIp: !Ref SSHCIDR
         - IpProtocol: tcp
           FromPort: 80
           ToPort: 80
-          CidrIp: 67.23.104.250/32
+          CidrIp: !Ref SSHCIDR
       Tags:
         - Key: Name
           Value: !Sub "${DeploymentName}-instance"

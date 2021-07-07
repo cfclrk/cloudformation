@@ -40,12 +40,24 @@
     (concat (getenv "DEPLOYMENT_NAME") "-" TemplateName)
   #+end_src
 
-  #+NAME: ParamString
+  This variable produces a string of parameters suitable for use with the =aws
+  cloudformation create-stack= command.
+
+  #+NAME: CreateParamString
   #+begin_src emacs-lisp :var Params=Params :results value
-    (let ((cf-format-param
+    (let ((format-param
            (lambda (pair)
              (s-format "ParameterKey=$0,ParameterValue=$1" 'elt pair))))
-      (s-join " " (mapcar cf-format-param Params)))
+      (s-join " " (mapcar format-param Params)))
+  #+end_src
+
+  This variable produces a string of poramaters suitable for use with the =aws
+  cloudformation deploy= command.
+
+  #+NAME: DeployParamString
+  #+begin_src emacs-lisp :var Params=Params :results value
+    (let ((format-param (lambda (pair) (s-format "$0=$1" 'elt pair))))
+      (s-join " " (mapcar format-param Params)))
   #+end_src
 
 * Create Stack
@@ -64,9 +76,27 @@
          --s3-bucket $BucketName
    #+end_src
 
+** Deploy
+
+   Create or update a stack.
+
+   #+begin_src sh :var StackName=StackName ParamString=DeployParamString :async
+     aws cloudformation deploy \
+         --stack-name $StackName \
+         --template $TEMPLATE_PATH \
+         --capabilities CAPABILITY_AUTO_EXPAND CAPABILITY_IAM CAPABILITY_NAMED_IAM \
+         --parameter-overrides $ParamString
+   #+end_src
+
+   #+RESULTS:
+   :
+   : Waiting for changeset to be created..
+   : Waiting for stack create/update to complete
+   : Successfully created/updated stack - test-ec2-webserver
+
 ** Create
 
-   #+begin_src sh :var StackName=StackName ParamString=ParamString
+   #+begin_src sh :var StackName=StackName ParamString=CreateParamString
      aws cloudformation create-stack \
          --stack-name $StackName \
          --template-body file://$TEMPLATE_PATH \

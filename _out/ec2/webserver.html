@@ -124,7 +124,7 @@ Updates <code>$BuildArtifactKey</code> in <code>AWS::CloudFormation::Init</code>
 TODO: export but do not tangle
 </p>
 
-<pre class="example" id="org60c767f">
+<pre class="example" id="org9329174">
     config:
       files:
         /home/ec2-user/go-webserver:
@@ -365,11 +365,11 @@ The EC2 instance needs access to CloudWatch Logs and S3.
         - <span style="color: #dcaeea;">IpProtocol</span>: tcp
           <span style="color: #dcaeea;">FromPort</span>: 22
           <span style="color: #dcaeea;">ToPort</span>: 22
-          <span style="color: #dcaeea;">CidrIp</span>: 0.0.0.0/0
+          <span style="color: #dcaeea;">CidrIp</span>: 67.23.104.250/32
         - <span style="color: #dcaeea;">IpProtocol</span>: tcp
           <span style="color: #dcaeea;">FromPort</span>: 80
           <span style="color: #dcaeea;">ToPort</span>: 80
-          <span style="color: #dcaeea;">CidrIp</span>: 0.0.0.0/0
+          <span style="color: #dcaeea;">CidrIp</span>: 67.23.104.250/32
       <span style="color: #dcaeea;">Tags</span>:
         - <span style="color: #dcaeea;">Key</span>: Name
           <span style="color: #dcaeea;">Value</span>: <span style="color: #ECBE7B;">!Sub</span> <span style="color: #98be65;">"${DeploymentName}-instance"</span>
@@ -503,11 +503,11 @@ restarted.</li>
 <span style="color: #98be65;">                [Install]</span>
 <span style="color: #98be65;">                WantedBy=multi-user.target</span>
 
-        <span style="color: #dcaeea;">commands</span>:
-          <span style="color: #dcaeea;">01_enable_cfn_hup</span>:
-            <span style="color: #dcaeea;">command</span>: systemctl enable cfn-hup
-          <span style="color: #dcaeea;">02_start_cfn_hup</span>:
-            <span style="color: #dcaeea;">command</span>: systemctl restart cfn-hup
+          <span style="color: #dcaeea;">commands</span>:
+            <span style="color: #dcaeea;">01_enable_cfn_hup</span>:
+              <span style="color: #dcaeea;">command</span>: systemctl enable cfn-hup
+            <span style="color: #dcaeea;">02_start_cfn_hup</span>:
+              <span style="color: #dcaeea;">command</span>: systemctl restart cfn-hup
 
         <span style="color: #dcaeea;">02_install_cloudwatch_agent</span>:
           <span style="color: #dcaeea;">files</span>:

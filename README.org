@@ -13,14 +13,22 @@
     (setenv-file-export-pairs env)
   #+end_src
 
+  #+NAME: OrgFilePath
+  #+begin_src emacs-lisp :results value
+    (let ((template-path (getenv "TEMPLATE_PATH")))
+      (f-join "org"
+              (f-swap-ext (f-relative template-path "_out" ) "org")))
+  #+end_src
+
+  Read the =Params= table in the org file.
+
   #+NAME: Params
-  | Param               | Value                   |
-  |---------------------+-------------------------|
-  | DeploymentName      | test                    |
-  | KeyName             | test                    |
-  | SSHCIDR             | 0.0.0.0/0               |
-  | BuildArtifactBucket | my-bucket-name          |
-  | BuildArtifactKey    | main/go-webserver-amd64 |
+  #+begin_src emacs-lisp :var OrgFilePath=OrgFilePath :results value
+    (with-temp-buffer
+      (insert-file-contents "/Users/chris.clark/Projects/cloudformation/org/ec2/webserver.org")
+      (org-mode)
+      (nth 0 (read-from-string (org-sbe "Params"))))
+  #+end_src
 
   =$TemplateName= is just the =$TEMPLATE_PATH= using dashes and without a file
   extension.
@@ -157,7 +165,7 @@
 
 * Get Stack Logs
 
-  #+begin_src sh
+  #+begin_src sh :var StackName=StackName
     aws cloudformation describe-stack-events \
         --stack-name $StackName
   #+end_src

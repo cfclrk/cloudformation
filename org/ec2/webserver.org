@@ -57,6 +57,15 @@ config:
 Parameters:
 #+end_src
 
+#+NAME: Params
+| Param               | Value                      |
+|---------------------+----------------------------|
+| DeploymentName      | webserver                  |
+| KeyName             | cfc                        |
+| SSHCIDR             | 0.0.0.0/0                  |
+| BuildArtifactBucket | my-s3-bucket-1n9japign3xm7 |
+| BuildArtifactKey    | main/go-webserver-amd64    |
+
 #+INCLUDE: "../params.org::*DeploymentName"
 
 #+INCLUDE: "../params.org::*KeyName"
@@ -111,7 +120,11 @@ Resources:
 
 ** IAM
 
-The EC2 instance needs access to CloudWatch Logs and S3.
+The EC2 instance needs access to:
+
+- CloudFormation, so =cfn-init= can describe this CloudFormation stack
+- CloudWatch Logs, so the =cloudwatch-agent= can write logs to CloudWatch
+- S3, so =cfn-init= can retrieve the web server binary
 
 *** Role
 
@@ -189,44 +202,46 @@ The EC2 instance needs access to CloudWatch Logs and S3.
 ** Instance
 
 In this case we are using a combination of =UserData= and the
-=AWS::CloudFormation::Init= section to define how to provision the EC2 instance.
+=AWS::CloudFormation::Init= section (which the =cfn-init= program reads) to
+define how to provision the EC2 instance.
 
-AWS [[https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/best-practices.html#cfninit][says this is a best practice]], and this works ok for small examples, but has
-some drawbacks:
+AWS [[https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/best-practices.html#cfninit][says this is a best practice]], and this works ok for small examples, but
+defining all provisioning logic in =AWS::CloudFormation::Init= definitely has
+some disadvantages:
 
-- Makes the CloudFormation template really long.
-- The provisioning logic is AWS-specific. You can't use the same YAML to
-  provision a vagrant machine or Azure VM.
-- You may run into [[https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cloudformation-limits.html][CloudFormation limits]]:
+- /Length/. Makes the CloudFormation template really long.
+- /Limits/. You may run into [[https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cloudformation-limits.html][CloudFormation limits]]:
   - max template length (51,200 bytes)
   - max length of the =AWS::CloudFormation::Init= section
-- cfn-hup does not run immediately after a =cloudformation update=. Instead, it
-  runs periodically (configurable with the =interval= option). So several
-  minutes will go by after a =cloudformation update= before cfn-hup re-runs
-  cfn-init, which in turn re-provisions the instance. Considering how
-  complicated this setup is, you'd think it would at least be event-based, not
-  poll-based.
+- /Only AWS/. The provisioning language is specific to CloudFormation, so you
+  can't use the same YAML to provision, say, a vagrant machine or an Azure VM
+  (as opposed to using something like Ansible which could provision VMs
+  anywhere).
+- /Sluggish updates/. =cfn-hup= does not run immediately after a =cloudformation
+  update=. Instead, it runs periodically (configurable with the =interval=
+  option). So several minutes may go by after a =cloudformation update= before
+  =cfn-hup= re-runs =cfn-init=, which in turn re-provisions the instance.
+  Considering how complicated this setup is, you'd think it would at least be
+  snappy and event-based, not poll-based.
 
 Even in this simple case, the CloudFormation gets pretty long with information
 that might otherwise be specified using a configuration management tool (like
-ansible, salt, or chef).
+Ansible, Salt, or Chef).
 
-Some alternatives:
+Some alternatives to using only =AWS::CloudFormation::Init=:
 
-- Use cfn-init to download a git repo or gist with provisioning scripts. Re-run
-  the provisioning scripts after every CI/CD build by updating a flag file in
-  the =AWS::CloudFormation::Init= section (e.g. a file who's name is the git
-  commit hash).
+- Use =cfn-init= to download a git repo or gist with provisioning scripts. Then
+  re-run the provisioning scripts after every CI/CD build by updating a flag
+  file in the =AWS::CloudFormation::Init= section (e.g. a file who's name is the
+  git commit hash).
 - Specify the provisioning logic in AWS Systems Manager Run Command. Then use an
-  EventBridge event to kick off the Run Command. (Can those scripts be managed
-  in git?)
-- Use a CM tool (e.g. ansible, salt). It would run from your CI/CD runtime on
-  every build.
-
-  TODO:
-  - [ ] Use only one configset. Because: what if you want to update something
-    about cfn-hup on a running instance? The cfn-hup service should be
-    restarted.
+  EventBridge event to kick off the Run Command
+  - I haven't done this
+  - Can those scripts be managed in git?
+  - Also kind of nice you can manually kick of an AWS Run Command thing.
+- Use a CM tool (e.g. Ansible, Salt).
+  - It could either run from your CI/CD runtime or even on the instance itself,
+    if the instance downloads the Ansible configs.
 
 #+begin_src yaml
   Instance:

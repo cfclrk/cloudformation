@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- 2021-07-07 Wed 10:57 -->
+<!-- 2021-08-03 Tue 14:58 -->
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>&lrm;</title>
@@ -28,9 +28,9 @@
 </nav>
 </div>
 <div id="content" class="content">
-<nav id="table-of-contents">
+<nav id="table-of-contents" role="doc-toc">
 <h2>Table of Contents</h2>
-<div id="text-table-of-contents">
+<div id="text-table-of-contents" role="doc-toc">
 <ul>
 <li><a href="#org12c1554">DeploymentName</a></li>
 <li><a href="#org668f849">KeyName</a></li>
@@ -41,25 +41,33 @@
 <div id="outline-container-org12c1554" class="outline-2">
 <h2 id="org12c1554"><a href="#org12c1554">DeploymentName</a></h2>
 <div class="outline-text-2" id="text-org12c1554">
-<p>
-A <b>deployment</b> is a complete deployed application, potentially comprised of many
-CloudFormation stacks. This is sometimes called an "environment", but that is an
-overloaded term. Use the <code>DeploymentName</code> to indicate which deployment a Stack
-is part of.
-</p>
-
 <div class="org-src-container">
 <pre class="src src-yaml">  <span style="color: #dcaeea;">DeploymentName</span>:
     <span style="color: #dcaeea;">Type</span>: String
     <span style="color: #dcaeea;">Description</span>: A name for this deployment
 </pre>
 </div>
+
+<p>
+A <b>deployment</b> is a complete deployed application, potentially comprised of many
+CloudFormation stacks. This is sometimes called an "environment", but that is an
+overloaded term. Use the <code>DeploymentName</code> to indicate which deployment a Stack
+is part of.
+</p>
 </div>
 </div>
 
 <div id="outline-container-org668f849" class="outline-2">
 <h2 id="org668f849"><a href="#org668f849">KeyName</a></h2>
 <div class="outline-text-2" id="text-org668f849">
+<div class="org-src-container">
+<pre class="src src-yaml">  <span style="color: #dcaeea;">KeyName</span>:
+    <span style="color: #dcaeea;">Type</span>: AWS::EC2::KeyPair::KeyName
+    <span style="color: #dcaeea;">Description</span>: The name of an EC2 KeyPair
+    <span style="color: #dcaeea;">Default</span>: test
+</pre>
+</div>
+
 <p>
 AWS does not provide a CloudFormation type for EC2 KeyPairs. This was a
 deliberate choice: a KeyPair consists of a public and private key, and AWS does
@@ -82,30 +90,22 @@ CloudFormation template as a parameter.</li>
 Function) in your CloudFormation template. The Custom Resource must save the
 private key somewhere (like SecretsManager or SSM Parameter Store).</li>
 </ol>
-
-<div class="org-src-container">
-<pre class="src src-yaml">  <span style="color: #dcaeea;">KeyName</span>:
-    <span style="color: #dcaeea;">Type</span>: AWS::EC2::KeyPair::KeyName
-    <span style="color: #dcaeea;">Description</span>: The name of an EC2 KeyPair
-    <span style="color: #dcaeea;">Default</span>: test
-</pre>
-</div>
 </div>
 </div>
 
 <div id="outline-container-org7cfeee4" class="outline-2">
 <h2 id="org7cfeee4"><a href="#org7cfeee4">SSHCIDR</a></h2>
 <div class="outline-text-2" id="text-org7cfeee4">
-<p>
-Allow SSH access from this CIDR range.
-</p>
-
 <div class="org-src-container">
 <pre class="src src-yaml">  <span style="color: #dcaeea;">SSHCIDR</span>:
     <span style="color: #dcaeea;">Type</span>: String
     <span style="color: #dcaeea;">Description</span>: IP CIDR range
 </pre>
 </div>
+
+<p>
+Allow SSH access from this CIDR range.
+</p>
 </div>
 </div>
 </div>

@@ -27,7 +27,7 @@
     (with-temp-buffer
       (insert-file-contents "/Users/chris.clark/Projects/cloudformation/org/ec2/webserver.org")
       (org-mode)
-      (nth 0 (read-from-string (org-sbe "Params"))))
+      (car (read-from-string (org-sbe "Params"))))
   #+end_src
 
   =$TemplateName= is just the =$TEMPLATE_PATH= using dashes and without a file

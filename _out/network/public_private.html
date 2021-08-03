@@ -29,9 +29,9 @@
 <div id="content" class="content">
 <header>
 <h1 class="title">Network with Public and Private Subnets </h1>
-</header><nav id="table-of-contents">
+</header><nav id="table-of-contents" role="doc-toc">
 <h2>Table of Contents</h2>
-<div id="text-table-of-contents">
+<div id="text-table-of-contents" role="doc-toc">
 <ul>
 <li><a href="#org3f42b45">Overview</a></li>
 <li><a href="#orgea1be90">Parameters</a>
@@ -67,7 +67,7 @@
 <h2 id="org3f42b45"><a href="#org3f42b45">Overview</a></h2>
 <div class="outline-text-2" id="text-org3f42b45">
 
-<figure id="org68fccb1">
+<figure id="org0b29992">
 <img src="../../static/img/Network-Public-Private.png" alt="Network-Public-Private.png">
 
 </figure>
@@ -108,19 +108,19 @@ ways around it. Some possibilities are:
 <div id="outline-container-org75c370a" class="outline-3">
 <h3 id="org75c370a"><a href="#org75c370a">DeploymentName</a></h3>
 <div class="outline-text-3" id="text-org75c370a">
-<p>
-A <b>deployment</b> is a complete deployed application, potentially comprised of many
-CloudFormation stacks. This is sometimes called an "environment", but that is an
-overloaded term. Use the <code>DeploymentName</code> to indicate which deployment a Stack
-is part of.
-</p>
-
 <div class="org-src-container">
 <pre class="src src-yaml">  <span style="color: #dcaeea;">DeploymentName</span>:
     <span style="color: #dcaeea;">Type</span>: String
     <span style="color: #dcaeea;">Description</span>: A name for this deployment
 </pre>
 </div>
+
+<p>
+A <b>deployment</b> is a complete deployed application, potentially comprised of many
+CloudFormation stacks. This is sometimes called an "environment", but that is an
+overloaded term. Use the <code>DeploymentName</code> to indicate which deployment a Stack
+is part of.
+</p>
 
 <div class="org-src-container">
 <pre class="src src-yaml">  <span style="color: #dcaeea;">VpcCIDR</span>:

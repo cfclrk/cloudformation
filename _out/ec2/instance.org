@@ -1,6 +1,11 @@
 #+TITLE: EC2 Instance
 #+setupfile: ../setup.org
 
+#+begin_src yaml
+AWSTemplateFormatVersion: 2010-09-09
+Description: An EC2 Instance.
+#+end_src
+
 * Prerequisets
 
 - [[file:../network/public.org]] deployed with the same =DeploymentName=
@@ -10,11 +15,6 @@
 
 This CloudFormation template creates a single EC2 instance.
 
-#+begin_src yaml
-AWSTemplateFormatVersion: 2010-09-09
-Description: An EC2 Instance
-#+end_src
-
 * Parameters
 
 #+begin_src yaml
@@ -23,18 +23,25 @@ Parameters:
 
 ** DeploymentName
 
-A *deployment* is a complete deployed application, potentially comprised of many
-CloudFormation stacks. This is sometimes called an "environment", but that is an
-overloaded term. Use the =DeploymentName= to indicate which deployment a Stack
-is part of.
-
 #+begin_src yaml
   DeploymentName:
     Type: String
     Description: A name for this deployment
 #+end_src
 
+A *deployment* is a complete deployed application, potentially comprised of many
+CloudFormation stacks. This is sometimes called an "environment", but that is an
+overloaded term. Use the =DeploymentName= to indicate which deployment a Stack
+is part of.
+
 ** KeyName
+
+#+begin_src yaml
+  KeyName:
+    Type: AWS::EC2::KeyPair::KeyName
+    Description: The name of an EC2 KeyPair
+    Default: test
+#+end_src
 
 AWS does not provide a CloudFormation type for EC2 KeyPairs. This was a
 deliberate choice: a KeyPair consists of a public and private key, and AWS does
@@ -50,13 +57,6 @@ So, in CloudFormation, you have two options:
 2. Create the KeyPair using a CloudFormation Custom Resource (i.e. a Lambda
    Function) in your CloudFormation template. The Custom Resource must save the
    private key somewhere (like SecretsManager or SSM Parameter Store).
-
-#+begin_src yaml
-  KeyName:
-    Type: AWS::EC2::KeyPair::KeyName
-    Description: The name of an EC2 KeyPair
-    Default: test
-#+end_src
 
 * Mappings
 

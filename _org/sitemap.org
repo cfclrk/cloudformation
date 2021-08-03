@@ -1,4 +1,4 @@
-# Created 2021-07-07 Wed 10:56
+# Created 2021-08-03 Tue 14:58
 #+TITLE: CloudFormation
 - [[file:home.org][home]]
 - [[file:params.org][params]]

@@ -74,8 +74,6 @@ Parameters:
 
 ** BuildArtifactBucket
 
-The S3 Bucket where the web server artifact is stored.
-
 #+begin_src yaml
   BuildArtifactBucket:
     Type: String
@@ -83,18 +81,20 @@ The S3 Bucket where the web server artifact is stored.
     Default: test-s3-bucket-bucket-1n9japign3xm7
 #+end_src
 
-** BuildArtifactKey
+The S3 Bucket where the web server artifact is stored.
 
-An S3 object key which identifies a particular object in the
-=BuildArtifactBucket=. Values for this key will likely be a git commit hash, or
-perhaps a git tag name, so that an artifact can be associated to a particular
-git commit.
+** BuildArtifactKey
 
 #+begin_src yaml
   BuildArtifactKey:
     Type: String
     Description: S3 object key for a web server build artifact
 #+end_src
+
+An S3 object key which identifies a particular object in the
+=BuildArtifactBucket=. Values for this key will likely be a git commit hash, or
+perhaps a git tag name, so that an artifact can be associated to a particular
+git commit.
 
 * Mappings
 

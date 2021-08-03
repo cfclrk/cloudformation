@@ -29,9 +29,9 @@
 <div id="content" class="content">
 <header>
 <h1 class="title">EC2 Instance </h1>
-</header><nav id="table-of-contents">
+</header><nav id="table-of-contents" role="doc-toc">
 <h2>Table of Contents</h2>
-<div id="text-table-of-contents">
+<div id="text-table-of-contents" role="doc-toc">
 <ul>
 <li><a href="#orgb8cc091">Prerequisets</a></li>
 <li><a href="#orgc6e74a1">Overview</a></li>
@@ -58,6 +58,11 @@
 </ul>
 </div>
 </nav>
+<div class="org-src-container">
+<pre class="src src-yaml"><span style="color: #dcaeea;">AWSTemplateFormatVersion</span>: 2010-09-09
+<span style="color: #dcaeea;">Description</span>: An EC2 Instance.
+</pre>
+</div>
 
 <div id="outline-container-orgb8cc091" class="outline-2">
 <h2 id="orgb8cc091"><a href="#orgb8cc091">Prerequisets</a></h2>
@@ -75,12 +80,6 @@
 <p>
 This CloudFormation template creates a single EC2 instance.
 </p>
-
-<div class="org-src-container">
-<pre class="src src-yaml"><span style="color: #dcaeea;">AWSTemplateFormatVersion</span>: 2010-09-09
-<span style="color: #dcaeea;">Description</span>: An EC2 Instance
-</pre>
-</div>
 </div>
 </div>
 
@@ -96,25 +95,33 @@ This CloudFormation template creates a single EC2 instance.
 <div id="outline-container-org45a9fb3" class="outline-3">
 <h3 id="org45a9fb3"><a href="#org45a9fb3">DeploymentName</a></h3>
 <div class="outline-text-3" id="text-org45a9fb3">
-<p>
-A <b>deployment</b> is a complete deployed application, potentially comprised of many
-CloudFormation stacks. This is sometimes called an "environment", but that is an
-overloaded term. Use the <code>DeploymentName</code> to indicate which deployment a Stack
-is part of.
-</p>
-
 <div class="org-src-container">
 <pre class="src src-yaml">  <span style="color: #dcaeea;">DeploymentName</span>:
     <span style="color: #dcaeea;">Type</span>: String
     <span style="color: #dcaeea;">Description</span>: A name for this deployment
 </pre>
 </div>
+
+<p>
+A <b>deployment</b> is a complete deployed application, potentially comprised of many
+CloudFormation stacks. This is sometimes called an "environment", but that is an
+overloaded term. Use the <code>DeploymentName</code> to indicate which deployment a Stack
+is part of.
+</p>
 </div>
 </div>
 
 <div id="outline-container-org0216283" class="outline-3">
 <h3 id="org0216283"><a href="#org0216283">KeyName</a></h3>
 <div class="outline-text-3" id="text-org0216283">
+<div class="org-src-container">
+<pre class="src src-yaml">  <span style="color: #dcaeea;">KeyName</span>:
+    <span style="color: #dcaeea;">Type</span>: AWS::EC2::KeyPair::KeyName
+    <span style="color: #dcaeea;">Description</span>: The name of an EC2 KeyPair
+    <span style="color: #dcaeea;">Default</span>: test
+</pre>
+</div>
+
 <p>
 AWS does not provide a CloudFormation type for EC2 KeyPairs. This was a
 deliberate choice: a KeyPair consists of a public and private key, and AWS does
@@ -137,14 +144,6 @@ CloudFormation template as a parameter.</li>
 Function) in your CloudFormation template. The Custom Resource must save the
 private key somewhere (like SecretsManager or SSM Parameter Store).</li>
 </ol>
-
-<div class="org-src-container">
-<pre class="src src-yaml">  <span style="color: #dcaeea;">KeyName</span>:
-    <span style="color: #dcaeea;">Type</span>: AWS::EC2::KeyPair::KeyName
-    <span style="color: #dcaeea;">Description</span>: The name of an EC2 KeyPair
-    <span style="color: #dcaeea;">Default</span>: test
-</pre>
-</div>
 </div>
 </div>
 </div>

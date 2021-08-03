@@ -1,16 +1,16 @@
 #+TITLE: Network with Public Subnets
 #+setupfile: ../setup.org
 
+#+begin_src yaml
+AWSTemplateFormatVersion: 2010-09-09
+Description: VPC with two public Subnets.
+#+end_src
+
 * Overview
 
 [[file:../../static/img/Network-Public.png]]
 
 This document creates a VPC with two public subnets.
-
-#+begin_src yaml
-AWSTemplateFormatVersion: 2010-09-09
-Description: VPC with two public Subnets.
-#+end_src
 
 * Parameters
 
@@ -20,16 +20,16 @@ Parameters:
 
 ** DeploymentName
 
-A *deployment* is a complete deployed application, potentially comprised of many
-CloudFormation stacks. This is sometimes called an "environment", but that is an
-overloaded term. Use the =DeploymentName= to indicate which deployment a Stack
-is part of.
-
 #+begin_src yaml
   DeploymentName:
     Type: String
     Description: A name for this deployment
 #+end_src
+
+A *deployment* is a complete deployed application, potentially comprised of many
+CloudFormation stacks. This is sometimes called an "environment", but that is an
+overloaded term. Use the =DeploymentName= to indicate which deployment a Stack
+is part of.
 
 #+begin_src yaml
   VpcCIDR:

@@ -1,16 +1,16 @@
 #+TITLE: Network with Public Subnets
 #+SETUPFILE: ../setup.org
 
+#+begin_src yaml
+AWSTemplateFormatVersion: 2010-09-09
+Description: VPC with two public Subnets.
+#+end_src
+
 * Overview
 
 [[../../static/img/Network-Public.png]]
 
 This document creates a VPC with two public subnets.
-
-#+begin_src yaml
-AWSTemplateFormatVersion: 2010-09-09
-Description: VPC with two public Subnets.
-#+end_src
 
 * Parameters
 

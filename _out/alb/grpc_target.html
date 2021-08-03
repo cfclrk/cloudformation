@@ -29,9 +29,9 @@
 <div id="content" class="content">
 <header>
 <h1 class="title">ALB with a gRPC Target </h1>
-</header><nav id="table-of-contents">
+</header><nav id="table-of-contents" role="doc-toc">
 <h2>Table of Contents</h2>
-<div id="text-table-of-contents">
+<div id="text-table-of-contents" role="doc-toc">
 <ul>
 <li><a href="#org9c0d39e">Prerequisites</a></li>
 <li><a href="#org8226aaf">Overview</a></li>
@@ -52,6 +52,12 @@
 </ul>
 </div>
 </nav>
+<div class="org-src-container">
+<pre class="src src-yaml"><span style="color: #dcaeea;">AWSTemplateFormatVersion</span>: 2010-09-09
+<span style="color: #dcaeea;">Description</span>: A public ALB with a gRPC target.
+<span style="color: #dcaeea;">Transform</span>: AWS::Serverless-2016-10-31
+</pre>
+</div>
 
 <div id="outline-container-org9c0d39e" class="outline-2">
 <h2 id="org9c0d39e"><a href="#org9c0d39e">Prerequisites</a></h2>
@@ -68,13 +74,6 @@
 <p>
 This creates an internet-facing ALB that invokes a gRPC service.
 </p>
-
-<div class="org-src-container">
-<pre class="src src-yaml"><span style="color: #dcaeea;">AWSTemplateFormatVersion</span>: 2010-09-09
-<span style="color: #dcaeea;">Description</span>: A public ALB with a gRPC target.
-<span style="color: #dcaeea;">Transform</span>: AWS::Serverless-2016-10-31
-</pre>
-</div>
 </div>
 </div>
 
@@ -90,19 +89,19 @@ This creates an internet-facing ALB that invokes a gRPC service.
 <div id="outline-container-orgacefcfd" class="outline-3">
 <h3 id="orgacefcfd"><a href="#orgacefcfd">DeploymentName</a></h3>
 <div class="outline-text-3" id="text-orgacefcfd">
-<p>
-A <b>deployment</b> is a complete deployed application, potentially comprised of many
-CloudFormation stacks. This is sometimes called an "environment", but that is an
-overloaded term. Use the <code>DeploymentName</code> to indicate which deployment a Stack
-is part of.
-</p>
-
 <div class="org-src-container">
 <pre class="src src-yaml">  <span style="color: #dcaeea;">DeploymentName</span>:
     <span style="color: #dcaeea;">Type</span>: String
     <span style="color: #dcaeea;">Description</span>: A name for this deployment
 </pre>
 </div>
+
+<p>
+A <b>deployment</b> is a complete deployed application, potentially comprised of many
+CloudFormation stacks. This is sometimes called an "environment", but that is an
+overloaded term. Use the <code>DeploymentName</code> to indicate which deployment a Stack
+is part of.
+</p>
 </div>
 </div>
 </div>

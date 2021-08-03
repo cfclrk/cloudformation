@@ -1,6 +1,12 @@
 #+TITLE: ALB with a gRPC Target
 #+setupfile: ../setup.org
 
+#+begin_src yaml
+AWSTemplateFormatVersion: 2010-09-09
+Description: A public ALB with a gRPC target.
+Transform: AWS::Serverless-2016-10-31
+#+end_src
+
 * Prerequisites
 
 - [[file:../network/public_private.org]] deployed with the same =DeploymentName=
@@ -8,12 +14,6 @@
 * Overview
 
 This creates an internet-facing ALB that invokes a gRPC service.
-
-#+begin_src yaml
-AWSTemplateFormatVersion: 2010-09-09
-Description: A public ALB with a gRPC target.
-Transform: AWS::Serverless-2016-10-31
-#+end_src
 
 * Parameters
 
@@ -23,16 +23,16 @@ Parameters:
 
 ** DeploymentName
 
-A *deployment* is a complete deployed application, potentially comprised of many
-CloudFormation stacks. This is sometimes called an "environment", but that is an
-overloaded term. Use the =DeploymentName= to indicate which deployment a Stack
-is part of.
-
 #+begin_src yaml
   DeploymentName:
     Type: String
     Description: A name for this deployment
 #+end_src
+
+A *deployment* is a complete deployed application, potentially comprised of many
+CloudFormation stacks. This is sometimes called an "environment", but that is an
+overloaded term. Use the =DeploymentName= to indicate which deployment a Stack
+is part of.
 
 * Resources
 

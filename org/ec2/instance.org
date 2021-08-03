@@ -1,6 +1,11 @@
 #+TITLE: EC2 Instance
 #+SETUPFILE: ../setup.org
 
+#+begin_src yaml
+AWSTemplateFormatVersion: 2010-09-09
+Description: An EC2 Instance.
+#+end_src
+
 * Prerequisets
 
 - [[../network/public.org]] deployed with the same =DeploymentName=
@@ -9,11 +14,6 @@
 * Overview
 
 This CloudFormation template creates a single EC2 instance.
-
-#+begin_src yaml
-AWSTemplateFormatVersion: 2010-09-09
-Description: An EC2 Instance
-#+end_src
 
 * Parameters
 

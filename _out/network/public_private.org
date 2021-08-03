@@ -35,16 +35,16 @@ Parameters:
 
 ** DeploymentName
 
-A *deployment* is a complete deployed application, potentially comprised of many
-CloudFormation stacks. This is sometimes called an "environment", but that is an
-overloaded term. Use the =DeploymentName= to indicate which deployment a Stack
-is part of.
-
 #+begin_src yaml
   DeploymentName:
     Type: String
     Description: A name for this deployment
 #+end_src
+
+A *deployment* is a complete deployed application, potentially comprised of many
+CloudFormation stacks. This is sometimes called an "environment", but that is an
+overloaded term. Use the =DeploymentName= to indicate which deployment a Stack
+is part of.
 
 #+begin_src yaml
   VpcCIDR:

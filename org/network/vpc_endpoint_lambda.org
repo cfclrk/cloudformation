@@ -1,13 +1,16 @@
 #+TITLE: Interface VPC Endpoint to Lambda
 #+SETUPFILE: ../setup.org
 
-* Overview
-
 #+begin_src yaml
 AWSTemplateFormatVersion: 2010-09-09
 Description: An interface VPC Endpoint to Lambda
 Transform: AWS::Serverless-2016-10-31
 #+end_src
+
+* Overview
+
+A VPC Endpoint that can be used to invoke a lambda function from inside of a VPC
+without talking to the internet.
 
 * Parameters
 
@@ -16,7 +19,6 @@ Parameters:
 #+end_src
 
 #+INCLUDE: "../params.org::*DeploymentName"
-
 
 * VPC Endpoint for Lambda
 

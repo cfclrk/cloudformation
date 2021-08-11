@@ -7,66 +7,88 @@
   |--------------------+-------------------------|
   | AWS_PROFILE        | dev                     |
   | AWS_DEFAULT_REGION | us-east-2               |
-  | TEMPLATE_PATH      | _out/ec2/webserver.yaml |
+  | TEMPLATE_PATH      | _out/s3/bucket.yaml     |
 
   #+begin_src emacs-lisp :var env=Env :exports none
     (setenv-file-export-pairs env)
   #+end_src
 
-  #+NAME: OrgFilePath
-  #+begin_src emacs-lisp :results value
-    (let ((template-path (getenv "TEMPLATE_PATH")))
-      (f-join "org"
-              (f-swap-ext (f-relative template-path "_out" ) "org")))
-  #+end_src
+  #+RESULTS:
 
-  Read the =Params= table in the org file.
+** OrgFilePath
 
-  #+NAME: Params
-  #+begin_src emacs-lisp :var OrgFilePath=OrgFilePath :results value
-    (with-temp-buffer
-      (insert-file-contents "/Users/chris.clark/Projects/cloudformation/org/ec2/webserver.org")
-      (org-mode)
-      (car (read-from-string (org-sbe "Params"))))
-  #+end_src
+   #+NAME: OrgFilePath
+   #+begin_src emacs-lisp :results value
+     (let ((template-path (getenv "TEMPLATE_PATH")))
+       (f-join "org"
+               (f-swap-ext (f-relative template-path "_out" ) "org")))
+   #+end_src
 
-  =$TemplateName= is just the =$TEMPLATE_PATH= using dashes and without a file
-  extension.
+   #+RESULTS: OrgFilePath
+   : org/s3/bucket.org
 
-  #+NAME: TemplateName
-  #+begin_src emacs-lisp :results value
-    (let* ((template-path (getenv "TEMPLATE_PATH"))
-           (parent-dir (f-base (f-parent template-path)))
-           (base-name-dashes (s-replace "_" "-" (f-base template-path))))
-      (concat parent-dir "-" base-name-dashes))
-  #+end_src
+** Params
 
-  =$StackName= is always: =$DeploymentName-$TemplateName=.
+   Read the =Params= table in the org file.
 
-  #+NAME: StackName
-  #+begin_src emacs-lisp :var TemplateName=TemplateName Params=Params :results value
-    (concat (nth 1 (assoc "DeploymentName" Params)) "-" TemplateName)
-  #+end_src
+   #+NAME: Params
+   #+begin_src emacs-lisp :var OrgFilePath=OrgFilePath :results value
+     (with-temp-buffer
+       (insert-file-contents OrgFilePath)
+       (org-mode)
+       (car (read-from-string (org-sbe "Params"))))
+   #+end_src
 
-  =CreateParamString= produces a string of parameters suitable for use with the
-  =aws cloudformation create-stack= command.
+** TemplateName
 
-  #+NAME: CreateParamString
-  #+begin_src emacs-lisp :var Params=Params :results value
-    (let ((format-param
-           (lambda (pair)
-             (s-format "ParameterKey=$0,ParameterValue=$1" 'elt pair))))
-      (s-join " " (mapcar format-param Params)))
-  #+end_src
+   =$TemplateName= is just the =$TEMPLATE_PATH= using dashes and without a file
+   extension.
 
-  =DeployParamString= produces a string of paramaters suitable for use with the
-  =aws cloudformation deploy= command.
+   #+NAME: TemplateName
+   #+begin_src emacs-lisp :results value
+     (let* ((template-path (getenv "TEMPLATE_PATH"))
+            (parent-dir (f-base (f-parent template-path)))
+            (base-name-dashes (s-replace "_" "-" (f-base template-path))))
+       (concat parent-dir "-" base-name-dashes))
+   #+end_src
 
-  #+NAME: DeployParamString
-  #+begin_src emacs-lisp :var Params=Params :results value
-    (let ((format-param (lambda (pair) (s-format "$0=$1" 'elt pair))))
-      (s-join " " (mapcar format-param Params)))
-  #+end_src
+** StackName
+
+   The =$StackName= is =$TemplateName= or =$DeploymentName-$TemplateName=,
+   depending on whether the =$Params= specify a =$DeploymentName=.
+
+   #+begin_src emacs-lisp :var TemplateName=TemplateName Params=Params :results value
+     (let ((deployment-param (assoc "DeploymentName" Params)))
+       (if deployment-param
+           (concat (nth 1 deployment-param) "-" TemplateName)
+         TemplateName))
+   #+end_src
+
+** CreateParamString
+
+   =CreateParamString= is a string of parameters suitable for use with the =aws
+   cloudformation create-stack= command.
+
+   #+NAME: CreateParamString
+   #+begin_src emacs-lisp :var Params=Params :results value
+     (let ((format-param (lambda (pair)
+                           (s-format "ParameterKey=$0,ParameterValue=$1" 'elt pair))))
+       (s-join " " (mapcar format-param Params)))
+   #+end_src
+
+   #+RESULTS: CreateParamString
+   : ParameterKey=,ParameterValue=
+
+** DeployParamString
+
+   =DeployParamString= is a string of paramaters suitable for use with the =aws
+   cloudformation deploy= command.
+
+   #+NAME: DeployParamString
+   #+begin_src emacs-lisp :var Params=Params :results value
+     (let ((format-param (lambda (pair) (s-format "$0=$1" 'elt pair))))
+       (s-join " " (mapcar format-param Params)))
+   #+end_src
 
 * Create Stack
 

@@ -76,9 +76,6 @@
        (s-join " " (mapcar format-param Params)))
    #+end_src
 
-   #+RESULTS: CreateParamString
-   : ParameterKey=,ParameterValue=
-
 ** DeployParamString
 
    =DeployParamString= is a string of paramaters suitable for use with the =aws

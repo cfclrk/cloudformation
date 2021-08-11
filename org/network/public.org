@@ -10,9 +10,14 @@ Description: VPC with two public Subnets.
 
 [[../../static/img/Network-Public.png]]
 
-This document creates a VPC with two public subnets.
+This CloudFormation template creates a VPC with two public subnets.
 
 * Parameters
+
+#+NAME: Params
+| Param          | Value     |
+|----------------+-----------|
+| DeploymentName | webserver |
 
 #+begin_src yaml
 Parameters:
@@ -21,7 +26,7 @@ Parameters:
 #+INCLUDE: "../params.org::*DeploymentName"
 
 #+begin_src yaml
-  VpcCIDR:
+  VPCCIDR:
     Description: CIDR range for this VPC
     Type: String
     Default: 10.192.0.0/16
@@ -49,7 +54,7 @@ Resources:
   VPC:
     Type: AWS::EC2::VPC
     Properties:
-      CidrBlock: !Ref VpcCIDR
+      CidrBlock: !Ref VPCCIDR
       EnableDnsSupport: true
       EnableDnsHostnames: true
       Tags:

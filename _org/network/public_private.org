@@ -47,7 +47,7 @@ overloaded term. Use the =DeploymentName= to indicate which deployment a Stack
 is part of.
 
 #+begin_src yaml
-  VpcCIDR:
+  VPCCIDR:
     Description: CIDR range for this VPC
     Type: String
     Default: 10.192.0.0/16
@@ -85,7 +85,7 @@ Resources:
   VPC:
     Type: AWS::EC2::VPC
     Properties:
-      CidrBlock: !Ref VpcCIDR
+      CidrBlock: !Ref VPCCIDR
       EnableDnsSupport: true
       EnableDnsHostnames: true
       Tags:

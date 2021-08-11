@@ -67,7 +67,7 @@
 <h2 id="org3f42b45"><a href="#org3f42b45">Overview</a></h2>
 <div class="outline-text-2" id="text-org3f42b45">
 
-<figure id="org0b29992">
+<figure id="org8beb811">
 <img src="../../static/img/Network-Public-Private.png" alt="Network-Public-Private.png">
 
 </figure>
@@ -123,7 +123,7 @@ is part of.
 </p>
 
 <div class="org-src-container">
-<pre class="src src-yaml">  <span style="color: #dcaeea;">VpcCIDR</span>:
+<pre class="src src-yaml">  <span style="color: #dcaeea;">VPCCIDR</span>:
     <span style="color: #dcaeea;">Description</span>: CIDR range for this VPC
     <span style="color: #dcaeea;">Type</span>: String
     <span style="color: #dcaeea;">Default</span>: 10.192.0.0/16
@@ -169,7 +169,7 @@ is part of.
 <pre class="src src-yaml">  <span style="color: #dcaeea;">VPC</span>:
     <span style="color: #dcaeea;">Type</span>: AWS::EC2::VPC
     <span style="color: #dcaeea;">Properties</span>:
-      <span style="color: #dcaeea;">CidrBlock</span>: <span style="color: #ECBE7B;">!Ref</span> VpcCIDR
+      <span style="color: #dcaeea;">CidrBlock</span>: <span style="color: #ECBE7B;">!Ref</span> VPCCIDR
       <span style="color: #dcaeea;">EnableDnsSupport</span>: <span style="color: #a9a1e1;">true</span>
       <span style="color: #dcaeea;">EnableDnsHostnames</span>: <span style="color: #a9a1e1;">true</span>
       <span style="color: #dcaeea;">Tags</span>:

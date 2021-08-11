@@ -1,10 +1,20 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: A simple S3 bucket
 
+Parameters:
+
+  DeploymentName:
+    Type: String
+    Description: A name for this deployment
+
 Resources:
 
   Bucket:
     Type: AWS::S3::Bucket
+    Properties:
+      Tags:
+        Key: DeploymentName
+        Value: !Ref DeploymentName
 
 Outputs:
   BucketName:

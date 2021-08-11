@@ -59,9 +59,9 @@
    on whether the =$Params= specify a =$DeploymentName=.
 
    #+begin_src emacs-lisp :var TemplateName=TemplateName Params=Params :results value
-     (let ((deployment-param (assoc "DeploymentName" Params)))
-       (if deployment-param
-           (concat (nth 1 deployment-param) "-" TemplateName)
+     (let ((deployment-name (assoc "DeploymentName" Params)))
+       (if deployment-name
+           (concat (nth 1 deployment-name) "-" TemplateName)
          TemplateName))
    #+end_src
 

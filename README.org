@@ -24,9 +24,6 @@
                (f-swap-ext (f-relative template-path "_out" ) "org")))
    #+end_src
 
-   #+RESULTS: OrgFilePath
-   : org/s3/bucket.org
-
 ** Params
 
    Read the =Params= table in the org file.
@@ -179,8 +176,6 @@
     aws cloudformation delete-stack \
         --stack-name $StackName
   #+end_src
-
-  #+RESULTS:
 
 * Get Stack Logs
 

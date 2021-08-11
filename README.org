@@ -17,6 +17,9 @@
 
 ** OrgFilePath
 
+   =OrgFilePath= is the relative path to the .org file that corresponds to the
+   =$TEMPLATE_PATH= yaml file.
+
    #+NAME: OrgFilePath
    #+begin_src emacs-lisp :results value
      (let ((template-path (getenv "TEMPLATE_PATH")))
@@ -26,7 +29,8 @@
 
 ** Params
 
-   Read the =Params= table in the org file.
+   =Params= is the contents of the =Params= table in the =OrgFilePath= as a list
+   of pairs. Currently this table is required.
 
    #+NAME: Params
    #+begin_src emacs-lisp :var OrgFilePath=OrgFilePath :results value
@@ -38,7 +42,7 @@
 
 ** TemplateName
 
-   =$TemplateName= is just the =$TEMPLATE_PATH= using dashes and without a file
+   =$TemplateName= is the =$TEMPLATE_PATH= using dashes and without a file
    extension.
 
    #+NAME: TemplateName
@@ -51,8 +55,8 @@
 
 ** StackName
 
-   The =$StackName= is =$TemplateName= or =$DeploymentName-$TemplateName=,
-   depending on whether the =$Params= specify a =$DeploymentName=.
+   =$StackName= is =$TemplateName= or =$DeploymentName-$TemplateName=, depending
+   on whether the =$Params= specify a =$DeploymentName=.
 
    #+begin_src emacs-lisp :var TemplateName=TemplateName Params=Params :results value
      (let ((deployment-param (assoc "DeploymentName" Params)))

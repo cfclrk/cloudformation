@@ -14,14 +14,14 @@ This CloudFormation template creates a VPC with two public subnets.
 
 * Parameters
 
-#+NAME: Params
-| Param          | Value     |
-|----------------+-----------|
-| DeploymentName | webserver |
-
 #+begin_src yaml
 Parameters:
 #+end_src
+
+#+NAME: Params
+| Param          | Value     |
+|----------------+-----------|
+| DeploymentName | test      |
 
 #+INCLUDE: "../params.org::*DeploymentName"
 

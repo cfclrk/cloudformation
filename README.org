@@ -58,6 +58,7 @@
    =$StackName= is =$TemplateName= or =$DeploymentName-$TemplateName=, depending
    on whether the =$Params= specify a =$DeploymentName=.
 
+   #+NAME: StackName
    #+begin_src emacs-lisp :var TemplateName=TemplateName Params=Params :results value
      (let ((deployment-name (assoc "DeploymentName" Params)))
        (if deployment-name
@@ -122,7 +123,8 @@
      aws cloudformation create-stack \
          --stack-name $StackName \
          --template-body file://$TEMPLATE_PATH \
-         --capabilities CAPABILITY_AUTO_EXPAND CAPABILITY_IAM CAPABILITY_NAMED_IAM \
+         --capabilities \
+         CAPABILITY_AUTO_EXPAND CAPABILITY_IAM CAPABILITY_NAMED_IAM \
          --parameters $ParamString
    #+end_src
 

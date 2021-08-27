@@ -33,13 +33,13 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#org9408975">Overview</a></li>
-<li><a href="#orgccc1057">Parameters</a>
+<li><a href="#org617c77c">Overview</a></li>
+<li><a href="#org8ef42dc">Parameters</a>
 <ul>
-<li><a href="#orgb865c8c">DeploymentName</a></li>
+<li><a href="#org0e8be97">DeploymentName</a></li>
 </ul>
 </li>
-<li><a href="#org53c80a4">VPC Endpoint for Lambda</a></li>
+<li><a href="#org6be9231">VPC Endpoint for Lambda</a></li>
 </ul>
 </div>
 </nav>
@@ -50,9 +50,9 @@
 </pre>
 </div>
 
-<div id="outline-container-org9408975" class="outline-2">
-<h2 id="org9408975"><a href="#org9408975">Overview</a></h2>
-<div class="outline-text-2" id="text-org9408975">
+<div id="outline-container-org617c77c" class="outline-2">
+<h2 id="org617c77c"><a href="#org617c77c">Overview</a></h2>
+<div class="outline-text-2" id="text-org617c77c">
 <p>
 A VPC Endpoint that can be used to invoke a lambda function from inside of a VPC
 without talking to the internet.
@@ -60,18 +60,18 @@ without talking to the internet.
 </div>
 </div>
 
-<div id="outline-container-orgccc1057" class="outline-2">
-<h2 id="orgccc1057"><a href="#orgccc1057">Parameters</a></h2>
-<div class="outline-text-2" id="text-orgccc1057">
+<div id="outline-container-org8ef42dc" class="outline-2">
+<h2 id="org8ef42dc"><a href="#org8ef42dc">Parameters</a></h2>
+<div class="outline-text-2" id="text-org8ef42dc">
 <div class="org-src-container">
 <pre class="src src-yaml"><span style="color: #dcaeea;">Parameters</span>:
 </pre>
 </div>
 </div>
 
-<div id="outline-container-orgb865c8c" class="outline-3">
-<h3 id="orgb865c8c"><a href="#orgb865c8c">DeploymentName</a></h3>
-<div class="outline-text-3" id="text-orgb865c8c">
+<div id="outline-container-org0e8be97" class="outline-3">
+<h3 id="org0e8be97"><a href="#org0e8be97">DeploymentName</a></h3>
+<div class="outline-text-3" id="text-org0e8be97">
 <div class="org-src-container">
 <pre class="src src-yaml">  <span style="color: #dcaeea;">DeploymentName</span>:
     <span style="color: #dcaeea;">Type</span>: String
@@ -80,18 +80,24 @@ without talking to the internet.
 </div>
 
 <p>
-A <b>deployment</b> is a complete deployed application, potentially comprised of many
+A <b>deployment</b> is a deployed application, potentially comprised of many
 CloudFormation stacks. This is sometimes called an "environment", but that is an
-overloaded term. Use the <code>DeploymentName</code> to indicate which deployment a Stack
-is part of.
+overloaded and confusing term. Use the <code>DeploymentName</code> to indicate which
+logical deployment a stack belongs to.
+</p>
+
+<p>
+If a deployment is completely specified by exactly one CloudFormation template,
+the <code>DeploymentName</code> and the <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/pseudo-parameter-reference.html#cfn-pseudo-param-stackname">AWS::StackName</a> would refer to the same things. In
+that case, consider not using a <code>DeploymentName</code> parameter.
 </p>
 </div>
 </div>
 </div>
 
-<div id="outline-container-org53c80a4" class="outline-2">
-<h2 id="org53c80a4"><a href="#org53c80a4">VPC Endpoint for Lambda</a></h2>
-<div class="outline-text-2" id="text-org53c80a4">
+<div id="outline-container-org6be9231" class="outline-2">
+<h2 id="org6be9231"><a href="#org6be9231">VPC Endpoint for Lambda</a></h2>
+<div class="outline-text-2" id="text-org6be9231">
 <div class="org-src-container">
 <pre class="src src-yaml">  <span style="color: #dcaeea;">VpcEndpointSecurityGroup</span>:
     <span style="color: #dcaeea;">Type</span>: AWS::EC2::SecurityGroup

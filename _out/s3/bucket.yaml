@@ -13,8 +13,8 @@ Resources:
     Type: AWS::S3::Bucket
     Properties:
       Tags:
-        Key: DeploymentName
-        Value: !Ref DeploymentName
+        - Key: DeploymentName
+          Value: !Ref DeploymentName
 
 Outputs:
   BucketName:

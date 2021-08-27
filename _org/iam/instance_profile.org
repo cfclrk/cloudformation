@@ -14,6 +14,11 @@ Description: >
 Parameters:
 #+end_src
 
+#+name: Params
+| Param          | Value |
+|----------------+-------|
+| DeploymentName | cfc   |
+
 ** DeploymentName
 
 #+begin_src yaml
@@ -22,10 +27,14 @@ Parameters:
     Description: A name for this deployment
 #+end_src
 
-A *deployment* is a complete deployed application, potentially comprised of many
+A *deployment* is a deployed application, potentially comprised of many
 CloudFormation stacks. This is sometimes called an "environment", but that is an
-overloaded term. Use the =DeploymentName= to indicate which deployment a Stack
-is part of.
+overloaded and confusing term. Use the =DeploymentName= to indicate which
+logical deployment a stack belongs to.
+
+If a deployment is completely specified by exactly one CloudFormation template,
+the =DeploymentName= and the [[https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/pseudo-parameter-reference.html#cfn-pseudo-param-stackname][AWS::StackName]] would refer to the same things. In
+that case, consider not using a =DeploymentName= parameter.
 
 * Resources
 

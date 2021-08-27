@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- 2021-08-11 Wed 15:58 -->
+<!-- 2021-08-30 Mon 10:06 -->
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>&lrm;</title>
@@ -32,9 +32,9 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#org12c1554">DeploymentName</a></li>
-<li><a href="#org668f849">KeyName</a></li>
-<li><a href="#org7cfeee4">SSHCIDR</a></li>
+<li><a href="#org1ccd1ad">DeploymentName</a></li>
+<li><a href="#org9c77703">KeyName</a></li>
+<li><a href="#orgb6cc534">SSHCIDR</a></li>
 </ul>
 </div>
 </nav>
@@ -47,9 +47,9 @@ in other documents in this project.
 Parameter names should adhere to AWS <a href="https://aws-quickstart.github.io/naming-parms.html">parameter naming standards</a>.
 </p>
 
-<div id="outline-container-org12c1554" class="outline-2">
-<h2 id="org12c1554"><a href="#org12c1554">DeploymentName</a></h2>
-<div class="outline-text-2" id="text-org12c1554">
+<div id="outline-container-org1ccd1ad" class="outline-2">
+<h2 id="org1ccd1ad"><a href="#org1ccd1ad">DeploymentName</a></h2>
+<div class="outline-text-2" id="text-org1ccd1ad">
 <div class="org-src-container">
 <pre class="src src-yaml">  <span style="color: #dcaeea;">DeploymentName</span>:
     <span style="color: #dcaeea;">Type</span>: String
@@ -58,17 +58,23 @@ Parameter names should adhere to AWS <a href="https://aws-quickstart.github.io/n
 </div>
 
 <p>
-A <b>deployment</b> is a complete deployed application, potentially comprised of many
+A <b>deployment</b> is a deployed application, potentially comprised of many
 CloudFormation stacks. This is sometimes called an "environment", but that is an
-overloaded term. Use the <code>DeploymentName</code> to indicate which deployment a Stack
-is part of.
+overloaded and confusing term. Use the <code>DeploymentName</code> to indicate which
+logical deployment a stack belongs to.
+</p>
+
+<p>
+If a deployment is completely specified by exactly one CloudFormation template,
+the <code>DeploymentName</code> and the <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/pseudo-parameter-reference.html#cfn-pseudo-param-stackname">AWS::StackName</a> would refer to the same things. In
+that case, consider not using a <code>DeploymentName</code> parameter.
 </p>
 </div>
 </div>
 
-<div id="outline-container-org668f849" class="outline-2">
-<h2 id="org668f849"><a href="#org668f849">KeyName</a></h2>
-<div class="outline-text-2" id="text-org668f849">
+<div id="outline-container-org9c77703" class="outline-2">
+<h2 id="org9c77703"><a href="#org9c77703">KeyName</a></h2>
+<div class="outline-text-2" id="text-org9c77703">
 <div class="org-src-container">
 <pre class="src src-yaml">  <span style="color: #dcaeea;">KeyName</span>:
     <span style="color: #dcaeea;">Type</span>: AWS::EC2::KeyPair::KeyName
@@ -78,7 +84,7 @@ is part of.
 </div>
 
 <p>
-AWS does not provide a CloudFormation type for EC2 KeyPairs. This was a
+AWS does not provide a CloudFormation type for EC2 KeyPairs. This is a
 deliberate choice: a KeyPair consists of a public and private key, and AWS does
 not want to expose the private key in CloudFormation outputs.
 </p>
@@ -89,22 +95,22 @@ locally, it can create a KeyPair and save the private key locally.
 </p>
 
 <p>
-So, in CloudFormation, you have two options:
+In CloudFormation, you have two options:
 </p>
 
 <ol class="org-ol">
-<li>Create the KeyPair beforehand. Then provide the <code>KeyName</code> to your
+<li>Create the KeyPair beforehand, then provide the <code>KeyName</code> to your
 CloudFormation template as a parameter.</li>
 <li>Create the KeyPair using a CloudFormation Custom Resource (i.e. a Lambda
-Function) in your CloudFormation template. The Custom Resource must save the
-private key somewhere (like SecretsManager or SSM Parameter Store).</li>
+Function) defined in your CloudFormation template. The Custom Resource must
+save the private key somewhere (like SecretsManager or SSM Parameter Store).</li>
 </ol>
 </div>
 </div>
 
-<div id="outline-container-org7cfeee4" class="outline-2">
-<h2 id="org7cfeee4"><a href="#org7cfeee4">SSHCIDR</a></h2>
-<div class="outline-text-2" id="text-org7cfeee4">
+<div id="outline-container-orgb6cc534" class="outline-2">
+<h2 id="orgb6cc534"><a href="#orgb6cc534">SSHCIDR</a></h2>
+<div class="outline-text-2" id="text-orgb6cc534">
 <div class="org-src-container">
 <pre class="src src-yaml">  <span style="color: #dcaeea;">SSHCIDR</span>:
     <span style="color: #dcaeea;">Type</span>: String

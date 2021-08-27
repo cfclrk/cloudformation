@@ -1,0 +1,326 @@
+#+TITLE: ALB With a Static IP
+#+SETUPFILE: ../setup.org
+
+#+begin_src yaml
+AWSTemplateFormatVersion: 2010-09-09
+Description: ALB with a Lambda Function target.
+Transform: AWS::Serverless-2016-10-31
+#+end_src
+
+* Overview
+
+This CloudFormation template creates an ALB with a static IP address. This
+architecture is documented in an AWS blog post: [[https://aws.amazon.com/blogs/networking-and-content-delivery/using-static-ip-addresses-for-application-load-balancers/][Using static IP addresses for
+Application Load Balancers]].
+
+*Don't do this! A much better way to accomplish what this CloudFormation
+template does is to use AWS Global Accelerator. It gives you a static IP for an
+ALB, and is much more simple and more performant.*
+
+This template is slightly adapted from that post.
+Notable changes are:
+
+- Update Lambda code from Python 2 to Python 3
+- Add requirements.txt instead of bundling dependencies in the zip file
+
+Bugs I've noticed:
+
+- If you update the NLB to add a subnet mapping, the Target Group IPs are not
+  updated to use the new IP in the new subnet.
+
+* Prerequisites
+
+- [[../network/public_private.org]] deployed with the same =DeploymentName=
+
+* Parameters
+
+#+begin_src yaml
+Parameters:
+#+end_src
+
+#+INCLUDE: "./_partials/parameters.org::*Names"
+
+* Mappings
+
+#+begin_src yaml
+Mappings:
+  RegionMap:
+    ap-northeast-1:
+      Bucket: exampleloadbalancer-ap-northeast-1
+      Key: blog-posts/static-ip-for-application-load-balancer/populate_NLB_TG_with_ALB.zip
+    ap-northeast-2:
+      Bucket: exampleloadbalancer-ap-northeast-2
+      Key: blog-posts/static-ip-for-application-load-balancer/populate_NLB_TG_with_ALB.zip
+    ap-south-1:
+      Bucket: exampleloadbalancer-ap-south-1
+      Key: blog-posts/static-ip-for-application-load-balancer/populate_NLB_TG_with_ALB.zip
+    ap-southeast-1:
+      Bucket: exampleloadbalancer-ap-southeast-1
+      Key: blog-posts/static-ip-for-application-load-balancer/populate_NLB_TG_with_ALB.zip
+    ap-southeast-2:
+      Bucket: exampleloadbalancer-ap-southeast-2
+      Key: blog-posts/static-ip-for-application-load-balancer/populate_NLB_TG_with_ALB.zip
+    ca-central-1:
+      Bucket: exampleloadbalancer-ca-central-1
+      Key: blog-posts/static-ip-for-application-load-balancer/populate_NLB_TG_with_ALB.zip
+    eu-central-1:
+      Bucket: exampleloadbalancer-eu-central-1
+      Key: blog-posts/static-ip-for-application-load-balancer/populate_NLB_TG_with_ALB.zip
+    eu-west-1:
+      Bucket: exampleloadbalancer-eu-west-1
+      Key: blog-posts/static-ip-for-application-load-balancer/populate_NLB_TG_with_ALB.zip
+    eu-west-2:
+      Bucket: exampleloadbalancer-eu-west-2
+      Key: blog-posts/static-ip-for-application-load-balancer/populate_NLB_TG_with_ALB.zip
+    sa-east-1:
+      Bucket: exampleloadbalancer-sa-east-1
+      Key: blog-posts/static-ip-for-application-load-balancer/populate_NLB_TG_with_ALB.zip
+    us-east-1:
+      Bucket: exampleloadbalancer-us-east-1
+      Key: blog-posts/static-ip-for-application-load-balancer/populate_NLB_TG_with_ALB.zip
+    us-east-2:
+      Bucket: exampleloadbalancer-us-east-2
+      Key: blog-posts/static-ip-for-application-load-balancer/populate_NLB_TG_with_ALB.zip
+    us-west-1:
+      Bucket: exampleloadbalancer-us-west-1
+      Key: blog-posts/static-ip-for-application-load-balancer/populate_NLB_TG_with_ALB.zip
+    us-west-2:
+      Bucket: exampleloadbalancer-us-west-2
+      Key: blog-posts/static-ip-for-application-load-balancer/populate_NLB_TG_with_ALB.zip
+    eu-west-3:
+      Bucket: exampleloadbalancer-eu-west-3
+      Key: blog-posts/static-ip-for-application-load-balancer/populate_NLB_TG_with_ALB.zip
+#+end_src
+
+* Resources
+
+#+begin_src yaml
+Resources:
+#+end_src
+
+** ALB (internal)
+
+#+begin_src yaml
+  ALB:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      IpAddressType: ipv4
+      Scheme: internal
+      SecurityGroups: [!Ref AlbSecurityGroup]
+      Subnets:
+        - Fn::ImportValue: !Sub "${DeploymentName}-PrivateSubnet1"
+        - Fn::ImportValue: !Sub "${DeploymentName}-PrivateSubnet2"
+      Type: application
+      Tags:
+        - Key: Name
+          Value: !Ref AWS::StackName
+#+end_src
+
+#+begin_src yaml
+  AlbSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow HTTP on port 80
+      VpcId: {Fn::ImportValue: !Sub "${DeploymentName}-VpcId"}
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp:
+            Fn::ImportValue: !Sub "${DeploymentName}-VpcCidr"
+      Tags:
+        - Key: Name
+          Value: !Ref AWS::StackName
+#+end_src
+
+#+INCLUDE: "./alb_lambda.org::#alb-routing"
+
+#+INCLUDE: "./alb_lambda.org::#lambda-function"
+
+** EIP
+
+#+begin_src yaml
+  EIP:
+    Type: AWS::EC2::EIP
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Ref AWS::StackName
+#+end_src
+
+** NLB (internet-facing)
+
+#+begin_src yaml
+  NLB:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      IpAddressType: ipv4
+      Scheme: internet-facing
+      SubnetMappings:
+        - SubnetId: {Fn::ImportValue: !Sub "${DeploymentName}-PublicSubnet1"}
+          AllocationId: !GetAtt EIP.AllocationId
+        - SubnetId: {Fn::ImportValue: !Sub "${DeploymentName}-PublicSubnet2"}
+      Type: network
+      Tags:
+        - Key: Name
+          Value: !Ref AWS::StackName
+#+end_src
+
+#+begin_src yaml
+  NlbIpTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      TargetType: ip
+      Port: 80
+      Protocol: TCP
+      TargetGroupAttributes:
+        # If the static-ip Lambda Function needs to deregister some IP addresses
+        # and register new ones, we want the old IPs to deregister quickly.
+        - Key: deregistration_delay.timeout_seconds
+          Value: 3
+      VpcId: {Fn::ImportValue: !Sub "${DeploymentName}-VpcId"}
+#+end_src
+
+#+begin_src yaml
+  NLBListener80:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref NlbIpTargetGroup
+      LoadBalancerArn: !Ref NLB
+      Port: 80
+      Protocol: TCP
+#+end_src
+
+** S3 Bucket
+
+#+begin_src yaml
+  S3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+        BucketName: !Sub "${DeploymentName}-${AWS::StackName}-${AWS::Region}"
+#+end_src
+
+** IAM Role and Policy for Lambda
+
+#+begin_src yaml
+  StaticIpLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: StaticIpLambdaRole
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: /
+      ManagedPolicyArns:
+        - !Ref StaticIpLambdaPolicy
+#+end_src
+
+#+begin_src yaml
+  StaticIpLambdaPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName: StaticIpLambda
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Sid: LambdaLogging
+            Action:
+              - logs:CreateLogGroup
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+            Resource:
+              - arn:aws:logs:*:*:*
+            Effect: Allow
+          - Sid: S3
+            Action:
+              - s3:Get*
+              - s3:PutObject
+              - s3:CreateBucket
+              - s3:ListBucket
+              - s3:ListAllMyBuckets
+            Resource: "*"
+            Effect: Allow
+          - Sid: ELB
+            Action:
+              - elasticloadbalancing:Describe*
+              - elasticloadbalancing:RegisterTargets
+              - elasticloadbalancing:DeregisterTargets
+            Resource: "*"
+            Effect: Allow
+          - Sid: CW
+            Action:
+              - cloudwatch:putMetricData
+            Resource: "*"
+            Effect: Allow
+#+end_src
+
+** Lambda Function
+
+#+begin_src yaml
+  StaticIpLambdaFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri:
+        Bucket: !FindInMap
+          - RegionMap
+          - !Ref "AWS::Region"
+          - Bucket
+        Key: !FindInMap
+          - RegionMap
+          - !Ref "AWS::Region"
+          - Key
+      Description: Register Application Load Balancer to Network Load Balancer
+      Handler: populate_NLB_TG_with_ALB.lambda_handler
+      Timeout: 300
+      Role: !GetAtt StaticIpLambdaRole.Arn
+      Runtime: python2.7
+      Environment:
+        Variables:
+          ALB_DNS_NAME: !GetAtt ALB.DNSName
+          NLB_TG_ARN: !Ref NlbIpTargetGroup
+          S3_BUCKET: !Ref S3Bucket
+          MAX_LOOKUP_PER_INVOCATION: 50
+          INVOCATIONS_BEFORE_DEREGISTRATION: 3
+          CW_METRIC_FLAG_IP_COUNT: True
+          ALB_LISTENER: 80
+#+end_src
+
+#+begin_src yaml
+  LambdaInvokePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref StaticIpLambdaFunction
+      Principal: events.amazonaws.com
+      Action: lambda:InvokeFunction
+      SourceArn: !GetAtt ScheduledRule.Arn
+#+end_src
+
+#+begin_src yaml
+  ScheduledRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Description: ScheduledRule
+      ScheduleExpression: rate(1 minute)
+      State: ENABLED
+      Targets:
+      - Arn: !GetAtt StaticIpLambdaFunction.Arn
+        Id: TargetFunctionV1
+    DependsOn:
+    - StaticIpLambdaFunction
+#+end_src
+
+* Outputs
+
+#+begin_src yaml
+Outputs:
+  NLB:
+    Description: DNS name for the ALB
+    Value: !GetAtt NLB.DNSName
+#+end_src

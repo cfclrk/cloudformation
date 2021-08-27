@@ -33,17 +33,17 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#orga9ee8c4">Parameters</a>
+<li><a href="#orga2bf225">Parameters</a>
 <ul>
-<li><a href="#orgaa57838">DeploymentName</a></li>
+<li><a href="#orge35c0b6">DeploymentName</a></li>
 </ul>
 </li>
-<li><a href="#org7054704">Resources</a>
+<li><a href="#org52602f8">Resources</a>
 <ul>
-<li><a href="#orgc1343ee">Bucket</a></li>
+<li><a href="#org232b09c">Bucket</a></li>
 </ul>
 </li>
-<li><a href="#orgcd5b5e5">Outputs</a></li>
+<li><a href="#org6d87ec5">Outputs</a></li>
 </ul>
 </div>
 </nav>
@@ -53,10 +53,15 @@
 </pre>
 </div>
 
-<div id="outline-container-orga9ee8c4" class="outline-2">
-<h2 id="orga9ee8c4"><a href="#orga9ee8c4">Parameters</a></h2>
-<div class="outline-text-2" id="text-orga9ee8c4">
-<table id="orge09595b">
+<div id="outline-container-orga2bf225" class="outline-2">
+<h2 id="orga2bf225"><a href="#orga2bf225">Parameters</a></h2>
+<div class="outline-text-2" id="text-orga2bf225">
+<div class="org-src-container">
+<pre class="src src-yaml"><span style="color: #dcaeea;">Parameters</span>:
+</pre>
+</div>
+
+<table id="org92bc3c1">
 
 
 <colgroup>
@@ -77,16 +82,11 @@
 </tr>
 </tbody>
 </table>
-
-<div class="org-src-container">
-<pre class="src src-yaml"><span style="color: #dcaeea;">Parameters</span>:
-</pre>
-</div>
 </div>
 
-<div id="outline-container-orgaa57838" class="outline-3">
-<h3 id="orgaa57838"><a href="#orgaa57838">DeploymentName</a></h3>
-<div class="outline-text-3" id="text-orgaa57838">
+<div id="outline-container-orge35c0b6" class="outline-3">
+<h3 id="orge35c0b6"><a href="#orge35c0b6">DeploymentName</a></h3>
+<div class="outline-text-3" id="text-orge35c0b6">
 <div class="org-src-container">
 <pre class="src src-yaml">  <span style="color: #dcaeea;">DeploymentName</span>:
     <span style="color: #dcaeea;">Type</span>: String
@@ -95,43 +95,49 @@
 </div>
 
 <p>
-A <b>deployment</b> is a complete deployed application, potentially comprised of many
+A <b>deployment</b> is a deployed application, potentially comprised of many
 CloudFormation stacks. This is sometimes called an "environment", but that is an
-overloaded term. Use the <code>DeploymentName</code> to indicate which deployment a Stack
-is part of.
+overloaded and confusing term. Use the <code>DeploymentName</code> to indicate which
+logical deployment a stack belongs to.
+</p>
+
+<p>
+If a deployment is completely specified by exactly one CloudFormation template,
+the <code>DeploymentName</code> and the <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/pseudo-parameter-reference.html#cfn-pseudo-param-stackname">AWS::StackName</a> would refer to the same things. In
+that case, consider not using a <code>DeploymentName</code> parameter.
 </p>
 </div>
 </div>
 </div>
 
-<div id="outline-container-org7054704" class="outline-2">
-<h2 id="org7054704"><a href="#org7054704">Resources</a></h2>
-<div class="outline-text-2" id="text-org7054704">
+<div id="outline-container-org52602f8" class="outline-2">
+<h2 id="org52602f8"><a href="#org52602f8">Resources</a></h2>
+<div class="outline-text-2" id="text-org52602f8">
 <div class="org-src-container">
 <pre class="src src-yaml"><span style="color: #dcaeea;">Resources</span>:
 </pre>
 </div>
 </div>
 
-<div id="outline-container-orgc1343ee" class="outline-3">
-<h3 id="orgc1343ee"><a href="#orgc1343ee">Bucket</a></h3>
-<div class="outline-text-3" id="text-orgc1343ee">
+<div id="outline-container-org232b09c" class="outline-3">
+<h3 id="org232b09c"><a href="#org232b09c">Bucket</a></h3>
+<div class="outline-text-3" id="text-org232b09c">
 <div class="org-src-container">
 <pre class="src src-yaml">  <span style="color: #dcaeea;">Bucket</span>:
     <span style="color: #dcaeea;">Type</span>: AWS::S3::Bucket
     <span style="color: #dcaeea;">Properties</span>:
       <span style="color: #dcaeea;">Tags</span>:
-        <span style="color: #dcaeea;">Key</span>: DeploymentName
-        <span style="color: #dcaeea;">Value</span>: <span style="color: #ECBE7B;">!Ref</span> DeploymentName
+        - <span style="color: #dcaeea;">Key</span>: DeploymentName
+          <span style="color: #dcaeea;">Value</span>: <span style="color: #ECBE7B;">!Ref</span> DeploymentName
 </pre>
 </div>
 </div>
 </div>
 </div>
 
-<div id="outline-container-orgcd5b5e5" class="outline-2">
-<h2 id="orgcd5b5e5"><a href="#orgcd5b5e5">Outputs</a></h2>
-<div class="outline-text-2" id="text-orgcd5b5e5">
+<div id="outline-container-org6d87ec5" class="outline-2">
+<h2 id="org6d87ec5"><a href="#org6d87ec5">Outputs</a></h2>
+<div class="outline-text-2" id="text-org6d87ec5">
 <div class="org-src-container">
 <pre class="src src-yaml"><span style="color: #dcaeea;">Outputs</span>:
   <span style="color: #dcaeea;">BucketName</span>:

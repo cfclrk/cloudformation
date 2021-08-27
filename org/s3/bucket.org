@@ -8,14 +8,14 @@ Description: A simple S3 bucket
 
 * Parameters
 
+#+begin_src yaml
+Parameters:
+#+end_src
+
 #+NAME: Params
 | Param          | Value |
 |----------------+-------|
 | DeploymentName | cfc   |
-
-#+begin_src yaml
-Parameters:
-#+end_src
 
 #+INCLUDE: "../params.org::*DeploymentName"
 
@@ -32,8 +32,8 @@ Resources:
     Type: AWS::S3::Bucket
     Properties:
       Tags:
-        Key: DeploymentName
-        Value: !Ref DeploymentName
+        - Key: DeploymentName
+          Value: !Ref DeploymentName
 #+end_src
 
 * Outputs

@@ -33,36 +33,36 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#org738df9b">TODO</a></li>
-<li><a href="#org2809edd">Overview</a>
+<li><a href="#org208e933">TODO</a></li>
+<li><a href="#orge3f9359">Overview</a>
 <ul>
-<li><a href="#orgf49c5cf">CICD Process</a></li>
+<li><a href="#org34bd19e">CICD Process</a></li>
 </ul>
 </li>
-<li><a href="#org192e3b7">Prerequisets</a></li>
-<li><a href="#org4fc3a71">Parameters</a>
+<li><a href="#orga4ae01e">Prerequisets</a></li>
+<li><a href="#org53dd65f">Parameters</a>
 <ul>
-<li><a href="#orgcf65f37">DeploymentName</a></li>
-<li><a href="#org5b4a9e3">KeyName</a></li>
-<li><a href="#orgf2906d0">SSHCIDR</a></li>
-<li><a href="#org68885e9">BuildArtifactBucket</a></li>
-<li><a href="#org40e019c">BuildArtifactKey</a></li>
+<li><a href="#orgae34260">DeploymentName</a></li>
+<li><a href="#org3fdb296">KeyName</a></li>
+<li><a href="#org3aa1f8b">SSHCIDR</a></li>
+<li><a href="#orge796ce5">BuildArtifactBucket</a></li>
+<li><a href="#orgee8beac">BuildArtifactKey</a></li>
 </ul>
 </li>
-<li><a href="#orgec4762c">Mappings</a></li>
-<li><a href="#org4df41a2">Resources</a>
+<li><a href="#org30cf790">Mappings</a></li>
+<li><a href="#org4577b8c">Resources</a>
 <ul>
-<li><a href="#org5b4b383">IAM</a>
+<li><a href="#org8dfe64f">IAM</a>
 <ul>
-<li><a href="#org5e535ad">Role</a></li>
-<li><a href="#orgedd2571">Instance Profile</a></li>
+<li><a href="#org7cba0c8">Role</a></li>
+<li><a href="#org95a6676">Instance Profile</a></li>
 </ul>
 </li>
-<li><a href="#org3a71b8f">Security Group</a></li>
-<li><a href="#org6df8ba7">Instance</a></li>
+<li><a href="#org789191a">Security Group</a></li>
+<li><a href="#orgb7b29b2">Instance</a></li>
 </ul>
 </li>
-<li><a href="#org49701bd">Outputs</a></li>
+<li><a href="#orgcdbf4c1">Outputs</a></li>
 </ul>
 </div>
 </nav>
@@ -72,9 +72,9 @@
 </pre>
 </div>
 
-<div id="outline-container-org738df9b" class="outline-2">
-<h2 id="org738df9b"><a href="#org738df9b">TODO</a></h2>
-<div class="outline-text-2" id="text-org738df9b">
+<div id="outline-container-org208e933" class="outline-2">
+<h2 id="org208e933"><a href="#org208e933">TODO</a></h2>
+<div class="outline-text-2" id="text-org208e933">
 <ul class="org-ul">
 <li class="off"><input type='checkbox' /> Forward application logs to CloudWatch (journald or file?)</li>
 <li class="off"><input type='checkbox' /> Note where to look for logs on instance</li>
@@ -83,9 +83,9 @@
 </div>
 </div>
 
-<div id="outline-container-org2809edd" class="outline-2">
-<h2 id="org2809edd"><a href="#org2809edd">Overview</a></h2>
-<div class="outline-text-2" id="text-org2809edd">
+<div id="outline-container-orge3f9359" class="outline-2">
+<h2 id="orge3f9359"><a href="#orge3f9359">Overview</a></h2>
+<div class="outline-text-2" id="text-orge3f9359">
 <p>
 This CloudFormation template creates an EC2 instance running a web server. The
 web server is a golang binary stored in S3.
@@ -101,9 +101,9 @@ to CloudWatch.
 </p>
 </div>
 
-<div id="outline-container-orgf49c5cf" class="outline-3">
-<h3 id="orgf49c5cf"><a href="#orgf49c5cf">CICD Process</a></h3>
-<div class="outline-text-3" id="text-orgf49c5cf">
+<div id="outline-container-org34bd19e" class="outline-3">
+<h3 id="org34bd19e"><a href="#org34bd19e">CICD Process</a></h3>
+<div class="outline-text-3" id="text-org34bd19e">
 <p>
 Here is a CI/CD process that creates a deployment for every git branch.
 </p>
@@ -125,7 +125,7 @@ Updates <code>$BuildArtifactKey</code> in <code>AWS::CloudFormation::Init</code>
 TODO: export but do not tangle
 </p>
 
-<pre class="example" id="org34dfc66">
+<pre class="example" id="org1ba26d6">
     config:
       files:
         /home/ec2-user/go-webserver:
@@ -143,9 +143,9 @@ to <code>AWS::CloudFormation::Init</code> (specifically, the above artifact URL 
 </div>
 </div>
 
-<div id="outline-container-org192e3b7" class="outline-2">
-<h2 id="org192e3b7"><a href="#org192e3b7">Prerequisets</a></h2>
-<div class="outline-text-2" id="text-org192e3b7">
+<div id="outline-container-orga4ae01e" class="outline-2">
+<h2 id="orga4ae01e"><a href="#orga4ae01e">Prerequisets</a></h2>
+<div class="outline-text-2" id="text-orga4ae01e">
 <ul class="org-ul">
 <li><a href="../network/public.html">../network/public.html</a> deployed with the same <code>DeploymentName</code></li>
 <li>An EC2 KeyPair in this region</li>
@@ -153,10 +153,15 @@ to <code>AWS::CloudFormation::Init</code> (specifically, the above artifact URL 
 </div>
 </div>
 
-<div id="outline-container-org4fc3a71" class="outline-2">
-<h2 id="org4fc3a71"><a href="#org4fc3a71">Parameters</a></h2>
-<div class="outline-text-2" id="text-org4fc3a71">
-<table id="org1cdc684">
+<div id="outline-container-org53dd65f" class="outline-2">
+<h2 id="org53dd65f"><a href="#org53dd65f">Parameters</a></h2>
+<div class="outline-text-2" id="text-org53dd65f">
+<div class="org-src-container">
+<pre class="src src-yaml"><span style="color: #dcaeea;">Parameters</span>:
+</pre>
+</div>
+
+<table id="orged58c56">
 
 
 <colgroup>
@@ -197,16 +202,11 @@ to <code>AWS::CloudFormation::Init</code> (specifically, the above artifact URL 
 </tr>
 </tbody>
 </table>
-
-<div class="org-src-container">
-<pre class="src src-yaml"><span style="color: #dcaeea;">Parameters</span>:
-</pre>
-</div>
 </div>
 
-<div id="outline-container-orgcf65f37" class="outline-3">
-<h3 id="orgcf65f37"><a href="#orgcf65f37">DeploymentName</a></h3>
-<div class="outline-text-3" id="text-orgcf65f37">
+<div id="outline-container-orgae34260" class="outline-3">
+<h3 id="orgae34260"><a href="#orgae34260">DeploymentName</a></h3>
+<div class="outline-text-3" id="text-orgae34260">
 <div class="org-src-container">
 <pre class="src src-yaml">  <span style="color: #dcaeea;">DeploymentName</span>:
     <span style="color: #dcaeea;">Type</span>: String
@@ -215,17 +215,23 @@ to <code>AWS::CloudFormation::Init</code> (specifically, the above artifact URL 
 </div>
 
 <p>
-A <b>deployment</b> is a complete deployed application, potentially comprised of many
+A <b>deployment</b> is a deployed application, potentially comprised of many
 CloudFormation stacks. This is sometimes called an "environment", but that is an
-overloaded term. Use the <code>DeploymentName</code> to indicate which deployment a Stack
-is part of.
+overloaded and confusing term. Use the <code>DeploymentName</code> to indicate which
+logical deployment a stack belongs to.
+</p>
+
+<p>
+If a deployment is completely specified by exactly one CloudFormation template,
+the <code>DeploymentName</code> and the <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/pseudo-parameter-reference.html#cfn-pseudo-param-stackname">AWS::StackName</a> would refer to the same things. In
+that case, consider not using a <code>DeploymentName</code> parameter.
 </p>
 </div>
 </div>
 
-<div id="outline-container-org5b4a9e3" class="outline-3">
-<h3 id="org5b4a9e3"><a href="#org5b4a9e3">KeyName</a></h3>
-<div class="outline-text-3" id="text-org5b4a9e3">
+<div id="outline-container-org3fdb296" class="outline-3">
+<h3 id="org3fdb296"><a href="#org3fdb296">KeyName</a></h3>
+<div class="outline-text-3" id="text-org3fdb296">
 <div class="org-src-container">
 <pre class="src src-yaml">  <span style="color: #dcaeea;">KeyName</span>:
     <span style="color: #dcaeea;">Type</span>: AWS::EC2::KeyPair::KeyName
@@ -235,7 +241,7 @@ is part of.
 </div>
 
 <p>
-AWS does not provide a CloudFormation type for EC2 KeyPairs. This was a
+AWS does not provide a CloudFormation type for EC2 KeyPairs. This is a
 deliberate choice: a KeyPair consists of a public and private key, and AWS does
 not want to expose the private key in CloudFormation outputs.
 </p>
@@ -246,22 +252,22 @@ locally, it can create a KeyPair and save the private key locally.
 </p>
 
 <p>
-So, in CloudFormation, you have two options:
+In CloudFormation, you have two options:
 </p>
 
 <ol class="org-ol">
-<li>Create the KeyPair beforehand. Then provide the <code>KeyName</code> to your
+<li>Create the KeyPair beforehand, then provide the <code>KeyName</code> to your
 CloudFormation template as a parameter.</li>
 <li>Create the KeyPair using a CloudFormation Custom Resource (i.e. a Lambda
-Function) in your CloudFormation template. The Custom Resource must save the
-private key somewhere (like SecretsManager or SSM Parameter Store).</li>
+Function) defined in your CloudFormation template. The Custom Resource must
+save the private key somewhere (like SecretsManager or SSM Parameter Store).</li>
 </ol>
 </div>
 </div>
 
-<div id="outline-container-orgf2906d0" class="outline-3">
-<h3 id="orgf2906d0"><a href="#orgf2906d0">SSHCIDR</a></h3>
-<div class="outline-text-3" id="text-orgf2906d0">
+<div id="outline-container-org3aa1f8b" class="outline-3">
+<h3 id="org3aa1f8b"><a href="#org3aa1f8b">SSHCIDR</a></h3>
+<div class="outline-text-3" id="text-org3aa1f8b">
 <div class="org-src-container">
 <pre class="src src-yaml">  <span style="color: #dcaeea;">SSHCIDR</span>:
     <span style="color: #dcaeea;">Type</span>: String
@@ -275,9 +281,9 @@ Allow SSH access from this CIDR range.
 </div>
 </div>
 
-<div id="outline-container-org68885e9" class="outline-3">
-<h3 id="org68885e9"><a href="#org68885e9">BuildArtifactBucket</a></h3>
-<div class="outline-text-3" id="text-org68885e9">
+<div id="outline-container-orge796ce5" class="outline-3">
+<h3 id="orge796ce5"><a href="#orge796ce5">BuildArtifactBucket</a></h3>
+<div class="outline-text-3" id="text-orge796ce5">
 <div class="org-src-container">
 <pre class="src src-yaml">  <span style="color: #dcaeea;">BuildArtifactBucket</span>:
     <span style="color: #dcaeea;">Type</span>: String
@@ -292,9 +298,9 @@ The S3 Bucket where the web server artifact is stored.
 </div>
 </div>
 
-<div id="outline-container-org40e019c" class="outline-3">
-<h3 id="org40e019c"><a href="#org40e019c">BuildArtifactKey</a></h3>
-<div class="outline-text-3" id="text-org40e019c">
+<div id="outline-container-orgee8beac" class="outline-3">
+<h3 id="orgee8beac"><a href="#orgee8beac">BuildArtifactKey</a></h3>
+<div class="outline-text-3" id="text-orgee8beac">
 <div class="org-src-container">
 <pre class="src src-yaml">  <span style="color: #dcaeea;">BuildArtifactKey</span>:
     <span style="color: #dcaeea;">Type</span>: String
@@ -312,9 +318,9 @@ git commit.
 </div>
 </div>
 
-<div id="outline-container-orgec4762c" class="outline-2">
-<h2 id="orgec4762c"><a href="#orgec4762c">Mappings</a></h2>
-<div class="outline-text-2" id="text-orgec4762c">
+<div id="outline-container-org30cf790" class="outline-2">
+<h2 id="org30cf790"><a href="#org30cf790">Mappings</a></h2>
+<div class="outline-text-2" id="text-org30cf790">
 <div class="org-src-container">
 <pre class="src src-yaml"><span style="color: #dcaeea;">Mappings</span>:
 </pre>
@@ -335,18 +341,18 @@ Instance mapping
 </div>
 </div>
 
-<div id="outline-container-org4df41a2" class="outline-2">
-<h2 id="org4df41a2"><a href="#org4df41a2">Resources</a></h2>
-<div class="outline-text-2" id="text-org4df41a2">
+<div id="outline-container-org4577b8c" class="outline-2">
+<h2 id="org4577b8c"><a href="#org4577b8c">Resources</a></h2>
+<div class="outline-text-2" id="text-org4577b8c">
 <div class="org-src-container">
 <pre class="src src-yaml"><span style="color: #dcaeea;">Resources</span>:
 </pre>
 </div>
 </div>
 
-<div id="outline-container-org5b4b383" class="outline-3">
-<h3 id="org5b4b383"><a href="#org5b4b383">IAM</a></h3>
-<div class="outline-text-3" id="text-org5b4b383">
+<div id="outline-container-org8dfe64f" class="outline-3">
+<h3 id="org8dfe64f"><a href="#org8dfe64f">IAM</a></h3>
+<div class="outline-text-3" id="text-org8dfe64f">
 <p>
 The EC2 instance needs access to:
 </p>
@@ -358,9 +364,9 @@ The EC2 instance needs access to:
 </ul>
 </div>
 
-<div id="outline-container-org5e535ad" class="outline-4">
-<h4 id="org5e535ad"><a href="#org5e535ad">Role</a></h4>
-<div class="outline-text-4" id="text-org5e535ad">
+<div id="outline-container-org7cba0c8" class="outline-4">
+<h4 id="org7cba0c8"><a href="#org7cba0c8">Role</a></h4>
+<div class="outline-text-4" id="text-org7cba0c8">
 <div class="org-src-container">
 <pre class="src src-yaml">  <span style="color: #dcaeea;">InstanceRole</span>:
     <span style="color: #dcaeea;">Type</span>: AWS::IAM::Role
@@ -400,9 +406,9 @@ The EC2 instance needs access to:
 </div>
 </div>
 
-<div id="outline-container-orgedd2571" class="outline-4">
-<h4 id="orgedd2571"><a href="#orgedd2571">Instance Profile</a></h4>
-<div class="outline-text-4" id="text-orgedd2571">
+<div id="outline-container-org95a6676" class="outline-4">
+<h4 id="org95a6676"><a href="#org95a6676">Instance Profile</a></h4>
+<div class="outline-text-4" id="text-org95a6676">
 <div class="org-src-container">
 <pre class="src src-yaml">  <span style="color: #dcaeea;">InstanceProfile</span>:
     <span style="color: #dcaeea;">Type</span>: AWS::IAM::InstanceProfile
@@ -416,9 +422,9 @@ The EC2 instance needs access to:
 </div>
 </div>
 
-<div id="outline-container-org3a71b8f" class="outline-3">
-<h3 id="org3a71b8f"><a href="#org3a71b8f">Security Group</a></h3>
-<div class="outline-text-3" id="text-org3a71b8f">
+<div id="outline-container-org789191a" class="outline-3">
+<h3 id="org789191a"><a href="#org789191a">Security Group</a></h3>
+<div class="outline-text-3" id="text-org789191a">
 <div class="org-src-container">
 <pre class="src src-yaml">  <span style="color: #dcaeea;">SecurityGroup</span>:
     <span style="color: #dcaeea;">Type</span>: AWS::EC2::SecurityGroup
@@ -443,9 +449,9 @@ The EC2 instance needs access to:
 </div>
 </div>
 
-<div id="outline-container-org6df8ba7" class="outline-3">
-<h3 id="org6df8ba7"><a href="#org6df8ba7">Instance</a></h3>
-<div class="outline-text-3" id="text-org6df8ba7">
+<div id="outline-container-orgb7b29b2" class="outline-3">
+<h3 id="orgb7b29b2"><a href="#orgb7b29b2">Instance</a></h3>
+<div class="outline-text-3" id="text-orgb7b29b2">
 <p>
 In this case we are using a combination of <code>UserData</code> and the
 <code>AWS::CloudFormation::Init</code> section (which the <code>cfn-init</code> program reads) to
@@ -675,9 +681,9 @@ if the instance downloads the Ansible configs.</li>
 </div>
 </div>
 
-<div id="outline-container-org49701bd" class="outline-2">
-<h2 id="org49701bd"><a href="#org49701bd">Outputs</a></h2>
-<div class="outline-text-2" id="text-org49701bd">
+<div id="outline-container-orgcdbf4c1" class="outline-2">
+<h2 id="orgcdbf4c1"><a href="#orgcdbf4c1">Outputs</a></h2>
+<div class="outline-text-2" id="text-orgcdbf4c1">
 <div class="org-src-container">
 <pre class="src src-yaml"><span style="color: #dcaeea;">Outputs</span>:
   <span style="color: #dcaeea;">PublicIP</span>:

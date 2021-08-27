@@ -12,6 +12,11 @@ Description: IAM Role for creating VPC Flow Logs
 Parameters:
 #+end_src
 
+#+NAME: Params
+| Param          | Value |
+|----------------+-------|
+| DeploymentName | cfc   |
+
 #+INCLUDE: "../params.org::*DeploymentName"
 
 * Resources

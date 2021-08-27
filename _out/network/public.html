@@ -33,21 +33,21 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#org930e698">Overview</a></li>
-<li><a href="#org74313d7">Parameters</a>
+<li><a href="#org7b3592e">Overview</a></li>
+<li><a href="#org269f7fb">Parameters</a>
 <ul>
-<li><a href="#org91a044a">DeploymentName</a></li>
+<li><a href="#org6978a3d">DeploymentName</a></li>
 </ul>
 </li>
-<li><a href="#orgca1b16f">Resources</a>
+<li><a href="#org9bcc48a">Resources</a>
 <ul>
-<li><a href="#org8d74091">VPC</a></li>
-<li><a href="#orgf729f7e">Internet Gateway</a></li>
-<li><a href="#org6eebfcd">Route Table</a></li>
-<li><a href="#org40de612">Subnets</a></li>
+<li><a href="#org58538e0">VPC</a></li>
+<li><a href="#org96fd372">Internet Gateway</a></li>
+<li><a href="#org34b631a">Route Table</a></li>
+<li><a href="#org6e409ad">Subnets</a></li>
 </ul>
 </li>
-<li><a href="#org0ad0ba7">Outputs</a></li>
+<li><a href="#org44ea827">Outputs</a></li>
 </ul>
 </div>
 </nav>
@@ -57,11 +57,11 @@
 </pre>
 </div>
 
-<div id="outline-container-org930e698" class="outline-2">
-<h2 id="org930e698"><a href="#org930e698">Overview</a></h2>
-<div class="outline-text-2" id="text-org930e698">
+<div id="outline-container-org7b3592e" class="outline-2">
+<h2 id="org7b3592e"><a href="#org7b3592e">Overview</a></h2>
+<div class="outline-text-2" id="text-org7b3592e">
 
-<figure id="org9f23e24">
+<figure id="org111b383">
 <img src="../../static/img/Network-Public.png" alt="Network-Public.png">
 
 </figure>
@@ -72,10 +72,15 @@ This CloudFormation template creates a VPC with two public subnets.
 </div>
 </div>
 
-<div id="outline-container-org74313d7" class="outline-2">
-<h2 id="org74313d7"><a href="#org74313d7">Parameters</a></h2>
-<div class="outline-text-2" id="text-org74313d7">
-<table id="org410962e">
+<div id="outline-container-org269f7fb" class="outline-2">
+<h2 id="org269f7fb"><a href="#org269f7fb">Parameters</a></h2>
+<div class="outline-text-2" id="text-org269f7fb">
+<div class="org-src-container">
+<pre class="src src-yaml"><span style="color: #dcaeea;">Parameters</span>:
+</pre>
+</div>
+
+<table id="org5196fcd">
 
 
 <colgroup>
@@ -92,20 +97,15 @@ This CloudFormation template creates a VPC with two public subnets.
 <tbody>
 <tr>
 <td class="org-left">DeploymentName</td>
-<td class="org-left">webserver</td>
+<td class="org-left">test</td>
 </tr>
 </tbody>
 </table>
-
-<div class="org-src-container">
-<pre class="src src-yaml"><span style="color: #dcaeea;">Parameters</span>:
-</pre>
-</div>
 </div>
 
-<div id="outline-container-org91a044a" class="outline-3">
-<h3 id="org91a044a"><a href="#org91a044a">DeploymentName</a></h3>
-<div class="outline-text-3" id="text-org91a044a">
+<div id="outline-container-org6978a3d" class="outline-3">
+<h3 id="org6978a3d"><a href="#org6978a3d">DeploymentName</a></h3>
+<div class="outline-text-3" id="text-org6978a3d">
 <div class="org-src-container">
 <pre class="src src-yaml">  <span style="color: #dcaeea;">DeploymentName</span>:
     <span style="color: #dcaeea;">Type</span>: String
@@ -114,10 +114,16 @@ This CloudFormation template creates a VPC with two public subnets.
 </div>
 
 <p>
-A <b>deployment</b> is a complete deployed application, potentially comprised of many
+A <b>deployment</b> is a deployed application, potentially comprised of many
 CloudFormation stacks. This is sometimes called an "environment", but that is an
-overloaded term. Use the <code>DeploymentName</code> to indicate which deployment a Stack
-is part of.
+overloaded and confusing term. Use the <code>DeploymentName</code> to indicate which
+logical deployment a stack belongs to.
+</p>
+
+<p>
+If a deployment is completely specified by exactly one CloudFormation template,
+the <code>DeploymentName</code> and the <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/pseudo-parameter-reference.html#cfn-pseudo-param-stackname">AWS::StackName</a> would refer to the same things. In
+that case, consider not using a <code>DeploymentName</code> parameter.
 </p>
 
 <div class="org-src-container">
@@ -141,18 +147,18 @@ is part of.
 </div>
 </div>
 
-<div id="outline-container-orgca1b16f" class="outline-2">
-<h2 id="orgca1b16f"><a href="#orgca1b16f">Resources</a></h2>
-<div class="outline-text-2" id="text-orgca1b16f">
+<div id="outline-container-org9bcc48a" class="outline-2">
+<h2 id="org9bcc48a"><a href="#org9bcc48a">Resources</a></h2>
+<div class="outline-text-2" id="text-org9bcc48a">
 <div class="org-src-container">
 <pre class="src src-yaml"><span style="color: #dcaeea;">Resources</span>:
 </pre>
 </div>
 </div>
 
-<div id="outline-container-org8d74091" class="outline-3">
-<h3 id="org8d74091"><a href="#org8d74091">VPC</a></h3>
-<div class="outline-text-3" id="text-org8d74091">
+<div id="outline-container-org58538e0" class="outline-3">
+<h3 id="org58538e0"><a href="#org58538e0">VPC</a></h3>
+<div class="outline-text-3" id="text-org58538e0">
 <div class="org-src-container">
 <pre class="src src-yaml">  <span style="color: #dcaeea;">VPC</span>:
     <span style="color: #dcaeea;">Type</span>: AWS::EC2::VPC
@@ -168,9 +174,9 @@ is part of.
 </div>
 </div>
 
-<div id="outline-container-orgf729f7e" class="outline-3">
-<h3 id="orgf729f7e"><a href="#orgf729f7e">Internet Gateway</a></h3>
-<div class="outline-text-3" id="text-orgf729f7e">
+<div id="outline-container-org96fd372" class="outline-3">
+<h3 id="org96fd372"><a href="#org96fd372">Internet Gateway</a></h3>
+<div class="outline-text-3" id="text-org96fd372">
 <div class="org-src-container">
 <pre class="src src-yaml">  <span style="color: #dcaeea;">InternetGateway</span>:
     <span style="color: #dcaeea;">Type</span>: AWS::EC2::InternetGateway
@@ -189,9 +195,9 @@ is part of.
 </div>
 </div>
 
-<div id="outline-container-org6eebfcd" class="outline-3">
-<h3 id="org6eebfcd"><a href="#org6eebfcd">Route Table</a></h3>
-<div class="outline-text-3" id="text-org6eebfcd">
+<div id="outline-container-org34b631a" class="outline-3">
+<h3 id="org34b631a"><a href="#org34b631a">Route Table</a></h3>
+<div class="outline-text-3" id="text-org34b631a">
 <div class="org-src-container">
 <pre class="src src-yaml">  <span style="color: #dcaeea;">PublicRouteTable</span>:
     <span style="color: #dcaeea;">Type</span>: AWS::EC2::RouteTable
@@ -216,9 +222,9 @@ is part of.
 </div>
 </div>
 
-<div id="outline-container-org40de612" class="outline-3">
-<h3 id="org40de612"><a href="#org40de612">Subnets</a></h3>
-<div class="outline-text-3" id="text-org40de612">
+<div id="outline-container-org6e409ad" class="outline-3">
+<h3 id="org6e409ad"><a href="#org6e409ad">Subnets</a></h3>
+<div class="outline-text-3" id="text-org6e409ad">
 <div class="org-src-container">
 <pre class="src src-yaml">  <span style="color: #dcaeea;">PublicSubnet1</span>:
     <span style="color: #dcaeea;">Type</span>: AWS::EC2::Subnet
@@ -262,9 +268,9 @@ is part of.
 </div>
 </div>
 
-<div id="outline-container-org0ad0ba7" class="outline-2">
-<h2 id="org0ad0ba7"><a href="#org0ad0ba7">Outputs</a></h2>
-<div class="outline-text-2" id="text-org0ad0ba7">
+<div id="outline-container-org44ea827" class="outline-2">
+<h2 id="org44ea827"><a href="#org44ea827">Outputs</a></h2>
+<div class="outline-text-2" id="text-org44ea827">
 <div class="org-src-container">
 <pre class="src src-yaml"><span style="color: #dcaeea;">Outputs</span>:
   <span style="color: #dcaeea;">VpcId</span>:

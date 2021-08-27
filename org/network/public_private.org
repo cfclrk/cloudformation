@@ -33,6 +33,11 @@ ways around it. Some possibilities are:
 Parameters:
 #+end_src
 
+#+NAME: Params
+| Param          | Value     |
+|----------------+-----------|
+| DeploymentName | test      |
+
 #+INCLUDE: "../params.org::*DeploymentName"
 
 #+begin_src yaml

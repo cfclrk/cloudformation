@@ -1,26 +1,32 @@
 #+TITLE: ALB with a Lambda Target
 #+setupfile: ../setup.org
 
-* Overview
-
-This creates an internet-facing ALB that invokes a Lambda Function. That is, you
-can =curl= the ALB and see a response from the Lambda Function.
-
-This CloudFormation template imports resources that are exported in the
-[[file:./network_public_private.org]] stack. That template must be deploying first, and
-it must use the same =DeploymentName=.
-
 #+begin_src yaml
 AWSTemplateFormatVersion: 2010-09-09
 Description: A public ALB with a Lambda Function target.
 Transform: AWS::Serverless-2016-10-31
 #+end_src
 
+* Overview
+
+This CloudFormation template creates an internet-facing ALB that invokes a
+Lambda Function. That is, you can =curl= the ALB and see a response from the
+Lambda Function.
+
+* Prerequisets
+
+- [[file:../network/public.org]] deployed with the same =DeploymentName=
+
 * Parameters
 
 #+begin_src yaml
 Parameters:
 #+end_src
+
+#+name: Params
+| Param          | Value |
+|----------------+-------|
+| DeploymentName | test  |
 
 ** DeploymentName
 
@@ -30,10 +36,14 @@ Parameters:
     Description: A name for this deployment
 #+end_src
 
-A *deployment* is a complete deployed application, potentially comprised of many
+A *deployment* is a deployed application, potentially comprised of many
 CloudFormation stacks. This is sometimes called an "environment", but that is an
-overloaded term. Use the =DeploymentName= to indicate which deployment a Stack
-is part of.
+overloaded and confusing term. Use the =DeploymentName= to indicate which
+logical deployment a stack belongs to.
+
+If a deployment is completely specified by exactly one CloudFormation template,
+the =DeploymentName= and the [[https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/pseudo-parameter-reference.html#cfn-pseudo-param-stackname][AWS::StackName]] would refer to the same things. In
+that case, consider not using a =DeploymentName= parameter.
 
 * Resources
 
@@ -165,9 +175,12 @@ Outputs:
 Send an HTTP GET request to the ALB.
 
 #+begin_src sh
+  ExportName=${DeploymentName}-ALB
+
   alb=$(aws cloudformation list-exports \
-      --query "Exports[?Name=='cf-ALB'].Value" \
+      --query "Exports[?Name=='${DeploymentName}-ALB'].Value" \
       --output text)
+
   curl http://$alb
 #+end_src
 

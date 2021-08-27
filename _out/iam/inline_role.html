@@ -33,14 +33,14 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#org207cc95">Parameters</a>
+<li><a href="#orgea5a9b1">Parameters</a>
 <ul>
-<li><a href="#org0fc52c2">DeploymentName</a></li>
+<li><a href="#orgdc08752">DeploymentName</a></li>
 </ul>
 </li>
-<li><a href="#org6271419">Resources</a>
+<li><a href="#org0ba2849">Resources</a>
 <ul>
-<li><a href="#org64f5601">Role</a></li>
+<li><a href="#org92b06c7">Role</a></li>
 </ul>
 </li>
 </ul>
@@ -52,18 +52,40 @@
 </pre>
 </div>
 
-<div id="outline-container-org207cc95" class="outline-2">
-<h2 id="org207cc95"><a href="#org207cc95">Parameters</a></h2>
-<div class="outline-text-2" id="text-org207cc95">
+<div id="outline-container-orgea5a9b1" class="outline-2">
+<h2 id="orgea5a9b1"><a href="#orgea5a9b1">Parameters</a></h2>
+<div class="outline-text-2" id="text-orgea5a9b1">
 <div class="org-src-container">
 <pre class="src src-yaml"><span style="color: #dcaeea;">Parameters</span>:
 </pre>
 </div>
+
+<table id="orgf457a66">
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">Param</th>
+<th scope="col" class="org-left">Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">DeploymentName</td>
+<td class="org-left">cfc</td>
+</tr>
+</tbody>
+</table>
 </div>
 
-<div id="outline-container-org0fc52c2" class="outline-3">
-<h3 id="org0fc52c2"><a href="#org0fc52c2">DeploymentName</a></h3>
-<div class="outline-text-3" id="text-org0fc52c2">
+<div id="outline-container-orgdc08752" class="outline-3">
+<h3 id="orgdc08752"><a href="#orgdc08752">DeploymentName</a></h3>
+<div class="outline-text-3" id="text-orgdc08752">
 <div class="org-src-container">
 <pre class="src src-yaml">  <span style="color: #dcaeea;">DeploymentName</span>:
     <span style="color: #dcaeea;">Type</span>: String
@@ -72,27 +94,33 @@
 </div>
 
 <p>
-A <b>deployment</b> is a complete deployed application, potentially comprised of many
+A <b>deployment</b> is a deployed application, potentially comprised of many
 CloudFormation stacks. This is sometimes called an "environment", but that is an
-overloaded term. Use the <code>DeploymentName</code> to indicate which deployment a Stack
-is part of.
+overloaded and confusing term. Use the <code>DeploymentName</code> to indicate which
+logical deployment a stack belongs to.
+</p>
+
+<p>
+If a deployment is completely specified by exactly one CloudFormation template,
+the <code>DeploymentName</code> and the <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/pseudo-parameter-reference.html#cfn-pseudo-param-stackname">AWS::StackName</a> would refer to the same things. In
+that case, consider not using a <code>DeploymentName</code> parameter.
 </p>
 </div>
 </div>
 </div>
 
-<div id="outline-container-org6271419" class="outline-2">
-<h2 id="org6271419"><a href="#org6271419">Resources</a></h2>
-<div class="outline-text-2" id="text-org6271419">
+<div id="outline-container-org0ba2849" class="outline-2">
+<h2 id="org0ba2849"><a href="#org0ba2849">Resources</a></h2>
+<div class="outline-text-2" id="text-org0ba2849">
 <div class="org-src-container">
 <pre class="src src-yaml"><span style="color: #dcaeea;">Resources</span>:
 </pre>
 </div>
 </div>
 
-<div id="outline-container-org64f5601" class="outline-3">
-<h3 id="org64f5601"><a href="#org64f5601">Role</a></h3>
-<div class="outline-text-3" id="text-org64f5601">
+<div id="outline-container-org92b06c7" class="outline-3">
+<h3 id="org92b06c7"><a href="#org92b06c7">Role</a></h3>
+<div class="outline-text-3" id="text-org92b06c7">
 <div class="org-src-container">
 <pre class="src src-yaml">  <span style="color: #dcaeea;">Role</span>:
     <span style="color: #dcaeea;">Type</span>: AWS::IAM::Role

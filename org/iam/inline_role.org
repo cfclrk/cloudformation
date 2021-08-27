@@ -12,6 +12,11 @@ Description: An IAM Role with an inline policy
 Parameters:
 #+end_src
 
+#+NAME: Params
+| Param          | Value |
+|----------------+-------|
+| DeploymentName | cfc   |
+
 #+INCLUDE: "../params.org::*DeploymentName"
 
 * Resources

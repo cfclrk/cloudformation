@@ -1,26 +1,32 @@
 #+TITLE: ALB with a Lambda Target
 #+SETUPFILE: ../setup.org
 
-* Overview
-
-This creates an internet-facing ALB that invokes a Lambda Function. That is, you
-can =curl= the ALB and see a response from the Lambda Function.
-
-This CloudFormation template imports resources that are exported in the
-[[./network_public_private.org]] stack. That template must be deploying first, and
-it must use the same =DeploymentName=.
-
 #+begin_src yaml
 AWSTemplateFormatVersion: 2010-09-09
 Description: A public ALB with a Lambda Function target.
 Transform: AWS::Serverless-2016-10-31
 #+end_src
 
+* Overview
+
+This CloudFormation template creates an internet-facing ALB that invokes a
+Lambda Function. That is, you can =curl= the ALB and see a response from the
+Lambda Function.
+
+* Prerequisets
+
+- [[../network/public.org]] deployed with the same =DeploymentName=
+
 * Parameters
 
 #+begin_src yaml
 Parameters:
 #+end_src
+
+#+NAME: Params
+| Param          | Value |
+|----------------+-------|
+| DeploymentName | test  |
 
 #+INCLUDE: "../params.org::*DeploymentName"
 
@@ -161,10 +167,18 @@ Outputs:
 
 Send an HTTP GET request to the ALB.
 
-#+begin_src sh :tangle no :results output
+#+NAME: DeploymentName
+#+begin_src emacs-lisp :var Params=Params :tangle no :exports none
+(nth 1 (assoc "DeploymentName" Params))
+#+end_src
+
+#+begin_src sh :var DeploymentName=DeploymentName :tangle no :results output
+  ExportName=${DeploymentName}-ALB
+
   alb=$(aws cloudformation list-exports \
-      --query "Exports[?Name=='cf-ALB'].Value" \
+      --query "Exports[?Name=='${DeploymentName}-ALB'].Value" \
       --output text)
+
   curl http://$alb
 #+end_src
 

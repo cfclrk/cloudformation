@@ -29,10 +29,14 @@ Parameters:
     Description: A name for this deployment
 #+end_src
 
-A *deployment* is a complete deployed application, potentially comprised of many
+A *deployment* is a deployed application, potentially comprised of many
 CloudFormation stacks. This is sometimes called an "environment", but that is an
-overloaded term. Use the =DeploymentName= to indicate which deployment a Stack
-is part of.
+overloaded and confusing term. Use the =DeploymentName= to indicate which
+logical deployment a stack belongs to.
+
+If a deployment is completely specified by exactly one CloudFormation template,
+the =DeploymentName= and the [[https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/pseudo-parameter-reference.html#cfn-pseudo-param-stackname][AWS::StackName]] would refer to the same things. In
+that case, consider not using a =DeploymentName= parameter.
 
 ** KeyName
 
@@ -43,20 +47,20 @@ is part of.
     Default: test
 #+end_src
 
-AWS does not provide a CloudFormation type for EC2 KeyPairs. This was a
+AWS does not provide a CloudFormation type for EC2 KeyPairs. This is a
 deliberate choice: a KeyPair consists of a public and private key, and AWS does
 not want to expose the private key in CloudFormation outputs.
 
 This is one example where Terraform has an advantage: since Terraform runs
 locally, it can create a KeyPair and save the private key locally.
 
-So, in CloudFormation, you have two options:
+In CloudFormation, you have two options:
 
-1. Create the KeyPair beforehand. Then provide the =KeyName= to your
+1. Create the KeyPair beforehand, then provide the =KeyName= to your
    CloudFormation template as a parameter.
 2. Create the KeyPair using a CloudFormation Custom Resource (i.e. a Lambda
-   Function) in your CloudFormation template. The Custom Resource must save the
-   private key somewhere (like SecretsManager or SSM Parameter Store).
+   Function) defined in your CloudFormation template. The Custom Resource must
+   save the private key somewhere (like SecretsManager or SSM Parameter Store).
 
 * Mappings
 

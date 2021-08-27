@@ -1,0 +1,13 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: "Just make an output for testing CloudFormation functions"
+
+Outputs:
+  TestOutput:
+    Description: Some joined output
+    Value:
+      Fn::Join:
+        - ""
+        - - "arn:aws:lambda:"
+          - !Ref AWS::Region
+          - ":"
+          - !Ref AWS::AccountId

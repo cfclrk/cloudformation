@@ -33,15 +33,15 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#org654512b">Parameters</a>
+<li><a href="#orgf73b206">Parameters</a>
 <ul>
-<li><a href="#org6fa54d2">DeploymentName</a></li>
+<li><a href="#orgf7235ff">DeploymentName</a></li>
 </ul>
 </li>
-<li><a href="#org3fde6b3">Resources</a>
+<li><a href="#orgd0cf983">Resources</a>
 <ul>
-<li><a href="#orgf5fa3fd">Role</a></li>
-<li><a href="#org761d55d">Policy</a></li>
+<li><a href="#orgc04bce7">Role</a></li>
+<li><a href="#orgc9178d5">Policy</a></li>
 </ul>
 </li>
 </ul>
@@ -53,18 +53,40 @@
 </pre>
 </div>
 
-<div id="outline-container-org654512b" class="outline-2">
-<h2 id="org654512b"><a href="#org654512b">Parameters</a></h2>
-<div class="outline-text-2" id="text-org654512b">
+<div id="outline-container-orgf73b206" class="outline-2">
+<h2 id="orgf73b206"><a href="#orgf73b206">Parameters</a></h2>
+<div class="outline-text-2" id="text-orgf73b206">
 <div class="org-src-container">
 <pre class="src src-yaml"><span style="color: #dcaeea;">Parameters</span>:
 </pre>
 </div>
+
+<table id="org30155ab">
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">Param</th>
+<th scope="col" class="org-left">Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">DeploymentName</td>
+<td class="org-left">cfc</td>
+</tr>
+</tbody>
+</table>
 </div>
 
-<div id="outline-container-org6fa54d2" class="outline-3">
-<h3 id="org6fa54d2"><a href="#org6fa54d2">DeploymentName</a></h3>
-<div class="outline-text-3" id="text-org6fa54d2">
+<div id="outline-container-orgf7235ff" class="outline-3">
+<h3 id="orgf7235ff"><a href="#orgf7235ff">DeploymentName</a></h3>
+<div class="outline-text-3" id="text-orgf7235ff">
 <div class="org-src-container">
 <pre class="src src-yaml">  <span style="color: #dcaeea;">DeploymentName</span>:
     <span style="color: #dcaeea;">Type</span>: String
@@ -73,27 +95,33 @@
 </div>
 
 <p>
-A <b>deployment</b> is a complete deployed application, potentially comprised of many
+A <b>deployment</b> is a deployed application, potentially comprised of many
 CloudFormation stacks. This is sometimes called an "environment", but that is an
-overloaded term. Use the <code>DeploymentName</code> to indicate which deployment a Stack
-is part of.
+overloaded and confusing term. Use the <code>DeploymentName</code> to indicate which
+logical deployment a stack belongs to.
+</p>
+
+<p>
+If a deployment is completely specified by exactly one CloudFormation template,
+the <code>DeploymentName</code> and the <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/pseudo-parameter-reference.html#cfn-pseudo-param-stackname">AWS::StackName</a> would refer to the same things. In
+that case, consider not using a <code>DeploymentName</code> parameter.
 </p>
 </div>
 </div>
 </div>
 
-<div id="outline-container-org3fde6b3" class="outline-2">
-<h2 id="org3fde6b3"><a href="#org3fde6b3">Resources</a></h2>
-<div class="outline-text-2" id="text-org3fde6b3">
+<div id="outline-container-orgd0cf983" class="outline-2">
+<h2 id="orgd0cf983"><a href="#orgd0cf983">Resources</a></h2>
+<div class="outline-text-2" id="text-orgd0cf983">
 <div class="org-src-container">
 <pre class="src src-yaml"><span style="color: #dcaeea;">Resources</span>:
 </pre>
 </div>
 </div>
 
-<div id="outline-container-orgf5fa3fd" class="outline-3">
-<h3 id="orgf5fa3fd"><a href="#orgf5fa3fd">Role</a></h3>
-<div class="outline-text-3" id="text-orgf5fa3fd">
+<div id="outline-container-orgc04bce7" class="outline-3">
+<h3 id="orgc04bce7"><a href="#orgc04bce7">Role</a></h3>
+<div class="outline-text-3" id="text-orgc04bce7">
 <div class="org-src-container">
 <pre class="src src-yaml">  <span style="color: #dcaeea;">VpcFlowLogsRole</span>:
     <span style="color: #dcaeea;">Type</span>: AWS::IAM::Role
@@ -114,9 +142,9 @@ is part of.
 </div>
 </div>
 
-<div id="outline-container-org761d55d" class="outline-3">
-<h3 id="org761d55d"><a href="#org761d55d">Policy</a></h3>
-<div class="outline-text-3" id="text-org761d55d">
+<div id="outline-container-orgc9178d5" class="outline-3">
+<h3 id="orgc9178d5"><a href="#orgc9178d5">Policy</a></h3>
+<div class="outline-text-3" id="text-orgc9178d5">
 <div class="org-src-container">
 <pre class="src src-yaml">  <span style="color: #dcaeea;">AllowVpcFlowLogs</span>:
     <span style="color: #dcaeea;">Type</span>: AWS::IAM::ManagedPolicy

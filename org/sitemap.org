@@ -5,7 +5,6 @@
 - [[file:setup.org][setup]]
 - alb
   - [[file:alb/lambda_target.org][ALB with a Lambda Target]]
-  - [[file:alb/grpc_target.org][ALB with a gRPC Target]]
 - ec2
   - [[file:ec2/instance.org][EC2 Instance]]
   - [[file:ec2/webserver.org][Web Server]]

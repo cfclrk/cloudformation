@@ -6,6 +6,10 @@ AWSTemplateFormatVersion: 2010-09-09
 Description: An IAM Role with an inline policy
 #+end_src
 
+* Overview
+
+An IAM role with an inline policy.
+
 * Parameters
 
 #+begin_src yaml

@@ -43,16 +43,29 @@ If you want the ALB to be reachable from the internet, the ALB must:
 - Use an internet-facing scheme
 - Be associated with /public subnets/
 
-Why can't we use private subnets? Although ALBs /can/ be associated with private
-subnets, in this case that would break everything. An ALB has a couple of IP
-addresses (try =host $ALB_DNS_NAME=). If you associate the ALB with two subnets,
-the ALB has at least 2 IP addresses: one for each subnet. When the ALB is
-associated with a subnet, it creates an Elastic Network Interface (ENI) in that
-subnet, and the ENI is assigned an internet-valid IP address (if this is an
-internet-facing ALB). /That/ IP becomes one of the ALB's IP addresses. If the
-ENI is in a private subnet, network traffic to the ENI's IP has no route into
-the subnet. So, when an ALB is associated with private subnets, querying the ALB
-from the internet will always hang.
+Why can't we use private subnets?
+
+ALBs /can/ be associated with private subnets, but in this case that would break
+everything. In AWS-land, only an Internet Gateway can provide a route from the
+internet into a Subnet, not an ALB. Maybe that isn't the best design in the
+world, but it is what it is.
+
+Some further explanation:
+
+An ALB has a couple of IP addresses (try =host $ALB_DNS_NAME=). If you associate
+the ALB with two subnets, the ALB has at least 2 IP addresses: one for each
+subnet. When the ALB is associated with a subnet, AWS creates an Elastic Network
+Interface (ENI) for the ALB in that subnet, and the ENI is assigned a public IP
+address (if this is an internet-facing ALB). /That/ IP becomes one of the ALB's
+IP addresses!
+
+Now say those ENIs are in private subnets. This is the same situation as when
+you have an EC2 instance in a private subnet with a "public" (internet-valid) IP
+address. You can try to query that IP, but you will never reach the instance.
+
+If the ENI is in a private subnet, network traffic to the ENI's IP has no route
+into the subnet. So, when an ALB is associated with private subnets, querying
+the ALB from the internet will always hang.
 
 #+begin_src yaml
   ALB:

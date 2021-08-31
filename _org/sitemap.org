@@ -1,11 +1,10 @@
-# Created 2021-08-30 Mon 11:03
+#+OPTIONS: timestamp:nil
 #+TITLE: CloudFormation
 - [[file:home.org][home]]
 - [[file:params.org][params]]
 - [[file:setup.org][setup]]
 - alb
   - [[file:alb/lambda_target.org][ALB with a Lambda Target]]
-  - [[file:alb/grpc_target.org][ALB with a gRPC Target]]
 - ec2
   - [[file:ec2/instance.org][EC2 Instance]]
   - [[file:ec2/webserver.org][Web Server]]

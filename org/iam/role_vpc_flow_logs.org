@@ -15,7 +15,7 @@ Parameters:
 #+NAME: Params
 | Param          | Value |
 |----------------+-------|
-| DeploymentName | cfc   |
+| DeploymentName | test  |
 
 #+INCLUDE: "../params.org::*DeploymentName"
 

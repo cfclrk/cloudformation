@@ -15,7 +15,7 @@ Parameters:
 #+name: Params
 | Param          | Value |
 |----------------+-------|
-| DeploymentName | cfc   |
+| DeploymentName | test  |
 
 ** DeploymentName
 

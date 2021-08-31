@@ -29,7 +29,8 @@
      :auto-sitemap t
      :sitemap-title "CloudFormation"
      :with-creator nil
-     :with-author nil)
+     :with-author nil
+     :with-timestamps nil)
 
     ;; Publish org files from the _org directory to the _out directory
     ("cloudformation-out"
@@ -40,13 +41,14 @@
      ,(expand-file-name "_out" cloudformation/project-directory)
      :publishing-function
      (org-babel-tangle-publish
-      org-html-publish-to-html
+      site/org-html-publish-to-html
       org-publish-attachment)
      :html-head-include-scripts nil
      :html-head-include-default-style nil
      :with-creator nil
      :with-author nil
      :section-numbers nil
+     :with-timestamps nil
      :html-preamble site/site-preamble
      :html-self-link-headlines t
      :html-head

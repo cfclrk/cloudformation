@@ -192,12 +192,14 @@
 
 * TODO
 
-  - [ ] Use nested stacks, as is the [[https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/best-practices.html#nested][best practice]].
-
-  - [ ] Force regeneration of all files in =make.el=. This way I can do a =make
-    clean= and then a =make=.
-
+  - [ ] When deploying a stack with prerequisites, automatically deploy the
+    prerequisites
+    - [ ] Maybe, prereqs are a table. Make a func that checks if there is a
+      stack with that name, and if not, create it.
+  - [ ] Use nested stacks? As is the [[https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/best-practices.html#nested][best practice]].
   - [ ] Make each page have a link to corresponding YAML file
+
+* Local Vars
 
   # Local Variables:
   # org-src-preserve-indentation: nil

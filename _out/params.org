@@ -1,4 +1,4 @@
-# Created 2021-08-30 Mon 21:05
+#+OPTIONS: timestamp:nil
 #+TITLE:
 This document contains some common CloudFormation parameters which are included
 in other documents in this project.

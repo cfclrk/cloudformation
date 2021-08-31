@@ -1,4 +1,4 @@
-# Created 2021-08-30 Mon 21:07
+#+OPTIONS: timestamp:nil
 #+TITLE: CloudFormation
 - [[file:home.org][home]]
 - [[file:params.org][params]]

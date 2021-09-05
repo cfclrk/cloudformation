@@ -13,8 +13,64 @@
 (defconst cloudformation/project-directory
   (file-name-directory (or load-file-name buffer-file-name)))
 
-(org-export-define-derived-backend 'cloudformation-html 'html
-  :translate-alist '((template . cloudformation/html-template)))
+;; Preprocessing Hook
+;; -----------------------------
+
+(defun cloudformation/yaml-path (org-path)
+  "Return path to yaml file for ORG-PATH."
+  (f-swap-ext
+   (f-relative org-path
+               (f-join cloudformation/project-directory "_org"))
+   "yaml"))
+
+(defun cloudformation/is-buffer-cf-template? ()
+  "True if the current buffer is for a CF template.
+False if current buffer is home page or sitemap."
+  (let ((buf (buffer-file-name)))
+    (not (or (s-contains? "sitemap" buf)
+             (s-contains? "home" buf)))))
+
+(defun cloudformation/add-yaml-link-to-html (backend)
+  "Preprocessing function run in `org-export-before-processing-hook'.
+BACKEND is the export backend."
+  (when (and
+         (org-export-derived-backend-p backend 'cloudformation/html)
+         (cloudformation/is-buffer-cf-template?))
+    (let* ((org-file (buffer-file-name)))
+      (save-excursion
+        (goto-char (point-min))
+        (insert
+         (format
+          "- CloudFormation template: [[%s][yaml]]\n"
+          (format "https://cfclrk.github.io/cloudformation/%s"
+                  (cloudformation/yaml-path org-file))))))))
+
+(add-hook
+ 'org-export-before-processing-hook
+ 'cloudformation/add-yaml-link-to-html)
+
+;; Derived Backend
+;; ---------------------
+
+;; Define a new backend only so that we can run processing hook for this backend
+;; but not for others.
+
+(org-export-define-derived-backend 'cloudformation/html 'site/html)
+
+(defun cloudformation/org-html-publish-to-html (plist filename pub-dir)
+  "Publish an org file to HTML.
+
+FILENAME is the filename of the Org file to be published.  PLIST
+is the property list for the given project.  PUB-DIR is the
+publishing directory.
+
+Return output file name."
+  (org-publish-org-to 'cloudformation/html filename
+		      (concat (when (> (length org-html-extension) 0) ".")
+			      (or (plist-get plist :html-extension)
+				  org-html-extension
+				  "html"))
+		      plist pub-dir))
 
 (defconst cloudformation/org-project-alist
 
@@ -40,8 +96,13 @@
      :publishing-directory
      ,(expand-file-name "_out" cloudformation/project-directory)
      :publishing-function
-     (org-babel-tangle-publish
-      site/org-html-publish-to-html
+     (;; Tangle org files to yaml, and put yaml files in target dir
+      org-babel-tangle-publish
+
+      ;; Export org files to HTML, and put HTML files in target dir
+      cloudformation/org-html-publish-to-html
+
+      ;; Copy each org file to the target dir
       org-publish-attachment)
      :html-head-include-scripts nil
      :html-head-include-default-style nil

@@ -33,44 +33,47 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#org09641fa">Overview</a></li>
-<li><a href="#orgea5a9b1">Parameters</a>
+<li><a href="#org43d8f03">Overview</a></li>
+<li><a href="#org9c98e18">Parameters</a>
 <ul>
-<li><a href="#orgdc08752">DeploymentName</a></li>
+<li><a href="#org4a140b3">DeploymentName</a></li>
 </ul>
 </li>
-<li><a href="#org0ba2849">Resources</a>
+<li><a href="#org12bdd50">Resources</a>
 <ul>
-<li><a href="#org92b06c7">Role</a></li>
+<li><a href="#org78dec85">Role</a></li>
 </ul>
 </li>
 </ul>
 </div>
 </nav>
+<ul class="org-ul">
+<li>CloudFormation template: <a href="https://cfclrk.github.io/cloudformation/iam/inline_role.yaml">yaml</a></li>
+</ul>
 <div class="org-src-container">
 <pre class="src src-yaml"><span style="color: #dcaeea;">AWSTemplateFormatVersion</span>: 2010-09-09
 <span style="color: #dcaeea;">Description</span>: An IAM Role with an inline policy
 </pre>
 </div>
 
-<div id="outline-container-org09641fa" class="outline-2">
-<h2 id="org09641fa"><a href="#org09641fa">Overview</a></h2>
-<div class="outline-text-2" id="text-org09641fa">
+<div id="outline-container-org43d8f03" class="outline-2">
+<h2 id="org43d8f03"><a href="#org43d8f03">Overview</a></h2>
+<div class="outline-text-2" id="text-org43d8f03">
 <p>
 An IAM role with an inline policy.
 </p>
 </div>
 </div>
 
-<div id="outline-container-orgea5a9b1" class="outline-2">
-<h2 id="orgea5a9b1"><a href="#orgea5a9b1">Parameters</a></h2>
-<div class="outline-text-2" id="text-orgea5a9b1">
+<div id="outline-container-org9c98e18" class="outline-2">
+<h2 id="org9c98e18"><a href="#org9c98e18">Parameters</a></h2>
+<div class="outline-text-2" id="text-org9c98e18">
 <div class="org-src-container">
 <pre class="src src-yaml"><span style="color: #dcaeea;">Parameters</span>:
 </pre>
 </div>
 
-<table id="orgf457a66">
+<table id="org25f3e1a">
 
 
 <colgroup>
@@ -93,9 +96,9 @@ An IAM role with an inline policy.
 </table>
 </div>
 
-<div id="outline-container-orgdc08752" class="outline-3">
-<h3 id="orgdc08752"><a href="#orgdc08752">DeploymentName</a></h3>
-<div class="outline-text-3" id="text-orgdc08752">
+<div id="outline-container-org4a140b3" class="outline-3">
+<h3 id="org4a140b3"><a href="#org4a140b3">DeploymentName</a></h3>
+<div class="outline-text-3" id="text-org4a140b3">
 <div class="org-src-container">
 <pre class="src src-yaml">  <span style="color: #dcaeea;">DeploymentName</span>:
     <span style="color: #dcaeea;">Type</span>: String
@@ -119,18 +122,18 @@ that case, consider not using a <code>DeploymentName</code> parameter.
 </div>
 </div>
 
-<div id="outline-container-org0ba2849" class="outline-2">
-<h2 id="org0ba2849"><a href="#org0ba2849">Resources</a></h2>
-<div class="outline-text-2" id="text-org0ba2849">
+<div id="outline-container-org12bdd50" class="outline-2">
+<h2 id="org12bdd50"><a href="#org12bdd50">Resources</a></h2>
+<div class="outline-text-2" id="text-org12bdd50">
 <div class="org-src-container">
 <pre class="src src-yaml"><span style="color: #dcaeea;">Resources</span>:
 </pre>
 </div>
 </div>
 
-<div id="outline-container-org92b06c7" class="outline-3">
-<h3 id="org92b06c7"><a href="#org92b06c7">Role</a></h3>
-<div class="outline-text-3" id="text-org92b06c7">
+<div id="outline-container-org78dec85" class="outline-3">
+<h3 id="org78dec85"><a href="#org78dec85">Role</a></h3>
+<div class="outline-text-3" id="text-org78dec85">
 <div class="org-src-container">
 <pre class="src src-yaml">  <span style="color: #dcaeea;">Role</span>:
     <span style="color: #dcaeea;">Type</span>: AWS::IAM::Role

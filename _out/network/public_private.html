@@ -33,27 +33,30 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#org4744305">Overview</a></li>
-<li><a href="#org46d1b8b">Parameters</a>
+<li><a href="#org7b7e37f">Overview</a></li>
+<li><a href="#org904dd38">Parameters</a>
 <ul>
-<li><a href="#orga6f71f5">DeploymentName</a></li>
+<li><a href="#org244ad86">DeploymentName</a></li>
 </ul>
 </li>
-<li><a href="#orgc144cf8">Resources</a>
+<li><a href="#orgc845c56">Resources</a>
 <ul>
-<li><a href="#org236284e">VPC</a></li>
-<li><a href="#org50c06b6">Internet Gateway</a></li>
-<li><a href="#orgb0843de">Public Route Table</a></li>
-<li><a href="#orgdff7af1">Private Route Tables</a></li>
-<li><a href="#orgfebb5e6">Public Subnets</a></li>
-<li><a href="#org62480cc">Private Subnets</a></li>
-<li><a href="#org0f0d821">NAT Gateways</a></li>
+<li><a href="#org83f355b">VPC</a></li>
+<li><a href="#orgc8c821a">Internet Gateway</a></li>
+<li><a href="#orgdb3e4b1">Public Route Table</a></li>
+<li><a href="#org78c62a5">Private Route Tables</a></li>
+<li><a href="#orgcfb8a61">Public Subnets</a></li>
+<li><a href="#orgcf8e167">Private Subnets</a></li>
+<li><a href="#org3a7c750">NAT Gateways</a></li>
 </ul>
 </li>
-<li><a href="#org2fd8965">Outputs</a></li>
+<li><a href="#org0af63fd">Outputs</a></li>
 </ul>
 </div>
 </nav>
+<ul class="org-ul">
+<li>CloudFormation template: <a href="https://cfclrk.github.io/cloudformation/network/public_private.yaml">yaml</a></li>
+</ul>
 <div class="org-src-container">
 <pre class="src src-yaml"><span style="color: #dcaeea;">AWSTemplateFormatVersion</span>: 2010-09-09
 <span style="color: #dcaeea;">Description</span>: &gt;
@@ -63,12 +66,12 @@
 </pre>
 </div>
 
-<div id="outline-container-org4744305" class="outline-2">
-<h2 id="org4744305"><a href="#org4744305">Overview</a></h2>
-<div class="outline-text-2" id="text-org4744305">
+<div id="outline-container-org7b7e37f" class="outline-2">
+<h2 id="org7b7e37f"><a href="#org7b7e37f">Overview</a></h2>
+<div class="outline-text-2" id="text-org7b7e37f">
 
-<figure id="org6132e36">
-<img src="../../static/img/Network-Public-Private.png" alt="Network-Public-Private.png">
+<figure id="org4581761">
+<img src="../../img/Network-Public-Private.png" alt="Network-Public-Private.png">
 
 </figure>
 
@@ -96,15 +99,15 @@ ways around it. Some possibilities are:
 </div>
 </div>
 
-<div id="outline-container-org46d1b8b" class="outline-2">
-<h2 id="org46d1b8b"><a href="#org46d1b8b">Parameters</a></h2>
-<div class="outline-text-2" id="text-org46d1b8b">
+<div id="outline-container-org904dd38" class="outline-2">
+<h2 id="org904dd38"><a href="#org904dd38">Parameters</a></h2>
+<div class="outline-text-2" id="text-org904dd38">
 <div class="org-src-container">
 <pre class="src src-yaml"><span style="color: #dcaeea;">Parameters</span>:
 </pre>
 </div>
 
-<table id="orgb241ecc">
+<table id="org12cff34">
 
 
 <colgroup>
@@ -127,9 +130,9 @@ ways around it. Some possibilities are:
 </table>
 </div>
 
-<div id="outline-container-orga6f71f5" class="outline-3">
-<h3 id="orga6f71f5"><a href="#orga6f71f5">DeploymentName</a></h3>
-<div class="outline-text-3" id="text-orga6f71f5">
+<div id="outline-container-org244ad86" class="outline-3">
+<h3 id="org244ad86"><a href="#org244ad86">DeploymentName</a></h3>
+<div class="outline-text-3" id="text-org244ad86">
 <div class="org-src-container">
 <pre class="src src-yaml">  <span style="color: #dcaeea;">DeploymentName</span>:
     <span style="color: #dcaeea;">Type</span>: String
@@ -181,18 +184,18 @@ that case, consider not using a <code>DeploymentName</code> parameter.
 </div>
 </div>
 
-<div id="outline-container-orgc144cf8" class="outline-2">
-<h2 id="orgc144cf8"><a href="#orgc144cf8">Resources</a></h2>
-<div class="outline-text-2" id="text-orgc144cf8">
+<div id="outline-container-orgc845c56" class="outline-2">
+<h2 id="orgc845c56"><a href="#orgc845c56">Resources</a></h2>
+<div class="outline-text-2" id="text-orgc845c56">
 <div class="org-src-container">
 <pre class="src src-yaml"><span style="color: #dcaeea;">Resources</span>:
 </pre>
 </div>
 </div>
 
-<div id="outline-container-org236284e" class="outline-3">
-<h3 id="org236284e"><a href="#org236284e">VPC</a></h3>
-<div class="outline-text-3" id="text-org236284e">
+<div id="outline-container-org83f355b" class="outline-3">
+<h3 id="org83f355b"><a href="#org83f355b">VPC</a></h3>
+<div class="outline-text-3" id="text-org83f355b">
 <div class="org-src-container">
 <pre class="src src-yaml">  <span style="color: #dcaeea;">VPC</span>:
     <span style="color: #dcaeea;">Type</span>: AWS::EC2::VPC
@@ -208,9 +211,9 @@ that case, consider not using a <code>DeploymentName</code> parameter.
 </div>
 </div>
 
-<div id="outline-container-org50c06b6" class="outline-3">
-<h3 id="org50c06b6"><a href="#org50c06b6">Internet Gateway</a></h3>
-<div class="outline-text-3" id="text-org50c06b6">
+<div id="outline-container-orgc8c821a" class="outline-3">
+<h3 id="orgc8c821a"><a href="#orgc8c821a">Internet Gateway</a></h3>
+<div class="outline-text-3" id="text-orgc8c821a">
 <div class="org-src-container">
 <pre class="src src-yaml">  <span style="color: #dcaeea;">InternetGateway</span>:
     <span style="color: #dcaeea;">Type</span>: AWS::EC2::InternetGateway
@@ -229,9 +232,9 @@ that case, consider not using a <code>DeploymentName</code> parameter.
 </div>
 </div>
 
-<div id="outline-container-orgb0843de" class="outline-3">
-<h3 id="orgb0843de"><a href="#orgb0843de">Public Route Table</a></h3>
-<div class="outline-text-3" id="text-orgb0843de">
+<div id="outline-container-orgdb3e4b1" class="outline-3">
+<h3 id="orgdb3e4b1"><a href="#orgdb3e4b1">Public Route Table</a></h3>
+<div class="outline-text-3" id="text-orgdb3e4b1">
 <div class="org-src-container">
 <pre class="src src-yaml">  <span style="color: #dcaeea;">PublicRouteTable</span>:
     <span style="color: #dcaeea;">Type</span>: AWS::EC2::RouteTable
@@ -256,9 +259,9 @@ that case, consider not using a <code>DeploymentName</code> parameter.
 </div>
 </div>
 
-<div id="outline-container-orgdff7af1" class="outline-3">
-<h3 id="orgdff7af1"><a href="#orgdff7af1">Private Route Tables</a></h3>
-<div class="outline-text-3" id="text-orgdff7af1">
+<div id="outline-container-org78c62a5" class="outline-3">
+<h3 id="org78c62a5"><a href="#org78c62a5">Private Route Tables</a></h3>
+<div class="outline-text-3" id="text-org78c62a5">
 <div class="org-src-container">
 <pre class="src src-yaml">  <span style="color: #dcaeea;">PrivateRouteTable1</span>:
     <span style="color: #dcaeea;">Type</span>: AWS::EC2::RouteTable
@@ -303,9 +306,9 @@ that case, consider not using a <code>DeploymentName</code> parameter.
 </div>
 </div>
 
-<div id="outline-container-orgfebb5e6" class="outline-3">
-<h3 id="orgfebb5e6"><a href="#orgfebb5e6">Public Subnets</a></h3>
-<div class="outline-text-3" id="text-orgfebb5e6">
+<div id="outline-container-orgcfb8a61" class="outline-3">
+<h3 id="orgcfb8a61"><a href="#orgcfb8a61">Public Subnets</a></h3>
+<div class="outline-text-3" id="text-orgcfb8a61">
 <div class="org-src-container">
 <pre class="src src-yaml">  <span style="color: #dcaeea;">PublicSubnet1</span>:
     <span style="color: #dcaeea;">Type</span>: AWS::EC2::Subnet
@@ -348,9 +351,9 @@ that case, consider not using a <code>DeploymentName</code> parameter.
 </div>
 </div>
 
-<div id="outline-container-org62480cc" class="outline-3">
-<h3 id="org62480cc"><a href="#org62480cc">Private Subnets</a></h3>
-<div class="outline-text-3" id="text-org62480cc">
+<div id="outline-container-orgcf8e167" class="outline-3">
+<h3 id="orgcf8e167"><a href="#orgcf8e167">Private Subnets</a></h3>
+<div class="outline-text-3" id="text-orgcf8e167">
 <p>
 There are two differences between "public" and "private" subnets:
 </p>
@@ -427,9 +430,9 @@ temporarily adding a route to the Internet Gateway.
 </div>
 </div>
 
-<div id="outline-container-org0f0d821" class="outline-3">
-<h3 id="org0f0d821"><a href="#org0f0d821">NAT Gateways</a></h3>
-<div class="outline-text-3" id="text-org0f0d821">
+<div id="outline-container-org3a7c750" class="outline-3">
+<h3 id="org3a7c750"><a href="#org3a7c750">NAT Gateways</a></h3>
+<div class="outline-text-3" id="text-org3a7c750">
 <div class="org-src-container">
 <pre class="src src-yaml">  <span style="color: #dcaeea;">NatGateway1EIP</span>:
     <span style="color: #dcaeea;">Type</span>: AWS::EC2::EIP
@@ -463,9 +466,9 @@ temporarily adding a route to the Internet Gateway.
 </div>
 </div>
 
-<div id="outline-container-org2fd8965" class="outline-2">
-<h2 id="org2fd8965"><a href="#org2fd8965">Outputs</a></h2>
-<div class="outline-text-2" id="text-org2fd8965">
+<div id="outline-container-org0af63fd" class="outline-2">
+<h2 id="org0af63fd"><a href="#org0af63fd">Outputs</a></h2>
+<div class="outline-text-2" id="text-org0af63fd">
 <div class="org-src-container">
 <pre class="src src-yaml"><span style="color: #dcaeea;">Outputs</span>:
   <span style="color: #dcaeea;">VpcId</span>:

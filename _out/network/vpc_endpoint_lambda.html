@@ -33,16 +33,19 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#org617c77c">Overview</a></li>
-<li><a href="#org8ef42dc">Parameters</a>
+<li><a href="#org9891cf3">Overview</a></li>
+<li><a href="#org0d504d1">Parameters</a>
 <ul>
-<li><a href="#org0e8be97">DeploymentName</a></li>
+<li><a href="#org885d15f">DeploymentName</a></li>
 </ul>
 </li>
-<li><a href="#org6be9231">VPC Endpoint for Lambda</a></li>
+<li><a href="#org3901021">VPC Endpoint for Lambda</a></li>
 </ul>
 </div>
 </nav>
+<ul class="org-ul">
+<li>CloudFormation template: <a href="https://cfclrk.github.io/cloudformation/network/vpc_endpoint_lambda.yaml">yaml</a></li>
+</ul>
 <div class="org-src-container">
 <pre class="src src-yaml"><span style="color: #dcaeea;">AWSTemplateFormatVersion</span>: 2010-09-09
 <span style="color: #dcaeea;">Description</span>: An interface VPC Endpoint to Lambda
@@ -50,9 +53,9 @@
 </pre>
 </div>
 
-<div id="outline-container-org617c77c" class="outline-2">
-<h2 id="org617c77c"><a href="#org617c77c">Overview</a></h2>
-<div class="outline-text-2" id="text-org617c77c">
+<div id="outline-container-org9891cf3" class="outline-2">
+<h2 id="org9891cf3"><a href="#org9891cf3">Overview</a></h2>
+<div class="outline-text-2" id="text-org9891cf3">
 <p>
 A VPC Endpoint that can be used to invoke a lambda function from inside of a VPC
 without talking to the internet.
@@ -60,18 +63,18 @@ without talking to the internet.
 </div>
 </div>
 
-<div id="outline-container-org8ef42dc" class="outline-2">
-<h2 id="org8ef42dc"><a href="#org8ef42dc">Parameters</a></h2>
-<div class="outline-text-2" id="text-org8ef42dc">
+<div id="outline-container-org0d504d1" class="outline-2">
+<h2 id="org0d504d1"><a href="#org0d504d1">Parameters</a></h2>
+<div class="outline-text-2" id="text-org0d504d1">
 <div class="org-src-container">
 <pre class="src src-yaml"><span style="color: #dcaeea;">Parameters</span>:
 </pre>
 </div>
 </div>
 
-<div id="outline-container-org0e8be97" class="outline-3">
-<h3 id="org0e8be97"><a href="#org0e8be97">DeploymentName</a></h3>
-<div class="outline-text-3" id="text-org0e8be97">
+<div id="outline-container-org885d15f" class="outline-3">
+<h3 id="org885d15f"><a href="#org885d15f">DeploymentName</a></h3>
+<div class="outline-text-3" id="text-org885d15f">
 <div class="org-src-container">
 <pre class="src src-yaml">  <span style="color: #dcaeea;">DeploymentName</span>:
     <span style="color: #dcaeea;">Type</span>: String
@@ -95,9 +98,9 @@ that case, consider not using a <code>DeploymentName</code> parameter.
 </div>
 </div>
 
-<div id="outline-container-org6be9231" class="outline-2">
-<h2 id="org6be9231"><a href="#org6be9231">VPC Endpoint for Lambda</a></h2>
-<div class="outline-text-2" id="text-org6be9231">
+<div id="outline-container-org3901021" class="outline-2">
+<h2 id="org3901021"><a href="#org3901021">VPC Endpoint for Lambda</a></h2>
+<div class="outline-text-2" id="text-org3901021">
 <div class="org-src-container">
 <pre class="src src-yaml">  <span style="color: #dcaeea;">VpcEndpointSecurityGroup</span>:
     <span style="color: #dcaeea;">Type</span>: AWS::EC2::SecurityGroup

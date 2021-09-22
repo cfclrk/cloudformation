@@ -31,12 +31,15 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#org1ccd1ad">DeploymentName</a></li>
-<li><a href="#org9c77703">KeyName</a></li>
-<li><a href="#orgb6cc534">SSHCIDR</a></li>
+<li><a href="#orgf5f83eb">DeploymentName</a></li>
+<li><a href="#org3e7e02f">KeyName</a></li>
+<li><a href="#orgbf9c7ba">SSHCIDR</a></li>
 </ul>
 </div>
 </nav>
+<ul class="org-ul">
+<li>CloudFormation template: <a href="https://cfclrk.github.io/cloudformation/params.yaml">yaml</a></li>
+</ul>
 <p>
 This document contains some common CloudFormation parameters which are included
 in other documents in this project.
@@ -46,9 +49,9 @@ in other documents in this project.
 Parameter names should adhere to AWS <a href="https://aws-quickstart.github.io/naming-parms.html">parameter naming standards</a>.
 </p>
 
-<div id="outline-container-org1ccd1ad" class="outline-2">
-<h2 id="org1ccd1ad"><a href="#org1ccd1ad">DeploymentName</a></h2>
-<div class="outline-text-2" id="text-org1ccd1ad">
+<div id="outline-container-orgf5f83eb" class="outline-2">
+<h2 id="orgf5f83eb"><a href="#orgf5f83eb">DeploymentName</a></h2>
+<div class="outline-text-2" id="text-orgf5f83eb">
 <div class="org-src-container">
 <pre class="src src-yaml">  <span style="color: #dcaeea;">DeploymentName</span>:
     <span style="color: #dcaeea;">Type</span>: String
@@ -71,9 +74,9 @@ that case, consider not using a <code>DeploymentName</code> parameter.
 </div>
 </div>
 
-<div id="outline-container-org9c77703" class="outline-2">
-<h2 id="org9c77703"><a href="#org9c77703">KeyName</a></h2>
-<div class="outline-text-2" id="text-org9c77703">
+<div id="outline-container-org3e7e02f" class="outline-2">
+<h2 id="org3e7e02f"><a href="#org3e7e02f">KeyName</a></h2>
+<div class="outline-text-2" id="text-org3e7e02f">
 <div class="org-src-container">
 <pre class="src src-yaml">  <span style="color: #dcaeea;">KeyName</span>:
     <span style="color: #dcaeea;">Type</span>: AWS::EC2::KeyPair::KeyName
@@ -107,9 +110,9 @@ save the private key somewhere (like SecretsManager or SSM Parameter Store).</li
 </div>
 </div>
 
-<div id="outline-container-orgb6cc534" class="outline-2">
-<h2 id="orgb6cc534"><a href="#orgb6cc534">SSHCIDR</a></h2>
-<div class="outline-text-2" id="text-orgb6cc534">
+<div id="outline-container-orgbf9c7ba" class="outline-2">
+<h2 id="orgbf9c7ba"><a href="#orgbf9c7ba">SSHCIDR</a></h2>
+<div class="outline-text-2" id="text-orgbf9c7ba">
 <div class="org-src-container">
 <pre class="src src-yaml">  <span style="color: #dcaeea;">SSHCIDR</span>:
     <span style="color: #dcaeea;">Type</span>: String

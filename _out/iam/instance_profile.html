@@ -33,21 +33,24 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#org4158bd5">Parameters</a>
+<li><a href="#orgf94132e">Parameters</a>
 <ul>
-<li><a href="#org484309c">DeploymentName</a></li>
+<li><a href="#orgb589b1c">DeploymentName</a></li>
 </ul>
 </li>
-<li><a href="#orgf6848ae">Resources</a>
+<li><a href="#org245e57c">Resources</a>
 <ul>
-<li><a href="#orgcd7f12b">Role</a></li>
-<li><a href="#org1fc84ce">Policy</a></li>
-<li><a href="#org181ab1e">Instance Profile</a></li>
+<li><a href="#org5fbf2b9">Role</a></li>
+<li><a href="#orgfc7b1be">Policy</a></li>
+<li><a href="#org35328e5">Instance Profile</a></li>
 </ul>
 </li>
 </ul>
 </div>
 </nav>
+<ul class="org-ul">
+<li>CloudFormation template: <a href="https://cfclrk.github.io/cloudformation/iam/instance_profile.yaml">yaml</a></li>
+</ul>
 <div class="org-src-container">
 <pre class="src src-yaml"><span style="color: #dcaeea;">AWSTemplateFormatVersion</span>: 2010-09-09
 <span style="color: #dcaeea;">Description</span>: &gt;
@@ -56,15 +59,15 @@
 </pre>
 </div>
 
-<div id="outline-container-org4158bd5" class="outline-2">
-<h2 id="org4158bd5"><a href="#org4158bd5">Parameters</a></h2>
-<div class="outline-text-2" id="text-org4158bd5">
+<div id="outline-container-orgf94132e" class="outline-2">
+<h2 id="orgf94132e"><a href="#orgf94132e">Parameters</a></h2>
+<div class="outline-text-2" id="text-orgf94132e">
 <div class="org-src-container">
 <pre class="src src-yaml"><span style="color: #dcaeea;">Parameters</span>:
 </pre>
 </div>
 
-<table id="org9a58223">
+<table id="orgeaa684d">
 
 
 <colgroup>
@@ -87,9 +90,9 @@
 </table>
 </div>
 
-<div id="outline-container-org484309c" class="outline-3">
-<h3 id="org484309c"><a href="#org484309c">DeploymentName</a></h3>
-<div class="outline-text-3" id="text-org484309c">
+<div id="outline-container-orgb589b1c" class="outline-3">
+<h3 id="orgb589b1c"><a href="#orgb589b1c">DeploymentName</a></h3>
+<div class="outline-text-3" id="text-orgb589b1c">
 <div class="org-src-container">
 <pre class="src src-yaml">  <span style="color: #dcaeea;">DeploymentName</span>:
     <span style="color: #dcaeea;">Type</span>: String
@@ -113,18 +116,18 @@ that case, consider not using a <code>DeploymentName</code> parameter.
 </div>
 </div>
 
-<div id="outline-container-orgf6848ae" class="outline-2">
-<h2 id="orgf6848ae"><a href="#orgf6848ae">Resources</a></h2>
-<div class="outline-text-2" id="text-orgf6848ae">
+<div id="outline-container-org245e57c" class="outline-2">
+<h2 id="org245e57c"><a href="#org245e57c">Resources</a></h2>
+<div class="outline-text-2" id="text-org245e57c">
 <div class="org-src-container">
 <pre class="src src-yaml"><span style="color: #dcaeea;">Resources</span>:
 </pre>
 </div>
 </div>
 
-<div id="outline-container-orgcd7f12b" class="outline-3">
-<h3 id="orgcd7f12b"><a href="#orgcd7f12b">Role</a></h3>
-<div class="outline-text-3" id="text-orgcd7f12b">
+<div id="outline-container-org5fbf2b9" class="outline-3">
+<h3 id="org5fbf2b9"><a href="#org5fbf2b9">Role</a></h3>
+<div class="outline-text-3" id="text-org5fbf2b9">
 <div class="org-src-container">
 <pre class="src src-yaml">  <span style="color: #dcaeea;">InstanceRole</span>:
     <span style="color: #dcaeea;">Type</span>: AWS::IAM::Role
@@ -146,9 +149,9 @@ that case, consider not using a <code>DeploymentName</code> parameter.
 </div>
 </div>
 
-<div id="outline-container-org1fc84ce" class="outline-3">
-<h3 id="org1fc84ce"><a href="#org1fc84ce">Policy</a></h3>
-<div class="outline-text-3" id="text-org1fc84ce">
+<div id="outline-container-orgfc7b1be" class="outline-3">
+<h3 id="orgfc7b1be"><a href="#orgfc7b1be">Policy</a></h3>
+<div class="outline-text-3" id="text-orgfc7b1be">
 <div class="org-src-container">
 <pre class="src src-yaml">  <span style="color: #dcaeea;">InstancePolicy</span>:
     <span style="color: #dcaeea;">Type</span>: AWS::IAM::ManagedPolicy
@@ -170,9 +173,9 @@ that case, consider not using a <code>DeploymentName</code> parameter.
 </div>
 </div>
 
-<div id="outline-container-org181ab1e" class="outline-3">
-<h3 id="org181ab1e"><a href="#org181ab1e">Instance Profile</a></h3>
-<div class="outline-text-3" id="text-org181ab1e">
+<div id="outline-container-org35328e5" class="outline-3">
+<h3 id="org35328e5"><a href="#org35328e5">Instance Profile</a></h3>
+<div class="outline-text-3" id="text-org35328e5">
 <div class="org-src-container">
 <pre class="src src-yaml">  <span style="color: #dcaeea;">InstanceProfile</span>:
     <span style="color: #dcaeea;">Type</span>: AWS::IAM::InstanceProfile

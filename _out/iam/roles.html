@@ -33,38 +33,41 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#orgc80c8da">Parameters</a>
+<li><a href="#org3211da8">Parameters</a>
 <ul>
-<li><a href="#orgb780790">DeploymentName</a></li>
+<li><a href="#org9ee6ef8">DeploymentName</a></li>
 </ul>
 </li>
-<li><a href="#org7b1b4fb">Resources</a>
+<li><a href="#org035bccc">Resources</a>
 <ul>
-<li><a href="#orga255547">Role</a></li>
-<li><a href="#orgebd82d0">Policy</a></li>
+<li><a href="#orgdbf9954">Role</a></li>
+<li><a href="#org20b090d">Policy</a></li>
 </ul>
 </li>
 </ul>
 </div>
 </nav>
+<ul class="org-ul">
+<li>CloudFormation template: <a href="https://cfclrk.github.io/cloudformation/iam/roles.yaml">yaml</a></li>
+</ul>
 <div class="org-src-container">
 <pre class="src src-yaml"><span style="color: #dcaeea;">AWSTemplateFormatVersion</span>: 2010-09-09
 <span style="color: #dcaeea;">Description</span>: IAM Role for creating VPC Flow Logs
 </pre>
 </div>
 
-<div id="outline-container-orgc80c8da" class="outline-2">
-<h2 id="orgc80c8da"><a href="#orgc80c8da">Parameters</a></h2>
-<div class="outline-text-2" id="text-orgc80c8da">
+<div id="outline-container-org3211da8" class="outline-2">
+<h2 id="org3211da8"><a href="#org3211da8">Parameters</a></h2>
+<div class="outline-text-2" id="text-org3211da8">
 <div class="org-src-container">
 <pre class="src src-yaml"><span style="color: #dcaeea;">Parameters</span>:
 </pre>
 </div>
 </div>
 
-<div id="outline-container-orgb780790" class="outline-3">
-<h3 id="orgb780790"><a href="#orgb780790">DeploymentName</a></h3>
-<div class="outline-text-3" id="text-orgb780790">
+<div id="outline-container-org9ee6ef8" class="outline-3">
+<h3 id="org9ee6ef8"><a href="#org9ee6ef8">DeploymentName</a></h3>
+<div class="outline-text-3" id="text-org9ee6ef8">
 <p>
 A <b>deployment</b> is a complete deployed application, potentially comprised of many
 CloudFormation stacks. This is sometimes called an "environment", but that is an
@@ -82,18 +85,18 @@ is part of.
 </div>
 </div>
 
-<div id="outline-container-org7b1b4fb" class="outline-2">
-<h2 id="org7b1b4fb"><a href="#org7b1b4fb">Resources</a></h2>
-<div class="outline-text-2" id="text-org7b1b4fb">
+<div id="outline-container-org035bccc" class="outline-2">
+<h2 id="org035bccc"><a href="#org035bccc">Resources</a></h2>
+<div class="outline-text-2" id="text-org035bccc">
 <div class="org-src-container">
 <pre class="src src-yaml"><span style="color: #dcaeea;">Resources</span>:
 </pre>
 </div>
 </div>
 
-<div id="outline-container-orga255547" class="outline-3">
-<h3 id="orga255547"><a href="#orga255547">Role</a></h3>
-<div class="outline-text-3" id="text-orga255547">
+<div id="outline-container-orgdbf9954" class="outline-3">
+<h3 id="orgdbf9954"><a href="#orgdbf9954">Role</a></h3>
+<div class="outline-text-3" id="text-orgdbf9954">
 <div class="org-src-container">
 <pre class="src src-yaml">  <span style="color: #dcaeea;">VpcFlowLogsRole</span>:
     <span style="color: #dcaeea;">Type</span>: AWS::IAM::Role
@@ -114,9 +117,9 @@ is part of.
 </div>
 </div>
 
-<div id="outline-container-orgebd82d0" class="outline-3">
-<h3 id="orgebd82d0"><a href="#orgebd82d0">Policy</a></h3>
-<div class="outline-text-3" id="text-orgebd82d0">
+<div id="outline-container-org20b090d" class="outline-3">
+<h3 id="org20b090d"><a href="#org20b090d">Policy</a></h3>
+<div class="outline-text-3" id="text-org20b090d">
 <div class="org-src-container">
 <pre class="src src-yaml">  <span style="color: #dcaeea;">AllowVpcFlowLogs</span>:
     <span style="color: #dcaeea;">Type</span>: AWS::IAM::ManagedPolicy

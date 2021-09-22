@@ -33,35 +33,38 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#orgf73b206">Parameters</a>
+<li><a href="#org329321d">Parameters</a>
 <ul>
-<li><a href="#orgf7235ff">DeploymentName</a></li>
+<li><a href="#orga9ab5da">DeploymentName</a></li>
 </ul>
 </li>
-<li><a href="#orgd0cf983">Resources</a>
+<li><a href="#org4b44f60">Resources</a>
 <ul>
-<li><a href="#orgc04bce7">Role</a></li>
-<li><a href="#orgc9178d5">Policy</a></li>
+<li><a href="#org25bfe8e">Role</a></li>
+<li><a href="#orgb41c0a9">Policy</a></li>
 </ul>
 </li>
 </ul>
 </div>
 </nav>
+<ul class="org-ul">
+<li>CloudFormation template: <a href="https://cfclrk.github.io/cloudformation/iam/role_vpc_flow_logs.yaml">yaml</a></li>
+</ul>
 <div class="org-src-container">
 <pre class="src src-yaml"><span style="color: #dcaeea;">AWSTemplateFormatVersion</span>: 2010-09-09
 <span style="color: #dcaeea;">Description</span>: IAM Role for creating VPC Flow Logs
 </pre>
 </div>
 
-<div id="outline-container-orgf73b206" class="outline-2">
-<h2 id="orgf73b206"><a href="#orgf73b206">Parameters</a></h2>
-<div class="outline-text-2" id="text-orgf73b206">
+<div id="outline-container-org329321d" class="outline-2">
+<h2 id="org329321d"><a href="#org329321d">Parameters</a></h2>
+<div class="outline-text-2" id="text-org329321d">
 <div class="org-src-container">
 <pre class="src src-yaml"><span style="color: #dcaeea;">Parameters</span>:
 </pre>
 </div>
 
-<table id="org30155ab">
+<table id="orgd1a9f7f">
 
 
 <colgroup>
@@ -84,9 +87,9 @@
 </table>
 </div>
 
-<div id="outline-container-orgf7235ff" class="outline-3">
-<h3 id="orgf7235ff"><a href="#orgf7235ff">DeploymentName</a></h3>
-<div class="outline-text-3" id="text-orgf7235ff">
+<div id="outline-container-orga9ab5da" class="outline-3">
+<h3 id="orga9ab5da"><a href="#orga9ab5da">DeploymentName</a></h3>
+<div class="outline-text-3" id="text-orga9ab5da">
 <div class="org-src-container">
 <pre class="src src-yaml">  <span style="color: #dcaeea;">DeploymentName</span>:
     <span style="color: #dcaeea;">Type</span>: String
@@ -110,18 +113,18 @@ that case, consider not using a <code>DeploymentName</code> parameter.
 </div>
 </div>
 
-<div id="outline-container-orgd0cf983" class="outline-2">
-<h2 id="orgd0cf983"><a href="#orgd0cf983">Resources</a></h2>
-<div class="outline-text-2" id="text-orgd0cf983">
+<div id="outline-container-org4b44f60" class="outline-2">
+<h2 id="org4b44f60"><a href="#org4b44f60">Resources</a></h2>
+<div class="outline-text-2" id="text-org4b44f60">
 <div class="org-src-container">
 <pre class="src src-yaml"><span style="color: #dcaeea;">Resources</span>:
 </pre>
 </div>
 </div>
 
-<div id="outline-container-orgc04bce7" class="outline-3">
-<h3 id="orgc04bce7"><a href="#orgc04bce7">Role</a></h3>
-<div class="outline-text-3" id="text-orgc04bce7">
+<div id="outline-container-org25bfe8e" class="outline-3">
+<h3 id="org25bfe8e"><a href="#org25bfe8e">Role</a></h3>
+<div class="outline-text-3" id="text-org25bfe8e">
 <div class="org-src-container">
 <pre class="src src-yaml">  <span style="color: #dcaeea;">VpcFlowLogsRole</span>:
     <span style="color: #dcaeea;">Type</span>: AWS::IAM::Role
@@ -142,9 +145,9 @@ that case, consider not using a <code>DeploymentName</code> parameter.
 </div>
 </div>
 
-<div id="outline-container-orgc9178d5" class="outline-3">
-<h3 id="orgc9178d5"><a href="#orgc9178d5">Policy</a></h3>
-<div class="outline-text-3" id="text-orgc9178d5">
+<div id="outline-container-orgb41c0a9" class="outline-3">
+<h3 id="orgb41c0a9"><a href="#orgb41c0a9">Policy</a></h3>
+<div class="outline-text-3" id="text-orgb41c0a9">
 <div class="org-src-container">
 <pre class="src src-yaml">  <span style="color: #dcaeea;">AllowVpcFlowLogs</span>:
     <span style="color: #dcaeea;">Type</span>: AWS::IAM::ManagedPolicy

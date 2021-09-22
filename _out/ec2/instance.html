@@ -33,40 +33,43 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#org9119df2">Prerequisets</a></li>
-<li><a href="#org542ac3a">Overview</a></li>
-<li><a href="#orge836729">Parameters</a>
+<li><a href="#orge9f49fd">Prerequisets</a></li>
+<li><a href="#org0292b4d">Overview</a></li>
+<li><a href="#orge894a62">Parameters</a>
 <ul>
-<li><a href="#orgdacfda9">DeploymentName</a></li>
-<li><a href="#orgde7a864">KeyName</a></li>
+<li><a href="#org5b2b3d9">DeploymentName</a></li>
+<li><a href="#org098b58b">KeyName</a></li>
 </ul>
 </li>
-<li><a href="#org2f2a07c">Mappings</a></li>
-<li><a href="#org9906fe6">Resources</a>
+<li><a href="#org373cd6d">Mappings</a></li>
+<li><a href="#org1b5b971">Resources</a>
 <ul>
-<li><a href="#org6cb45d3">IAM</a>
+<li><a href="#orgb66640e">IAM</a>
 <ul>
-<li><a href="#org933285a">Role</a></li>
-<li><a href="#org82ca03b">Instance Profile</a></li>
-<li><a href="#orgece36d4">Policy</a></li>
+<li><a href="#org30b4f54">Role</a></li>
+<li><a href="#org5ad43e9">Instance Profile</a></li>
+<li><a href="#orgb311897">Policy</a></li>
 </ul>
 </li>
-<li><a href="#orgd09b750">Security Group</a></li>
-<li><a href="#orgd0c502e">Instance</a></li>
+<li><a href="#org6958568">Security Group</a></li>
+<li><a href="#orgd509ab9">Instance</a></li>
 </ul>
 </li>
 </ul>
 </div>
 </nav>
+<ul class="org-ul">
+<li>CloudFormation template: <a href="https://cfclrk.github.io/cloudformation/ec2/instance.yaml">yaml</a></li>
+</ul>
 <div class="org-src-container">
 <pre class="src src-yaml"><span style="color: #dcaeea;">AWSTemplateFormatVersion</span>: 2010-09-09
 <span style="color: #dcaeea;">Description</span>: An EC2 Instance.
 </pre>
 </div>
 
-<div id="outline-container-org9119df2" class="outline-2">
-<h2 id="org9119df2"><a href="#org9119df2">Prerequisets</a></h2>
-<div class="outline-text-2" id="text-org9119df2">
+<div id="outline-container-orge9f49fd" class="outline-2">
+<h2 id="orge9f49fd"><a href="#orge9f49fd">Prerequisets</a></h2>
+<div class="outline-text-2" id="text-orge9f49fd">
 <ul class="org-ul">
 <li><a href="../network/public.html">../network/public.html</a> deployed with the same <code>DeploymentName</code></li>
 <li>An EC2 KeyPair in this region</li>
@@ -74,27 +77,27 @@
 </div>
 </div>
 
-<div id="outline-container-org542ac3a" class="outline-2">
-<h2 id="org542ac3a"><a href="#org542ac3a">Overview</a></h2>
-<div class="outline-text-2" id="text-org542ac3a">
+<div id="outline-container-org0292b4d" class="outline-2">
+<h2 id="org0292b4d"><a href="#org0292b4d">Overview</a></h2>
+<div class="outline-text-2" id="text-org0292b4d">
 <p>
 This CloudFormation template creates a single EC2 instance.
 </p>
 </div>
 </div>
 
-<div id="outline-container-orge836729" class="outline-2">
-<h2 id="orge836729"><a href="#orge836729">Parameters</a></h2>
-<div class="outline-text-2" id="text-orge836729">
+<div id="outline-container-orge894a62" class="outline-2">
+<h2 id="orge894a62"><a href="#orge894a62">Parameters</a></h2>
+<div class="outline-text-2" id="text-orge894a62">
 <div class="org-src-container">
 <pre class="src src-yaml"><span style="color: #dcaeea;">Parameters</span>:
 </pre>
 </div>
 </div>
 
-<div id="outline-container-orgdacfda9" class="outline-3">
-<h3 id="orgdacfda9"><a href="#orgdacfda9">DeploymentName</a></h3>
-<div class="outline-text-3" id="text-orgdacfda9">
+<div id="outline-container-org5b2b3d9" class="outline-3">
+<h3 id="org5b2b3d9"><a href="#org5b2b3d9">DeploymentName</a></h3>
+<div class="outline-text-3" id="text-org5b2b3d9">
 <div class="org-src-container">
 <pre class="src src-yaml">  <span style="color: #dcaeea;">DeploymentName</span>:
     <span style="color: #dcaeea;">Type</span>: String
@@ -117,9 +120,9 @@ that case, consider not using a <code>DeploymentName</code> parameter.
 </div>
 </div>
 
-<div id="outline-container-orgde7a864" class="outline-3">
-<h3 id="orgde7a864"><a href="#orgde7a864">KeyName</a></h3>
-<div class="outline-text-3" id="text-orgde7a864">
+<div id="outline-container-org098b58b" class="outline-3">
+<h3 id="org098b58b"><a href="#org098b58b">KeyName</a></h3>
+<div class="outline-text-3" id="text-org098b58b">
 <div class="org-src-container">
 <pre class="src src-yaml">  <span style="color: #dcaeea;">KeyName</span>:
     <span style="color: #dcaeea;">Type</span>: AWS::EC2::KeyPair::KeyName
@@ -154,9 +157,9 @@ save the private key somewhere (like SecretsManager or SSM Parameter Store).</li
 </div>
 </div>
 
-<div id="outline-container-org2f2a07c" class="outline-2">
-<h2 id="org2f2a07c"><a href="#org2f2a07c">Mappings</a></h2>
-<div class="outline-text-2" id="text-org2f2a07c">
+<div id="outline-container-org373cd6d" class="outline-2">
+<h2 id="org373cd6d"><a href="#org373cd6d">Mappings</a></h2>
+<div class="outline-text-2" id="text-org373cd6d">
 <div class="org-src-container">
 <pre class="src src-yaml"><span style="color: #dcaeea;">Mappings</span>:
 </pre>
@@ -177,18 +180,18 @@ Instance mapping
 </div>
 </div>
 
-<div id="outline-container-org9906fe6" class="outline-2">
-<h2 id="org9906fe6"><a href="#org9906fe6">Resources</a></h2>
-<div class="outline-text-2" id="text-org9906fe6">
+<div id="outline-container-org1b5b971" class="outline-2">
+<h2 id="org1b5b971"><a href="#org1b5b971">Resources</a></h2>
+<div class="outline-text-2" id="text-org1b5b971">
 <div class="org-src-container">
 <pre class="src src-yaml"><span style="color: #dcaeea;">Resources</span>:
 </pre>
 </div>
 </div>
 
-<div id="outline-container-org6cb45d3" class="outline-3">
-<h3 id="org6cb45d3"><a href="#org6cb45d3">IAM</a></h3>
-<div class="outline-text-3" id="text-org6cb45d3">
+<div id="outline-container-orgb66640e" class="outline-3">
+<h3 id="orgb66640e"><a href="#orgb66640e">IAM</a></h3>
+<div class="outline-text-3" id="text-orgb66640e">
 <p>
 An EC2 instance isn't <i>required</i> to have an IAM instance profile. However, an
 instance profile is a good idea if the instance will talk to any other AWS
@@ -197,9 +200,9 @@ somehow.
 </p>
 </div>
 
-<div id="outline-container-org933285a" class="outline-4">
-<h4 id="org933285a"><a href="#org933285a">Role</a></h4>
-<div class="outline-text-4" id="text-org933285a">
+<div id="outline-container-org30b4f54" class="outline-4">
+<h4 id="org30b4f54"><a href="#org30b4f54">Role</a></h4>
+<div class="outline-text-4" id="text-org30b4f54">
 <div class="org-src-container">
 <pre class="src src-yaml">  <span style="color: #dcaeea;">InstanceRole</span>:
     <span style="color: #dcaeea;">Type</span>: AWS::IAM::Role
@@ -221,9 +224,9 @@ somehow.
 </div>
 </div>
 
-<div id="outline-container-org82ca03b" class="outline-4">
-<h4 id="org82ca03b"><a href="#org82ca03b">Instance Profile</a></h4>
-<div class="outline-text-4" id="text-org82ca03b">
+<div id="outline-container-org5ad43e9" class="outline-4">
+<h4 id="org5ad43e9"><a href="#org5ad43e9">Instance Profile</a></h4>
+<div class="outline-text-4" id="text-org5ad43e9">
 <div class="org-src-container">
 <pre class="src src-yaml">  <span style="color: #dcaeea;">InstanceProfile</span>:
     <span style="color: #dcaeea;">Type</span>: AWS::IAM::InstanceProfile
@@ -236,9 +239,9 @@ somehow.
 </div>
 </div>
 
-<div id="outline-container-orgece36d4" class="outline-4">
-<h4 id="orgece36d4"><a href="#orgece36d4">Policy</a></h4>
-<div class="outline-text-4" id="text-orgece36d4">
+<div id="outline-container-orgb311897" class="outline-4">
+<h4 id="orgb311897"><a href="#orgb311897">Policy</a></h4>
+<div class="outline-text-4" id="text-orgb311897">
 <div class="org-src-container">
 <pre class="src src-yaml">  <span style="color: #dcaeea;">InstancePolicy</span>:
     <span style="color: #dcaeea;">Type</span>: AWS::IAM::ManagedPolicy
@@ -261,9 +264,9 @@ somehow.
 </div>
 </div>
 
-<div id="outline-container-orgd09b750" class="outline-3">
-<h3 id="orgd09b750"><a href="#orgd09b750">Security Group</a></h3>
-<div class="outline-text-3" id="text-orgd09b750">
+<div id="outline-container-org6958568" class="outline-3">
+<h3 id="org6958568"><a href="#org6958568">Security Group</a></h3>
+<div class="outline-text-3" id="text-org6958568">
 <div class="org-src-container">
 <pre class="src src-yaml">  <span style="color: #dcaeea;">SecurityGroup</span>:
     <span style="color: #dcaeea;">Type</span>: AWS::EC2::SecurityGroup
@@ -284,9 +287,9 @@ somehow.
 </div>
 </div>
 
-<div id="outline-container-orgd0c502e" class="outline-3">
-<h3 id="orgd0c502e"><a href="#orgd0c502e">Instance</a></h3>
-<div class="outline-text-3" id="text-orgd0c502e">
+<div id="outline-container-orgd509ab9" class="outline-3">
+<h3 id="orgd509ab9"><a href="#orgd509ab9">Instance</a></h3>
+<div class="outline-text-3" id="text-orgd509ab9">
 <div class="org-src-container">
 <pre class="src src-yaml">  <span style="color: #dcaeea;">Instance</span>:
     <span style="color: #dcaeea;">Type</span>: AWS::EC2::Instance

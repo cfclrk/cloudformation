@@ -131,7 +131,7 @@ Return output file name."
      :base-directory
      ,(expand-file-name "img" cloudformation/project-directory)
      :publishing-directory
-     ,(expand-file-name "static/img" site/publishing-directory)
+     ,(expand-file-name "img" site/publishing-directory)
      :base-extension "png\\|jpg\\|gif\\|pdf"
      :publishing-function org-publish-attachment)))
 

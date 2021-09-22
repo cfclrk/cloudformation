@@ -33,25 +33,28 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#org6eb5c5a">Prerequisites</a></li>
-<li><a href="#orgfae795e">Overview</a></li>
-<li><a href="#orgacb4957">Parameters</a>
+<li><a href="#orge607f8e">Prerequisites</a></li>
+<li><a href="#org3d5e44d">Overview</a></li>
+<li><a href="#org983f2cf">Parameters</a>
 <ul>
-<li><a href="#org5569e52">DeploymentName</a></li>
+<li><a href="#org084ec07">DeploymentName</a></li>
 </ul>
 </li>
-<li><a href="#org51be4a2">Resources</a>
+<li><a href="#org54be72a">Resources</a>
 <ul>
-<li><a href="#org2db9648">ALB (internet-facing)</a></li>
-<li><a href="#org184dc06">ALB Routing</a></li>
-<li><a href="#org8e846a6">Lambda Function</a></li>
+<li><a href="#org9dec88b">ALB (internet-facing)</a></li>
+<li><a href="#org749d5f6">ALB Routing</a></li>
+<li><a href="#org47e283b">Lambda Function</a></li>
 </ul>
 </li>
-<li><a href="#org6c579f2">Outputs</a></li>
-<li><a href="#org48a14d8">Testing</a></li>
+<li><a href="#orgaec4aa8">Outputs</a></li>
+<li><a href="#org8057503">Testing</a></li>
 </ul>
 </div>
 </nav>
+<ul class="org-ul">
+<li>CloudFormation template: <a href="https://cfclrk.github.io/cloudformation/alb/grpc_target.yaml">yaml</a></li>
+</ul>
 <div class="org-src-container">
 <pre class="src src-yaml"><span style="color: #dcaeea;">AWSTemplateFormatVersion</span>: 2010-09-09
 <span style="color: #dcaeea;">Description</span>: A public ALB with a gRPC target.
@@ -59,36 +62,36 @@
 </pre>
 </div>
 
-<div id="outline-container-org6eb5c5a" class="outline-2">
-<h2 id="org6eb5c5a"><a href="#org6eb5c5a">Prerequisites</a></h2>
-<div class="outline-text-2" id="text-org6eb5c5a">
+<div id="outline-container-orge607f8e" class="outline-2">
+<h2 id="orge607f8e"><a href="#orge607f8e">Prerequisites</a></h2>
+<div class="outline-text-2" id="text-orge607f8e">
 <ul class="org-ul">
 <li><a href="../network/public_private.html">../network/public_private.html</a> deployed with the same <code>DeploymentName</code></li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-orgfae795e" class="outline-2">
-<h2 id="orgfae795e"><a href="#orgfae795e">Overview</a></h2>
-<div class="outline-text-2" id="text-orgfae795e">
+<div id="outline-container-org3d5e44d" class="outline-2">
+<h2 id="org3d5e44d"><a href="#org3d5e44d">Overview</a></h2>
+<div class="outline-text-2" id="text-org3d5e44d">
 <p>
 This creates an internet-facing ALB that invokes a gRPC service.
 </p>
 </div>
 </div>
 
-<div id="outline-container-orgacb4957" class="outline-2">
-<h2 id="orgacb4957"><a href="#orgacb4957">Parameters</a></h2>
-<div class="outline-text-2" id="text-orgacb4957">
+<div id="outline-container-org983f2cf" class="outline-2">
+<h2 id="org983f2cf"><a href="#org983f2cf">Parameters</a></h2>
+<div class="outline-text-2" id="text-org983f2cf">
 <div class="org-src-container">
 <pre class="src src-yaml"><span style="color: #dcaeea;">Parameters</span>:
 </pre>
 </div>
 </div>
 
-<div id="outline-container-org5569e52" class="outline-3">
-<h3 id="org5569e52"><a href="#org5569e52">DeploymentName</a></h3>
-<div class="outline-text-3" id="text-org5569e52">
+<div id="outline-container-org084ec07" class="outline-3">
+<h3 id="org084ec07"><a href="#org084ec07">DeploymentName</a></h3>
+<div class="outline-text-3" id="text-org084ec07">
 <div class="org-src-container">
 <pre class="src src-yaml">  <span style="color: #dcaeea;">DeploymentName</span>:
     <span style="color: #dcaeea;">Type</span>: String
@@ -112,18 +115,18 @@ that case, consider not using a <code>DeploymentName</code> parameter.
 </div>
 </div>
 
-<div id="outline-container-org51be4a2" class="outline-2">
-<h2 id="org51be4a2"><a href="#org51be4a2">Resources</a></h2>
-<div class="outline-text-2" id="text-org51be4a2">
+<div id="outline-container-org54be72a" class="outline-2">
+<h2 id="org54be72a"><a href="#org54be72a">Resources</a></h2>
+<div class="outline-text-2" id="text-org54be72a">
 <div class="org-src-container">
 <pre class="src src-yaml"><span style="color: #dcaeea;">Resources</span>:
 </pre>
 </div>
 </div>
 
-<div id="outline-container-org2db9648" class="outline-3">
-<h3 id="org2db9648"><a href="#org2db9648">ALB (internet-facing)</a></h3>
-<div class="outline-text-3" id="text-org2db9648">
+<div id="outline-container-org9dec88b" class="outline-3">
+<h3 id="org9dec88b"><a href="#org9dec88b">ALB (internet-facing)</a></h3>
+<div class="outline-text-3" id="text-org9dec88b">
 <p>
 If you want the ALB to be reachable from the internet, the ALB must:
 </p>
@@ -189,9 +192,9 @@ ALB from the internet will always hang.
 </div>
 </div>
 
-<div id="outline-container-org184dc06" class="outline-3">
-<h3 id="org184dc06"><a href="#org184dc06">ALB Routing</a></h3>
-<div class="outline-text-3" id="text-org184dc06">
+<div id="outline-container-org749d5f6" class="outline-3">
+<h3 id="org749d5f6"><a href="#org749d5f6">ALB Routing</a></h3>
+<div class="outline-text-3" id="text-org749d5f6">
 <div class="org-src-container">
 <pre class="src src-yaml">  <span style="color: #dcaeea;">ALBListenerHTTP</span>:
     <span style="color: #dcaeea;">Type</span>: AWS::ElasticLoadBalancingV2::Listener
@@ -234,9 +237,9 @@ tricky. See: <a href="https://forums.aws.amazon.com/thread.jspa?threadID=307784"
 </div>
 </div>
 
-<div id="outline-container-org8e846a6" class="outline-3">
-<h3 id="org8e846a6"><a href="#org8e846a6">Lambda Function</a></h3>
-<div class="outline-text-3" id="text-org8e846a6">
+<div id="outline-container-org47e283b" class="outline-3">
+<h3 id="org47e283b"><a href="#org47e283b">Lambda Function</a></h3>
+<div class="outline-text-3" id="text-org47e283b">
 <div class="org-src-container">
 <pre class="src src-yaml">  <span style="color: #dcaeea;">HelloWorldFunction</span>:
     <span style="color: #dcaeea;">Type</span>: AWS::Serverless::Function
@@ -262,9 +265,9 @@ tricky. See: <a href="https://forums.aws.amazon.com/thread.jspa?threadID=307784"
 </div>
 </div>
 
-<div id="outline-container-org6c579f2" class="outline-2">
-<h2 id="org6c579f2"><a href="#org6c579f2">Outputs</a></h2>
-<div class="outline-text-2" id="text-org6c579f2">
+<div id="outline-container-orgaec4aa8" class="outline-2">
+<h2 id="orgaec4aa8"><a href="#orgaec4aa8">Outputs</a></h2>
+<div class="outline-text-2" id="text-orgaec4aa8">
 <div class="org-src-container">
 <pre class="src src-yaml"><span style="color: #dcaeea;">Outputs</span>:
   <span style="color: #dcaeea;">ALB</span>:
@@ -277,9 +280,9 @@ tricky. See: <a href="https://forums.aws.amazon.com/thread.jspa?threadID=307784"
 </div>
 </div>
 
-<div id="outline-container-org48a14d8" class="outline-2">
-<h2 id="org48a14d8"><a href="#org48a14d8">Testing</a></h2>
-<div class="outline-text-2" id="text-org48a14d8">
+<div id="outline-container-org8057503" class="outline-2">
+<h2 id="org8057503"><a href="#org8057503">Testing</a></h2>
+<div class="outline-text-2" id="text-org8057503">
 <p>
 Send an HTTP GET request to the ALB.
 </p>

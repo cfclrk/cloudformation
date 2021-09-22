@@ -33,35 +33,38 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#orga2bf225">Parameters</a>
+<li><a href="#orga30ba6a">Parameters</a>
 <ul>
-<li><a href="#orge35c0b6">DeploymentName</a></li>
+<li><a href="#org39acfb2">DeploymentName</a></li>
 </ul>
 </li>
-<li><a href="#org52602f8">Resources</a>
+<li><a href="#org9253a42">Resources</a>
 <ul>
-<li><a href="#org232b09c">Bucket</a></li>
+<li><a href="#orga3d1405">Bucket</a></li>
 </ul>
 </li>
-<li><a href="#org6d87ec5">Outputs</a></li>
+<li><a href="#orgf7d3308">Outputs</a></li>
 </ul>
 </div>
 </nav>
+<ul class="org-ul">
+<li>CloudFormation template: <a href="https://cfclrk.github.io/cloudformation/s3/bucket.yaml">yaml</a></li>
+</ul>
 <div class="org-src-container">
 <pre class="src src-yaml"><span style="color: #dcaeea;">AWSTemplateFormatVersion</span>: 2010-09-09
 <span style="color: #dcaeea;">Description</span>: A simple S3 bucket
 </pre>
 </div>
 
-<div id="outline-container-orga2bf225" class="outline-2">
-<h2 id="orga2bf225"><a href="#orga2bf225">Parameters</a></h2>
-<div class="outline-text-2" id="text-orga2bf225">
+<div id="outline-container-orga30ba6a" class="outline-2">
+<h2 id="orga30ba6a"><a href="#orga30ba6a">Parameters</a></h2>
+<div class="outline-text-2" id="text-orga30ba6a">
 <div class="org-src-container">
 <pre class="src src-yaml"><span style="color: #dcaeea;">Parameters</span>:
 </pre>
 </div>
 
-<table id="org92bc3c1">
+<table id="org0303c31">
 
 
 <colgroup>
@@ -78,15 +81,15 @@
 <tbody>
 <tr>
 <td class="org-left">DeploymentName</td>
-<td class="org-left">cfc</td>
+<td class="org-left">test</td>
 </tr>
 </tbody>
 </table>
 </div>
 
-<div id="outline-container-orge35c0b6" class="outline-3">
-<h3 id="orge35c0b6"><a href="#orge35c0b6">DeploymentName</a></h3>
-<div class="outline-text-3" id="text-orge35c0b6">
+<div id="outline-container-org39acfb2" class="outline-3">
+<h3 id="org39acfb2"><a href="#org39acfb2">DeploymentName</a></h3>
+<div class="outline-text-3" id="text-org39acfb2">
 <div class="org-src-container">
 <pre class="src src-yaml">  <span style="color: #dcaeea;">DeploymentName</span>:
     <span style="color: #dcaeea;">Type</span>: String
@@ -110,18 +113,18 @@ that case, consider not using a <code>DeploymentName</code> parameter.
 </div>
 </div>
 
-<div id="outline-container-org52602f8" class="outline-2">
-<h2 id="org52602f8"><a href="#org52602f8">Resources</a></h2>
-<div class="outline-text-2" id="text-org52602f8">
+<div id="outline-container-org9253a42" class="outline-2">
+<h2 id="org9253a42"><a href="#org9253a42">Resources</a></h2>
+<div class="outline-text-2" id="text-org9253a42">
 <div class="org-src-container">
 <pre class="src src-yaml"><span style="color: #dcaeea;">Resources</span>:
 </pre>
 </div>
 </div>
 
-<div id="outline-container-org232b09c" class="outline-3">
-<h3 id="org232b09c"><a href="#org232b09c">Bucket</a></h3>
-<div class="outline-text-3" id="text-org232b09c">
+<div id="outline-container-orga3d1405" class="outline-3">
+<h3 id="orga3d1405"><a href="#orga3d1405">Bucket</a></h3>
+<div class="outline-text-3" id="text-orga3d1405">
 <div class="org-src-container">
 <pre class="src src-yaml">  <span style="color: #dcaeea;">Bucket</span>:
     <span style="color: #dcaeea;">Type</span>: AWS::S3::Bucket
@@ -135,9 +138,9 @@ that case, consider not using a <code>DeploymentName</code> parameter.
 </div>
 </div>
 
-<div id="outline-container-org6d87ec5" class="outline-2">
-<h2 id="org6d87ec5"><a href="#org6d87ec5">Outputs</a></h2>
-<div class="outline-text-2" id="text-org6d87ec5">
+<div id="outline-container-orgf7d3308" class="outline-2">
+<h2 id="orgf7d3308"><a href="#orgf7d3308">Outputs</a></h2>
+<div class="outline-text-2" id="text-orgf7d3308">
 <div class="org-src-container">
 <pre class="src src-yaml"><span style="color: #dcaeea;">Outputs</span>:
   <span style="color: #dcaeea;">BucketName</span>:

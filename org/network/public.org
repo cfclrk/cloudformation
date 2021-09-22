@@ -8,7 +8,7 @@ Description: VPC with two public Subnets.
 
 * Overview
 
-[[../../static/img/Network-Public.png]]
+[[../../img/Network-Public.png]]
 
 This CloudFormation template creates a VPC with two public subnets.
 

@@ -4,9 +4,9 @@
 #+begin_src yaml
 AWSTemplateFormatVersion: 2010-09-09
 Description: >
-  A VPC with two public Subnets and two private Subnets. Each public Subnet
-  includes a NAT Gateway which provides outbound connectivity from the private
-  Subnets to the internet (but not vice versa).
+  A VPC with two public subnets and two private subnets. Each public
+  subnet includes a NAT Gateway which provides outbound connectivity
+  from the private subnets to the internet.
 #+end_src
 
 * Overview
@@ -84,7 +84,7 @@ Resources:
       EnableDnsHostnames: true
       Tags:
         - Key: Name
-          Value: !Sub "${DeploymentName}"
+          Value: !Ref DeploymentName
 #+end_src
 
 ** Internet Gateway
@@ -95,75 +95,13 @@ Resources:
     Properties:
       Tags:
         - Key: Name
-          Value: !Sub "${DeploymentName}"
+          Value: !Ref DeploymentName
 
   InternetGatewayAttachment:
     Type: AWS::EC2::VPCGatewayAttachment
     Properties:
       InternetGatewayId: !Ref InternetGateway
       VpcId: !Ref VPC
-#+end_src
-
-** Public Route Table
-
-#+begin_src yaml
-  PublicRouteTable:
-    Type: AWS::EC2::RouteTable
-    Properties:
-      VpcId: !Ref VPC
-      Tags:
-        - Key: Name
-          Value: !Sub "${DeploymentName} Public"
-#+end_src
-
-#+begin_src yaml
-  DefaultPublicRoute:
-    Type: AWS::EC2::Route
-    DependsOn: InternetGatewayAttachment
-    Properties:
-      RouteTableId: !Ref PublicRouteTable
-      DestinationCidrBlock: 0.0.0.0/0
-      GatewayId: !Ref InternetGateway
-#+end_src
-
-** Private Route Tables
-
-#+begin_src yaml
-  PrivateRouteTable1:
-    Type: AWS::EC2::RouteTable
-    Properties:
-      VpcId: !Ref VPC
-      Tags:
-        - Key: Name
-          Value: !Sub "${DeploymentName} Private (AZ1)"
-#+end_src
-
-#+begin_src yaml
-  DefaultPrivateRoute1:
-    Type: AWS::EC2::Route
-    Properties:
-      RouteTableId: !Ref PrivateRouteTable1
-      DestinationCidrBlock: 0.0.0.0/0
-      NatGatewayId: !Ref NatGateway1
-#+end_src
-
-#+begin_src yaml
-  PrivateRouteTable2:
-    Type: AWS::EC2::RouteTable
-    Properties:
-      VpcId: !Ref VPC
-      Tags:
-        - Key: Name
-          Value: !Sub "${DeploymentName} Private (AZ1)"
-#+end_src
-
-#+begin_src yaml
-  DefaultPrivateRoute2:
-    Type: AWS::EC2::Route
-    Properties:
-      RouteTableId: !Ref PrivateRouteTable2
-      DestinationCidrBlock: 0.0.0.0/0
-      NatGatewayId: !Ref NatGateway2
 #+end_src
 
 ** Public Subnets
@@ -266,6 +204,68 @@ Resources:
       SubnetId: !Ref PrivateSubnet2
 #+end_src
 
+** Public Route Table
+
+#+begin_src yaml
+  PublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: !Sub "${DeploymentName} Public"
+#+end_src
+
+#+begin_src yaml
+  DefaultPublicRoute:
+    Type: AWS::EC2::Route
+    DependsOn: InternetGatewayAttachment
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+#+end_src
+
+** Private Route Tables
+
+#+begin_src yaml
+  PrivateRouteTable1:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: !Sub "${DeploymentName} Private (AZ1)"
+#+end_src
+
+#+begin_src yaml
+  DefaultPrivateRoute1:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable1
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref NatGateway1
+#+end_src
+
+#+begin_src yaml
+  PrivateRouteTable2:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: !Sub "${DeploymentName} Private (AZ1)"
+#+end_src
+
+#+begin_src yaml
+  DefaultPrivateRoute2:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable2
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref NatGateway2
+#+end_src
+
 ** NAT Gateways
 
 #+begin_src yaml
@@ -300,17 +300,18 @@ Resources:
 
 #+begin_src yaml
 Outputs:
-  VpcId:
+
+  VPCID:
     Description: A reference to the created VPC
     Value: !Ref VPC
     Export:
-      Name: !Sub "${DeploymentName}-VpcId"
+      Name: !Sub "${DeploymentName}-VPCID"
 
-  VpcCidr:
+  VPCCIDR:
     Description: The VPC CIDR range
     Value: !GetAtt VPC.CidrBlock
     Export:
-      Name: !Sub "${DeploymentName}-VpcCidr"
+      Name: !Sub "${DeploymentName}-VPCCIDR"
 
   PublicSubnet1:
     Description: The public subnet in the 1st AZ

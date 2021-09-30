@@ -3,7 +3,7 @@
 
 #+begin_src yaml
 AWSTemplateFormatVersion: 2010-09-09
-Description: VPC with two public Subnets.
+Description: VPC with two public subnets.
 #+end_src
 
 * Overview

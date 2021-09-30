@@ -43,10 +43,10 @@
 <ul>
 <li><a href="#org83f355b">VPC</a></li>
 <li><a href="#orgc8c821a">Internet Gateway</a></li>
-<li><a href="#orgdb3e4b1">Public Route Table</a></li>
-<li><a href="#org78c62a5">Private Route Tables</a></li>
 <li><a href="#orgcfb8a61">Public Subnets</a></li>
 <li><a href="#orgcf8e167">Private Subnets</a></li>
+<li><a href="#orgdb3e4b1">Public Route Table</a></li>
+<li><a href="#org78c62a5">Private Route Tables</a></li>
 <li><a href="#org3a7c750">NAT Gateways</a></li>
 </ul>
 </li>
@@ -60,9 +60,9 @@
 <div class="org-src-container">
 <pre class="src src-yaml"><span style="color: #dcaeea;">AWSTemplateFormatVersion</span>: 2010-09-09
 <span style="color: #dcaeea;">Description</span>: &gt;
-  <span style="color: #98be65;">A VPC with two public Subnets and two private Subnets. Each public Subnet</span>
-<span style="color: #98be65;">  includes a NAT Gateway which provides outbound connectivity from the private</span>
-<span style="color: #98be65;">  Subnets to the internet (but not vice versa).</span>
+  <span style="color: #98be65;">A VPC with two public subnets and two private subnets. Each public</span>
+<span style="color: #98be65;">  subnet includes a NAT Gateway which provides outbound connectivity</span>
+<span style="color: #98be65;">  from the private subnets to the internet.</span>
 </pre>
 </div>
 
@@ -70,7 +70,7 @@
 <h2 id="org7b7e37f"><a href="#org7b7e37f">Overview</a></h2>
 <div class="outline-text-2" id="text-org7b7e37f">
 
-<figure id="org4581761">
+<figure id="orgd339eae">
 <img src="../../img/Network-Public-Private.png" alt="Network-Public-Private.png">
 
 </figure>
@@ -149,8 +149,8 @@ logical deployment a stack belongs to.
 
 <p>
 If a deployment is completely specified by exactly one CloudFormation template,
-the <code>DeploymentName</code> and the <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/pseudo-parameter-reference.html#cfn-pseudo-param-stackname">AWS::StackName</a> would refer to the same things. In
-that case, consider not using a <code>DeploymentName</code> parameter.
+the <code>DeploymentName</code> and the <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/pseudo-parameter-reference.html#cfn-pseudo-param-stackname">AWS::StackName</a> refer to the same things. In that
+case, consider not using a <code>DeploymentName</code> parameter.
 </p>
 
 <div class="org-src-container">
@@ -205,7 +205,7 @@ that case, consider not using a <code>DeploymentName</code> parameter.
       <span style="color: #dcaeea;">EnableDnsHostnames</span>: <span style="color: #a9a1e1;">true</span>
       <span style="color: #dcaeea;">Tags</span>:
         - <span style="color: #dcaeea;">Key</span>: Name
-          <span style="color: #dcaeea;">Value</span>: <span style="color: #ECBE7B;">!Sub</span> <span style="color: #98be65;">"${DeploymentName}"</span>
+          <span style="color: #dcaeea;">Value</span>: <span style="color: #ECBE7B;">!Ref</span> DeploymentName
 </pre>
 </div>
 </div>
@@ -220,87 +220,13 @@ that case, consider not using a <code>DeploymentName</code> parameter.
     <span style="color: #dcaeea;">Properties</span>:
       <span style="color: #dcaeea;">Tags</span>:
         - <span style="color: #dcaeea;">Key</span>: Name
-          <span style="color: #dcaeea;">Value</span>: <span style="color: #ECBE7B;">!Sub</span> <span style="color: #98be65;">"${DeploymentName}"</span>
+          <span style="color: #dcaeea;">Value</span>: <span style="color: #ECBE7B;">!Ref</span> DeploymentName
 
   <span style="color: #dcaeea;">InternetGatewayAttachment</span>:
     <span style="color: #dcaeea;">Type</span>: AWS::EC2::VPCGatewayAttachment
     <span style="color: #dcaeea;">Properties</span>:
       <span style="color: #dcaeea;">InternetGatewayId</span>: <span style="color: #ECBE7B;">!Ref</span> InternetGateway
       <span style="color: #dcaeea;">VpcId</span>: <span style="color: #ECBE7B;">!Ref</span> VPC
-</pre>
-</div>
-</div>
-</div>
-
-<div id="outline-container-orgdb3e4b1" class="outline-3">
-<h3 id="orgdb3e4b1"><a href="#orgdb3e4b1">Public Route Table</a></h3>
-<div class="outline-text-3" id="text-orgdb3e4b1">
-<div class="org-src-container">
-<pre class="src src-yaml">  <span style="color: #dcaeea;">PublicRouteTable</span>:
-    <span style="color: #dcaeea;">Type</span>: AWS::EC2::RouteTable
-    <span style="color: #dcaeea;">Properties</span>:
-      <span style="color: #dcaeea;">VpcId</span>: <span style="color: #ECBE7B;">!Ref</span> VPC
-      <span style="color: #dcaeea;">Tags</span>:
-        - <span style="color: #dcaeea;">Key</span>: Name
-          <span style="color: #dcaeea;">Value</span>: <span style="color: #ECBE7B;">!Sub</span> <span style="color: #98be65;">"${DeploymentName} Public"</span>
-</pre>
-</div>
-
-<div class="org-src-container">
-<pre class="src src-yaml">  <span style="color: #dcaeea;">DefaultPublicRoute</span>:
-    <span style="color: #dcaeea;">Type</span>: AWS::EC2::Route
-    <span style="color: #dcaeea;">DependsOn</span>: InternetGatewayAttachment
-    <span style="color: #dcaeea;">Properties</span>:
-      <span style="color: #dcaeea;">RouteTableId</span>: <span style="color: #ECBE7B;">!Ref</span> PublicRouteTable
-      <span style="color: #dcaeea;">DestinationCidrBlock</span>: 0.0.0.0/0
-      <span style="color: #dcaeea;">GatewayId</span>: <span style="color: #ECBE7B;">!Ref</span> InternetGateway
-</pre>
-</div>
-</div>
-</div>
-
-<div id="outline-container-org78c62a5" class="outline-3">
-<h3 id="org78c62a5"><a href="#org78c62a5">Private Route Tables</a></h3>
-<div class="outline-text-3" id="text-org78c62a5">
-<div class="org-src-container">
-<pre class="src src-yaml">  <span style="color: #dcaeea;">PrivateRouteTable1</span>:
-    <span style="color: #dcaeea;">Type</span>: AWS::EC2::RouteTable
-    <span style="color: #dcaeea;">Properties</span>:
-      <span style="color: #dcaeea;">VpcId</span>: <span style="color: #ECBE7B;">!Ref</span> VPC
-      <span style="color: #dcaeea;">Tags</span>:
-        - <span style="color: #dcaeea;">Key</span>: Name
-          <span style="color: #dcaeea;">Value</span>: <span style="color: #ECBE7B;">!Sub</span> <span style="color: #98be65;">"${DeploymentName} Private (AZ1)"</span>
-</pre>
-</div>
-
-<div class="org-src-container">
-<pre class="src src-yaml">  <span style="color: #dcaeea;">DefaultPrivateRoute1</span>:
-    <span style="color: #dcaeea;">Type</span>: AWS::EC2::Route
-    <span style="color: #dcaeea;">Properties</span>:
-      <span style="color: #dcaeea;">RouteTableId</span>: <span style="color: #ECBE7B;">!Ref</span> PrivateRouteTable1
-      <span style="color: #dcaeea;">DestinationCidrBlock</span>: 0.0.0.0/0
-      <span style="color: #dcaeea;">NatGatewayId</span>: <span style="color: #ECBE7B;">!Ref</span> NatGateway1
-</pre>
-</div>
-
-<div class="org-src-container">
-<pre class="src src-yaml">  <span style="color: #dcaeea;">PrivateRouteTable2</span>:
-    <span style="color: #dcaeea;">Type</span>: AWS::EC2::RouteTable
-    <span style="color: #dcaeea;">Properties</span>:
-      <span style="color: #dcaeea;">VpcId</span>: <span style="color: #ECBE7B;">!Ref</span> VPC
-      <span style="color: #dcaeea;">Tags</span>:
-        - <span style="color: #dcaeea;">Key</span>: Name
-          <span style="color: #dcaeea;">Value</span>: <span style="color: #ECBE7B;">!Sub</span> <span style="color: #98be65;">"${DeploymentName} Private (AZ1)"</span>
-</pre>
-</div>
-
-<div class="org-src-container">
-<pre class="src src-yaml">  <span style="color: #dcaeea;">DefaultPrivateRoute2</span>:
-    <span style="color: #dcaeea;">Type</span>: AWS::EC2::Route
-    <span style="color: #dcaeea;">Properties</span>:
-      <span style="color: #dcaeea;">RouteTableId</span>: <span style="color: #ECBE7B;">!Ref</span> PrivateRouteTable2
-      <span style="color: #dcaeea;">DestinationCidrBlock</span>: 0.0.0.0/0
-      <span style="color: #dcaeea;">NatGatewayId</span>: <span style="color: #ECBE7B;">!Ref</span> NatGateway2
 </pre>
 </div>
 </div>
@@ -430,6 +356,80 @@ temporarily adding a route to the Internet Gateway.
 </div>
 </div>
 
+<div id="outline-container-orgdb3e4b1" class="outline-3">
+<h3 id="orgdb3e4b1"><a href="#orgdb3e4b1">Public Route Table</a></h3>
+<div class="outline-text-3" id="text-orgdb3e4b1">
+<div class="org-src-container">
+<pre class="src src-yaml">  <span style="color: #dcaeea;">PublicRouteTable</span>:
+    <span style="color: #dcaeea;">Type</span>: AWS::EC2::RouteTable
+    <span style="color: #dcaeea;">Properties</span>:
+      <span style="color: #dcaeea;">VpcId</span>: <span style="color: #ECBE7B;">!Ref</span> VPC
+      <span style="color: #dcaeea;">Tags</span>:
+        - <span style="color: #dcaeea;">Key</span>: Name
+          <span style="color: #dcaeea;">Value</span>: <span style="color: #ECBE7B;">!Sub</span> <span style="color: #98be65;">"${DeploymentName} Public"</span>
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-yaml">  <span style="color: #dcaeea;">DefaultPublicRoute</span>:
+    <span style="color: #dcaeea;">Type</span>: AWS::EC2::Route
+    <span style="color: #dcaeea;">DependsOn</span>: InternetGatewayAttachment
+    <span style="color: #dcaeea;">Properties</span>:
+      <span style="color: #dcaeea;">RouteTableId</span>: <span style="color: #ECBE7B;">!Ref</span> PublicRouteTable
+      <span style="color: #dcaeea;">DestinationCidrBlock</span>: 0.0.0.0/0
+      <span style="color: #dcaeea;">GatewayId</span>: <span style="color: #ECBE7B;">!Ref</span> InternetGateway
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org78c62a5" class="outline-3">
+<h3 id="org78c62a5"><a href="#org78c62a5">Private Route Tables</a></h3>
+<div class="outline-text-3" id="text-org78c62a5">
+<div class="org-src-container">
+<pre class="src src-yaml">  <span style="color: #dcaeea;">PrivateRouteTable1</span>:
+    <span style="color: #dcaeea;">Type</span>: AWS::EC2::RouteTable
+    <span style="color: #dcaeea;">Properties</span>:
+      <span style="color: #dcaeea;">VpcId</span>: <span style="color: #ECBE7B;">!Ref</span> VPC
+      <span style="color: #dcaeea;">Tags</span>:
+        - <span style="color: #dcaeea;">Key</span>: Name
+          <span style="color: #dcaeea;">Value</span>: <span style="color: #ECBE7B;">!Sub</span> <span style="color: #98be65;">"${DeploymentName} Private (AZ1)"</span>
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-yaml">  <span style="color: #dcaeea;">DefaultPrivateRoute1</span>:
+    <span style="color: #dcaeea;">Type</span>: AWS::EC2::Route
+    <span style="color: #dcaeea;">Properties</span>:
+      <span style="color: #dcaeea;">RouteTableId</span>: <span style="color: #ECBE7B;">!Ref</span> PrivateRouteTable1
+      <span style="color: #dcaeea;">DestinationCidrBlock</span>: 0.0.0.0/0
+      <span style="color: #dcaeea;">NatGatewayId</span>: <span style="color: #ECBE7B;">!Ref</span> NatGateway1
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-yaml">  <span style="color: #dcaeea;">PrivateRouteTable2</span>:
+    <span style="color: #dcaeea;">Type</span>: AWS::EC2::RouteTable
+    <span style="color: #dcaeea;">Properties</span>:
+      <span style="color: #dcaeea;">VpcId</span>: <span style="color: #ECBE7B;">!Ref</span> VPC
+      <span style="color: #dcaeea;">Tags</span>:
+        - <span style="color: #dcaeea;">Key</span>: Name
+          <span style="color: #dcaeea;">Value</span>: <span style="color: #ECBE7B;">!Sub</span> <span style="color: #98be65;">"${DeploymentName} Private (AZ1)"</span>
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-yaml">  <span style="color: #dcaeea;">DefaultPrivateRoute2</span>:
+    <span style="color: #dcaeea;">Type</span>: AWS::EC2::Route
+    <span style="color: #dcaeea;">Properties</span>:
+      <span style="color: #dcaeea;">RouteTableId</span>: <span style="color: #ECBE7B;">!Ref</span> PrivateRouteTable2
+      <span style="color: #dcaeea;">DestinationCidrBlock</span>: 0.0.0.0/0
+      <span style="color: #dcaeea;">NatGatewayId</span>: <span style="color: #ECBE7B;">!Ref</span> NatGateway2
+</pre>
+</div>
+</div>
+</div>
+
 <div id="outline-container-org3a7c750" class="outline-3">
 <h3 id="org3a7c750"><a href="#org3a7c750">NAT Gateways</a></h3>
 <div class="outline-text-3" id="text-org3a7c750">
@@ -471,17 +471,18 @@ temporarily adding a route to the Internet Gateway.
 <div class="outline-text-2" id="text-org0af63fd">
 <div class="org-src-container">
 <pre class="src src-yaml"><span style="color: #dcaeea;">Outputs</span>:
-  <span style="color: #dcaeea;">VpcId</span>:
+
+  <span style="color: #dcaeea;">VPCID</span>:
     <span style="color: #dcaeea;">Description</span>: A reference to the created VPC
     <span style="color: #dcaeea;">Value</span>: <span style="color: #ECBE7B;">!Ref</span> VPC
     <span style="color: #dcaeea;">Export</span>:
-      <span style="color: #dcaeea;">Name</span>: <span style="color: #ECBE7B;">!Sub</span> <span style="color: #98be65;">"${DeploymentName}-VpcId"</span>
+      <span style="color: #dcaeea;">Name</span>: <span style="color: #ECBE7B;">!Sub</span> <span style="color: #98be65;">"${DeploymentName}-VPCID"</span>
 
-  <span style="color: #dcaeea;">VpcCidr</span>:
+  <span style="color: #dcaeea;">VPCCIDR</span>:
     <span style="color: #dcaeea;">Description</span>: The VPC CIDR range
     <span style="color: #dcaeea;">Value</span>: <span style="color: #ECBE7B;">!GetAtt</span> VPC.CidrBlock
     <span style="color: #dcaeea;">Export</span>:
-      <span style="color: #dcaeea;">Name</span>: <span style="color: #ECBE7B;">!Sub</span> <span style="color: #98be65;">"${DeploymentName}-VpcCidr"</span>
+      <span style="color: #dcaeea;">Name</span>: <span style="color: #ECBE7B;">!Sub</span> <span style="color: #98be65;">"${DeploymentName}-VPCCIDR"</span>
 
   <span style="color: #dcaeea;">PublicSubnet1</span>:
     <span style="color: #dcaeea;">Description</span>: The public subnet in the 1st AZ

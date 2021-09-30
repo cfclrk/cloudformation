@@ -56,7 +56,7 @@
 </ul>
 <div class="org-src-container">
 <pre class="src src-yaml"><span style="color: #dcaeea;">AWSTemplateFormatVersion</span>: 2010-09-09
-<span style="color: #dcaeea;">Description</span>: VPC with two public Subnets.
+<span style="color: #dcaeea;">Description</span>: VPC with two public subnets.
 </pre>
 </div>
 
@@ -64,7 +64,7 @@
 <h2 id="org93e4198"><a href="#org93e4198">Overview</a></h2>
 <div class="outline-text-2" id="text-org93e4198">
 
-<figure id="org5c8c2b7">
+<figure id="org1c06178">
 <img src="../../img/Network-Public.png" alt="Network-Public.png">
 
 </figure>
@@ -125,8 +125,8 @@ logical deployment a stack belongs to.
 
 <p>
 If a deployment is completely specified by exactly one CloudFormation template,
-the <code>DeploymentName</code> and the <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/pseudo-parameter-reference.html#cfn-pseudo-param-stackname">AWS::StackName</a> would refer to the same things. In
-that case, consider not using a <code>DeploymentName</code> parameter.
+the <code>DeploymentName</code> and the <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/pseudo-parameter-reference.html#cfn-pseudo-param-stackname">AWS::StackName</a> refer to the same things. In that
+case, consider not using a <code>DeploymentName</code> parameter.
 </p>
 
 <div class="org-src-container">

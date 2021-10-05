@@ -1,5 +1,0 @@
-#+OPTIONS: timestamp:nil broken-links:t
-#+TITLE:
-#+property: header-args+ :eval never-export
-#+property: header-args+ :exports both
-#+property: header-args+ :tangle yes

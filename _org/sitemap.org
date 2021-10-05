@@ -1,4 +1,3 @@
-#+OPTIONS: timestamp:nil
 #+TITLE: CloudFormation
 - [[file:home.org][home]]
 - [[file:params.org][params]]

@@ -17,18 +17,27 @@
 ;; -----------------------------
 
 (defun cloudformation/yaml-path (org-path)
-  "Return path to yaml file for ORG-PATH."
-  (f-swap-ext
-   (f-relative org-path
-               (f-join cloudformation/project-directory "_org"))
-   "yaml"))
+  "Get a relative path to the YAML file generated from ORG-PATH.
+Given a path like
+
+  /Users/chris.clark/Projects/cloudformation/_org/iam/roles.org
+
+Return
+
+  iam/roles.yaml
+
+ORG-PATH must be a path in the _org directory of this project."
+  (let ((org-dir (f-join cloudformation/project-directory "_org")))
+    (f-swap-ext (f-relative org-path org-dir)
+                "yaml")))
 
 (defun cloudformation/is-buffer-cf-template? ()
   "True if the current buffer is for a CF template.
 False if current buffer is home page or sitemap."
   (let ((buf (buffer-file-name)))
     (not (or (s-contains? "sitemap" buf)
-             (s-contains? "home" buf)))))
+             (s-contains? "home" buf)
+             (s-contains? "params" buf)))))
 
 (defun cloudformation/add-yaml-link-to-html (backend)
   "Preprocessing function run in `org-export-before-processing-hook'.
@@ -42,7 +51,7 @@ BACKEND is the export backend."
         (insert
          (format
           "- CloudFormation template: [[%s][yaml]]\n"
-          (format "https://cfclrk.github.io/cloudformation/%s"
+          (format "https://cfclrk.com/cloudformation/%s"
                   (cloudformation/yaml-path org-file))))))))
 
 (add-hook
@@ -104,6 +113,8 @@ Return output file name."
 
       ;; Copy each org file to the target dir
       org-publish-attachment)
+     ;; TODO: DOES THIS WORK?
+     :exclude "setup\\.org"
      :html-head-include-scripts nil
      :html-head-include-default-style nil
      :with-creator nil

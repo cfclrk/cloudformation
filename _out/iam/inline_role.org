@@ -1,4 +1,4 @@
-#+TITLE: Role with Inline Policy
+#+title: Role with Inline Policy
 #+setupfile: ../setup.org
 
 #+begin_src yaml

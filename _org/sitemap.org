@@ -1,4 +1,4 @@
-#+TITLE: CloudFormation
+#+title: CloudFormation
 - [[file:home.org][home]]
 - [[file:params.org][params]]
 - [[file:setup.org][setup]]

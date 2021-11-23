@@ -1,4 +1,4 @@
-#+TITLE: Interface VPC Endpoint to Lambda
+#+title: Interface VPC Endpoint to Lambda
 #+setupfile: ../setup.org
 
 #+begin_src yaml

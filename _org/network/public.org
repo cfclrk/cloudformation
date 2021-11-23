@@ -1,4 +1,4 @@
-#+TITLE: Network with Public Subnets
+#+title: Network with Public Subnets
 #+setupfile: ../setup.org
 
 #+begin_src yaml

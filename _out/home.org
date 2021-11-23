@@ -1,5 +1,5 @@
-#+OPTIONS: toc:nil
-#+TITLE: CloudFormation
+#+options: toc:nil
+#+title: CloudFormation
 #+setupfile: setup.org
 AWS Infrastructure defined in CloudFormation. This is an expirement in using
 literate programming to define and explain cloud infrastructure.

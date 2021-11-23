@@ -1,4 +1,4 @@
-#+TITLE: Role for VPC Flow Logs
+#+title: Role for VPC Flow Logs
 #+setupfile: ../setup.org
 
 #+begin_src yaml

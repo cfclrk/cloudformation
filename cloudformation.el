@@ -113,7 +113,7 @@ Return output file name."
 
       ;; Copy each org file to the target dir
       org-publish-attachment)
-     ;; TODO: DOES THIS WORK?
+     ;; TODO: DOES THIS WORK? Sitemap still has setup I think.
      :exclude "setup\\.org"
      :html-head-include-scripts nil
      :html-head-include-default-style nil
@@ -145,6 +145,13 @@ Return output file name."
      ,(expand-file-name "img" site/publishing-directory)
      :base-extension "png\\|jpg\\|gif\\|pdf"
      :publishing-function org-publish-attachment)))
+
+;; Add (or update) the projects in cloudformation/org-projects-alist
+(dolist (project cloudformation/org-project-alist)
+  (let ((project-name (car project)))
+    (setq org-publish-project-alist
+          (cons project
+                (assoc-delete-all project-name org-publish-project-alist)))))
 
 (provide 'cloudformation)
 

@@ -109,6 +109,7 @@
 
    Create or update a stack.
 
+   #+header: :prologue "exec 2>&1" :epilogue "true"
    #+begin_src sh :var StackName=StackName ParamString=DeployParamString :async
      aws cloudformation deploy \
          --stack-name $StackName \
@@ -192,6 +193,7 @@
 
 * TODO
 
+  - [ ] Update sitemap to not include setup.html
   - [ ] When deploying a stack with prerequisites, automatically deploy the
     prerequisites
     - [ ] Maybe, prereqs are a table? Make a func that checks if there is a

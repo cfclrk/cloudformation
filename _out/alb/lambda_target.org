@@ -187,14 +187,21 @@ Outputs:
 
 Send an HTTP GET request to the ALB.
 
+#+name: DeploymentName
+#+header: :var Params=Params
+#+begin_src emacs-lisp
+(nth 1 (assoc "DeploymentName" Params))
+#+end_src
+
+#+header: :var DeploymentName=DeploymentName
 #+begin_src sh
-  ExportName=${DeploymentName}-ALB
+ExportName=${DeploymentName}-ALB
 
-  alb=$(aws cloudformation list-exports \
-      --query "Exports[?Name=='${DeploymentName}-ALB'].Value" \
-      --output text)
+alb=$(aws cloudformation list-exports \
+    --query "Exports[?Name=='${DeploymentName}-ALB'].Value" \
+    --output text)
 
-  curl http://$alb
+curl http://$alb
 #+end_src
 
 #+results:

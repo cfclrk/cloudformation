@@ -328,13 +328,18 @@ Send an HTTP GET request to the ALB.
 </p>
 
 <div class="org-src-container">
-<pre class="src src-sh">  <span style="color: #dcaeea;">ExportName</span>=${<span style="color: #dcaeea;">DeploymentName</span>}-ALB
+<pre class="src src-emacs-lisp" id="org148cea4"><span style="color: #51afef;">(</span>nth 1 <span style="color: #c678dd;">(</span>assoc <span style="color: #98be65;">"DeploymentName"</span> Params<span style="color: #c678dd;">)</span><span style="color: #51afef;">)</span>
+</pre>
+</div>
 
-  <span style="color: #dcaeea;">alb</span>=$(aws cloudformation list-exports <span style="color: #98be65;">\</span>
-      --query <span style="color: #98be65;">"Exports[?Name=='${DeploymentName}-ALB'].Value"</span> <span style="color: #98be65;">\</span>
-      --output text)
+<div class="org-src-container">
+<pre class="src src-sh"><span style="color: #dcaeea;">ExportName</span>=${<span style="color: #dcaeea;">DeploymentName</span>}-ALB
 
-  curl http://$<span style="color: #dcaeea;">alb</span>
+<span style="color: #dcaeea;">alb</span>=$(aws cloudformation list-exports <span style="color: #98be65;">\</span>
+    --query <span style="color: #98be65;">"Exports[?Name=='${DeploymentName}-ALB'].Value"</span> <span style="color: #98be65;">\</span>
+    --output text)
+
+curl http://$<span style="color: #dcaeea;">alb</span>
 </pre>
 </div>
 

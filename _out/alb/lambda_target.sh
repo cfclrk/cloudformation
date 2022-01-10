@@ -1,7 +1,8 @@
-  ExportName=${DeploymentName}-ALB
+DeploymentName='test'
+ExportName=${DeploymentName}-ALB
 
-  alb=$(aws cloudformation list-exports \
-      --query "Exports[?Name=='${DeploymentName}-ALB'].Value" \
-      --output text)
+alb=$(aws cloudformation list-exports \
+    --query "Exports[?Name=='${DeploymentName}-ALB'].Value" \
+    --output text)
 
-  curl http://$alb
+curl http://$alb

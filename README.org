@@ -1,5 +1,13 @@
 #+PROPERTY: header-args+ :results output
 
+This is an experiment in using literate-programming to specify cloud
+infrastructure. Literate-programming allows us to create CloudFormation
+templates interleaved with explanations and diagrams. See these documents
+rendered in HTML [[https://www.cfclrk.com/cloudformation/home.html][here]].
+
+This =README.org= file contains functions for deploying, updating, and tearing
+down infrastructure. Within Emacs these functions are fully interactive.
+
 * Variables
 
   #+NAME: Env

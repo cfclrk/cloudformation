@@ -143,7 +143,7 @@ Return output file name."
      ,(expand-file-name "img" cloudformation/project-directory)
      :publishing-directory
      ,(expand-file-name "img" site/publishing-directory)
-     :base-extension "png\\|jpg\\|gif\\|pdf"
+     :base-extension "png\\|svg\\|jpg\\|gif"
      :publishing-function org-publish-attachment)))
 
 ;; Add (or update) the projects in cloudformation/org-projects-alist

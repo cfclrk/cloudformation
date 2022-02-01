@@ -11,7 +11,7 @@ Description: >
 
 * Overview
 
-[[../../img/Network-Public-Private.png]]
+[[../../img/Network-Public-Private.svg]]
 
 This CloudFormation template creates the "standard" AWS network: a VPC with two
 public subnets and two private subnets. AWS documents this architecture [[https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Scenario2.html][here]],

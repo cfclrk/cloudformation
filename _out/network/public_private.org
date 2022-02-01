@@ -1,4 +1,4 @@
-#+TITLE: Network with Public and Private Subnets
+#+title: Network with Public and Private Subnets
 #+setupfile: ../setup.org
 
 #+begin_src yaml
@@ -11,7 +11,7 @@ Description: >
 
 * Overview
 
-[[file:../../img/Network-Public-Private.png]]
+[[file:../../img/Network-Public-Private.svg]]
 
 This CloudFormation template creates the "standard" AWS network: a VPC with two
 public subnets and two private subnets. AWS documents this architecture [[https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Scenario2.html][here]],
